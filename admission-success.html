@@ -1,0 +1,159 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admission-success.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 08-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admission Submitted | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/data-manager.js"></script>
+
+</head>
+
+<body>
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com
+</div>
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Kamalpur, Chandauli, Uttar Pradesh</p>
+    </div>
+
+</header>
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="courses.html">Courses</a>
+    <a href="admission.html">Admission</a>
+    <a href="result.html">Result</a>
+    <a href="certificate.html">Certificate</a>
+    <a href="student-login.html">Student Login</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="contact.html">Contact</a>
+
+</nav>
+
+
+<section class="admission-success">
+
+    <div class="success-card">
+
+        <div class="success-icon">
+            ✅
+        </div>
+
+        <h2>Admission Application Submitted</h2>
+
+        <p>
+            Thank you for applying to
+            <strong>Surya Computer Of Education Center.</strong>
+        </p>
+
+        <div class="application-id">
+
+            <p>Application ID</p>
+
+            <h3 id="applicationId">SC-ADM-001</h3>
+
+        </div>
+
+        <p>
+            Your application has been received successfully.
+        </p>
+
+        <p>
+            Our institute will verify your application
+            and contact you regarding the next steps.
+        </p>
+
+        <div class="success-buttons">
+
+            <a href="index.html" class="btn">
+                🏠 Go to Home
+            </a>
+
+            <a href="admission.html" class="btn btn-outline">
+                📝 New Admission
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>SURYA COMPUTER OF EDUCATION CENTER</h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 +91 7084275870
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+<script>
+
+/* ==================================================
+   SHOW LAST APPLICATION ID
+================================================== */
+
+const applicationId =
+    localStorage.getItem("lastApplicationId");
+
+
+const applicationIdElement =
+    document.getElementById("applicationId");
+
+
+if (applicationId) {
+
+    applicationIdElement.textContent =
+        applicationId;
+
+} else {
+
+    applicationIdElement.textContent =
+        "Application ID not available";
+
+}
+
+</script>
+</body>
+</html>

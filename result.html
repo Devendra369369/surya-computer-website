@@ -1,0 +1,304 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : result.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 08-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Result | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/data-manager.js"></script>
+
+</head>
+
+<body>
+
+<!--==================================================
+TOP BAR
+==================================================-->
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com |
+    ▶️ YouTube: @sunilkumar-1cmd
+</div>
+
+<!--==================================================
+HEADER
+==================================================-->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Kamalpur, Chandauli, Uttar Pradesh</p>
+    </div>
+
+</header>
+
+<!--==================================================
+NAVIGATION
+==================================================-->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="courses.html">Courses</a>
+    <a href="admission.html">Admission</a>
+    <a href="result.html">Result</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="contact.html">Contact</a>
+
+</nav>
+
+<!--==================================================
+RESULT SECTION
+==================================================-->
+
+<section class="result-section">
+
+    <h2>Student Result</h2>
+
+    <p>Enter your Roll Number to check your result.</p>
+
+    <form class="result-form">
+
+        <input
+            type="text"
+            id="rollNumber"
+            placeholder="Enter Roll Number"
+            required
+        >
+
+        <button type="submit">
+            🔍 Check Result
+        </button>
+
+    </form>
+
+    <div id="resultBox"></div>
+
+</section>
+
+<!--==================================================
+FOOTER
+==================================================-->
+
+<footer>
+
+    <p>
+        © 2026 Surya Computer Of Education Center |
+        All Rights Reserved.
+    </p>
+
+</footer>
+<script>
+
+const resultForm =
+    document.querySelector(".result-form");
+
+const resultBox =
+    document.getElementById("resultBox");
+
+
+/* ==================================================
+   CHECK STUDENT RESULTS
+================================================== */
+
+resultForm.addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+
+        const studentId =
+            document
+            .getElementById("rollNumber")
+            .value
+            .trim()
+            .toUpperCase();
+
+
+        if (!studentId) {
+
+            resultBox.innerHTML = `
+                <div class="result-card">
+
+                    <h3>
+                        Please enter Student ID.
+                    </h3>
+
+                </div>
+            `;
+
+            return;
+        }
+
+
+        /* ------------------------------------------
+           LOAD RESULTS
+        ------------------------------------------ */
+
+        const results =
+            getSuryaModule("results");
+
+
+        /* ------------------------------------------
+           FIND ALL PUBLISHED RESULTS
+        ------------------------------------------ */
+
+        const publishedResults =
+            results.filter(function(item) {
+
+                return (
+
+                    item.studentId &&
+                    item.studentId
+                        .toUpperCase() ===
+                    studentId
+
+                    &&
+
+                    item.status ===
+                    "Published"
+
+                );
+
+            });
+
+
+        /* ------------------------------------------
+           RESULT NOT FOUND
+        ------------------------------------------ */
+
+        if (
+            publishedResults.length === 0
+        ) {
+
+            resultBox.innerHTML = `
+                <div class="result-card">
+
+                    <h3>
+                        Result Not Found
+                    </h3>
+
+                    <p>
+                        Please check your Student ID
+                        or make sure your result
+                        has been published.
+                    </p>
+
+                </div>
+            `;
+
+            return;
+        }
+
+
+        /* ------------------------------------------
+           DISPLAY ALL PUBLISHED RESULTS
+        ------------------------------------------ */
+
+        let resultHTML = `
+
+            <div class="result-card">
+
+                <h2>
+                    Student Result
+                </h2>
+
+                <p>
+                    <strong>Student Name:</strong>
+                    ${publishedResults[0].studentName}
+                </p>
+
+                <p>
+                    <strong>Student ID:</strong>
+                    ${publishedResults[0].studentId}
+                </p>
+
+                <p>
+                    <strong>Course:</strong>
+                    ${publishedResults[0].course}
+                </p>
+
+            </div>
+
+        `;
+
+
+        publishedResults.forEach(
+            function(result) {
+
+                resultHTML += `
+
+                    <div class="result-card">
+
+                        <h3>
+                            📚 ${result.exam}
+                        </h3>
+
+                        <p>
+                            <strong>Total Marks:</strong>
+                            ${result.totalMarks}
+                        </p>
+
+                        <p>
+                            <strong>Obtained Marks:</strong>
+                            ${result.obtainedMarks}
+                        </p>
+
+                        <p>
+                            <strong>Percentage:</strong>
+                            ${result.percentage}%
+                        </p>
+
+                        <p>
+                            <strong>Grade:</strong>
+                            ${result.grade}
+                        </p>
+
+                        <p>
+                            <strong>Result:</strong>
+                            ${result.result}
+                        </p>
+
+                        <p>
+                            <strong>Status:</strong>
+                            ${result.status}
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+
+        resultBox.innerHTML =
+            resultHTML;
+
+    }
+);
+
+</script>
+</body>
+</html>

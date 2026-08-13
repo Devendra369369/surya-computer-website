@@ -1,0 +1,1131 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-students.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 09-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Records | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/data-manager.js"></script>
+    <script src="assets/js/data-migration.js"></script>
+
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com
+</div>
+
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Student Records</p>
+    </div>
+
+</header>
+
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="admin.html">Admin Dashboard</a>
+    <a href="admin-admissions.html">Admissions</a>
+    <a href="student-login.html">Student Login</a>
+
+</nav>
+
+
+<!-- STUDENT RECORDS -->
+
+<section class="admin-students">
+
+    <div class="admin-header">
+
+        <h2>👨‍🎓 Student Records</h2>
+
+        <p>
+            Manage all registered students
+        </p>
+
+    </div>
+
+
+    <!-- STUDENT SUMMARY -->
+
+    <div class="student-summary-grid">
+
+        <div class="admin-card">
+
+            <div class="admin-icon">👨‍🎓</div>
+
+            <h3>Total Students</h3>
+
+            <p id="totalStudents">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="admin-card">
+
+            <div class="admin-icon">🟢</div>
+
+            <h3>Active Students</h3>
+
+            <p id="activeStudents">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="admin-card">
+
+            <div class="admin-icon">✅</div>
+
+            <h3>Completed</h3>
+
+            <p id="completedStudents">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="admin-card">
+
+            <div class="admin-icon">🚪</div>
+
+            <h3>Left / Inactive</h3>
+
+            <p id="inactiveStudents">
+                0
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- COURSE SUMMARY -->
+
+    <div class="course-summary">
+
+        <h3>📚 Course-wise Students</h3>
+
+        <div id="courseSummary">
+            <!-- Course counts will appear here -->
+        </div>
+
+    </div>
+
+
+    <!-- SEARCH -->
+
+    <div class="student-search">
+
+        <input
+            type="text"
+            id="studentSearch"
+            placeholder="🔍 Search Student ID, Name or Course"
+            oninput="searchStudents()"
+        >
+
+    </div>
+
+
+    <!-- STUDENT LIST -->
+
+    <div id="studentList">
+
+        <!-- Students will load here -->
+
+    </div>
+
+
+    <!-- NO STUDENTS -->
+
+    <div
+        id="noStudents"
+        class="no-student"
+        style="display:none;"
+    >
+
+        ❌ No student records found.
+
+    </div>
+
+
+    <!-- EDIT STUDENT FORM -->
+
+    <div
+        id="editStudentForm"
+        class="edit-student-form"
+        style="display:none;"
+    >
+
+        <h3>✏️ Edit Student</h3>
+
+
+        <input
+            type="text"
+            id="editStudentName"
+            placeholder="Student Name"
+        >
+
+
+        <input
+            type="text"
+            id="editFatherName"
+            placeholder="Father's Name"
+        >
+
+
+        <input
+            type="text"
+            id="editCourse"
+            placeholder="Course"
+        >
+
+
+        <input
+            type="tel"
+            id="editMobile"
+            placeholder="Mobile Number"
+        >
+
+
+        <select id="editStudentStatus">
+
+            <option value="Active">
+                Active
+            </option>
+
+            <option value="Completed">
+                Completed
+            </option>
+
+            <option value="Inactive">
+                Left / Inactive
+            </option>
+
+        </select>
+
+
+        <button
+            type="button"
+            onclick="saveStudentChanges()"
+        >
+            💾 Save Changes
+        </button>
+
+
+        <button
+            type="button"
+            onclick="cancelStudentEdit()"
+        >
+            ❌ Cancel
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>SURYA COMPUTER OF EDUCATION CENTER</h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 +91 7084275870
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+<script>
+
+/* ==================================================
+   SURYA STUDENT MANAGEMENT
+================================================== */
+
+let currentStudent = null;
+
+
+/* ==================================================
+   LOAD STUDENTS
+================================================== */
+
+function loadStudents() {
+
+    const students =
+        getSuryaModule("students");
+
+    updateStudentSummary(students);
+
+    updateCourseSummary(students);
+
+    displayStudents(students);
+
+}
+
+
+/* ==================================================
+   STUDENT SUMMARY
+================================================== */
+
+function updateStudentSummary(students) {
+
+    const total =
+        students.length;
+
+
+    const active =
+        students.filter(function(student) {
+
+            return student.status === "Active";
+
+        }).length;
+
+
+    const completed =
+        students.filter(function(student) {
+
+            return student.status === "Completed";
+
+        }).length;
+
+
+    const inactive =
+        students.filter(function(student) {
+
+            return (
+                student.status === "Inactive" ||
+                student.status === "Left"
+            );
+
+        }).length;
+
+
+    const totalElement =
+        document.getElementById(
+            "totalStudents"
+        );
+
+
+    const activeElement =
+        document.getElementById(
+            "activeStudents"
+        );
+
+
+    const completedElement =
+        document.getElementById(
+            "completedStudents"
+        );
+
+
+    const inactiveElement =
+        document.getElementById(
+            "inactiveStudents"
+        );
+
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            total;
+
+    }
+
+
+    if (activeElement) {
+
+        activeElement.textContent =
+            active;
+
+    }
+
+
+    if (completedElement) {
+
+        completedElement.textContent =
+            completed;
+
+    }
+
+
+    if (inactiveElement) {
+
+        inactiveElement.textContent =
+            inactive;
+
+    }
+
+}
+
+
+/* ==================================================
+   COURSE-WISE SUMMARY
+================================================== */
+
+function updateCourseSummary(students) {
+
+    const courseSummary =
+        document.getElementById(
+            "courseSummary"
+        );
+
+
+    if (!courseSummary) {
+        return;
+    }
+
+
+    courseSummary.innerHTML = "";
+
+
+    const courseCounts = {};
+
+
+    students.forEach(function(student) {
+
+        const course =
+            student.course || "Unknown";
+
+
+        if (!courseCounts[course]) {
+
+            courseCounts[course] = 0;
+
+        }
+
+
+        courseCounts[course]++;
+
+    });
+
+
+    const courses =
+        Object.keys(courseCounts);
+
+
+    if (courses.length === 0) {
+
+        courseSummary.innerHTML =
+            "<p>No students registered yet.</p>";
+
+        return;
+
+    }
+
+
+    courses.forEach(function(course) {
+
+        const box =
+            document.createElement("div");
+
+
+        box.className =
+            "course-summary-card";
+
+
+        box.innerHTML = `
+
+            <div>
+
+                <strong>
+                    ${course}
+                </strong>
+
+                <span>
+                    ${courseCounts[course]}
+                </span>
+
+            </div>
+
+        `;
+
+
+        courseSummary.appendChild(box);
+
+    });
+
+}
+
+
+/* ==================================================
+   DISPLAY STUDENTS
+================================================== */
+
+function displayStudents(students) {
+
+    const studentList =
+        document.getElementById(
+            "studentList"
+        );
+
+
+    const noStudents =
+        document.getElementById(
+            "noStudents"
+        );
+
+
+    studentList.innerHTML = "";
+
+
+    if (
+        !Array.isArray(students) ||
+        students.length === 0
+    ) {
+
+        noStudents.style.display =
+            "block";
+
+        return;
+
+    }
+
+
+    noStudents.style.display =
+        "none";
+
+
+    students.forEach(function(student) {
+
+        const card =
+            document.createElement("div");
+
+
+        card.className =
+            "student-card";
+
+
+        let statusClass =
+            "student-active";
+
+
+        if (
+            student.status ===
+            "Completed"
+        ) {
+
+            statusClass =
+                "student-completed";
+
+        }
+
+
+        if (
+            student.status ===
+            "Inactive" ||
+            student.status ===
+            "Left"
+        ) {
+
+            statusClass =
+                "student-inactive";
+
+        }
+
+
+        card.innerHTML = `
+
+            <div class="student-card-header">
+
+                <h3>
+                    👨‍🎓 ${student.name}
+                </h3>
+
+                <span class="${statusClass}">
+                    ${student.status || "Active"}
+                </span>
+
+            </div>
+
+
+            <div class="student-details">
+
+                <p>
+                    <strong>Student ID:</strong>
+                    ${student.id || "N/A"}
+                </p>
+
+
+                <p>
+                    <strong>Admission ID:</strong>
+                    ${student.admissionId || "N/A"}
+                </p>
+
+
+                <p>
+                    <strong>Application ID:</strong>
+                    ${student.applicationId || "N/A"}
+                </p>
+
+
+                <p>
+                    <strong>Course:</strong>
+                    ${student.course || "N/A"}
+                </p>
+
+
+                <p>
+                    <strong>Father's Name:</strong>
+                    ${student.fatherName || "N/A"}
+                </p>
+
+
+                <p>
+                    <strong>Mobile:</strong>
+                    ${student.mobile || "N/A"}
+                </p>
+
+            </div>
+
+
+            <div class="student-actions">
+
+                <button
+                    type="button"
+                    onclick="viewStudent('${student.id}')"
+                >
+                    👁️ View
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="editStudent('${student.id}')"
+                >
+                    ✏️ Edit
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="openStudentCertificate('${student.id}')"
+                >
+                    📜 Certificate
+                </button>
+
+            </div>
+
+        `;
+
+
+        studentList.appendChild(card);
+
+    });
+
+}
+
+
+/* ==================================================
+   SEARCH STUDENTS
+================================================== */
+
+function searchStudents() {
+
+    const search =
+        document
+        .getElementById("studentSearch")
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    const students =
+        getSuryaModule("students");
+
+
+    if (search === "") {
+
+        displayStudents(students);
+
+        return;
+
+    }
+
+
+    const filteredStudents =
+        students.filter(function(student) {
+
+            const name =
+                String(student.name || "")
+                .toLowerCase();
+
+
+            const id =
+                String(student.id || "")
+                .toLowerCase();
+
+
+            const course =
+                String(student.course || "")
+                .toLowerCase();
+
+
+            const admissionId =
+                String(student.admissionId || "")
+                .toLowerCase();
+
+
+            return (
+                name.includes(search) ||
+                id.includes(search) ||
+                course.includes(search) ||
+                admissionId.includes(search)
+            );
+
+        });
+
+
+    displayStudents(
+        filteredStudents
+    );
+
+}
+
+
+/* ==================================================
+   FIND STUDENT
+================================================== */
+
+function findStudent(studentId) {
+
+    const students =
+        getSuryaModule("students");
+
+
+    return students.find(
+        function(student) {
+
+            return (
+                student.id ===
+                studentId
+            );
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   VIEW STUDENT
+================================================== */
+
+function viewStudent(studentId) {
+
+    const student =
+        findStudent(studentId);
+
+
+    if (!student) {
+
+        alert(
+            "❌ Student record not found."
+        );
+
+        return;
+
+    }
+
+
+    alert(
+
+        "👨‍🎓 STUDENT DETAILS\n\n" +
+
+        "Student ID: " +
+        (student.id || "N/A") +
+
+        "\n\nAdmission ID: " +
+        (student.admissionId || "N/A") +
+
+        "\n\nApplication ID: " +
+        (student.applicationId || "N/A") +
+
+        "\n\nName: " +
+        (student.name || "N/A") +
+
+        "\n\nFather's Name: " +
+        (student.fatherName || "N/A") +
+
+        "\n\nCourse: " +
+        (student.course || "N/A") +
+
+        "\n\nMobile: " +
+        (student.mobile || "N/A") +
+
+        "\n\nStatus: " +
+        (student.status || "N/A")
+
+    );
+
+}
+
+
+/* ==================================================
+   EDIT STUDENT
+================================================== */
+
+function editStudent(studentId) {
+
+    const student =
+        findStudent(studentId);
+
+
+    if (!student) {
+
+        alert(
+            "❌ Student record not found."
+        );
+
+        return;
+
+    }
+
+
+    currentStudent =
+        student;
+
+
+    document.getElementById(
+        "editStudentForm"
+    ).style.display = "block";
+
+
+    document.getElementById(
+        "editStudentName"
+    ).value =
+        student.name || "";
+
+
+    document.getElementById(
+        "editFatherName"
+    ).value =
+        student.fatherName || "";
+
+
+    document.getElementById(
+        "editCourse"
+    ).value =
+        student.course || "";
+
+
+    document.getElementById(
+        "editMobile"
+    ).value =
+        student.mobile || "";
+
+
+    document.getElementById(
+        "editStudentStatus"
+    ).value =
+        student.status || "Active";
+
+}
+
+
+/* ==================================================
+   SAVE STUDENT CHANGES
+================================================== */
+
+function saveStudentChanges() {
+
+    if (!currentStudent) {
+
+        alert(
+            "❌ Student record not selected."
+        );
+
+        return;
+
+    }
+
+
+    const students =
+        getSuryaModule("students");
+
+
+    const index =
+        students.findIndex(
+            function(student) {
+
+                return (
+                    student.id ===
+                    currentStudent.id
+                );
+
+            }
+        );
+
+
+    if (index === -1) {
+
+        alert(
+            "❌ Student record not found."
+        );
+
+        return;
+
+    }
+
+
+    students[index].name =
+        document
+        .getElementById(
+            "editStudentName"
+        )
+        .value
+        .trim();
+
+
+    students[index].fatherName =
+        document
+        .getElementById(
+            "editFatherName"
+        )
+        .value
+        .trim();
+
+
+    students[index].course =
+        document
+        .getElementById(
+            "editCourse"
+        )
+        .value
+        .trim();
+
+
+    students[index].mobile =
+        document
+        .getElementById(
+            "editMobile"
+        )
+        .value
+        .trim();
+
+
+    students[index].status =
+        document
+        .getElementById(
+            "editStudentStatus"
+        )
+        .value;
+
+
+    updateSuryaModule(
+        "students",
+        students
+    );
+
+
+    currentStudent =
+        students[index];
+
+
+    document.getElementById(
+        "editStudentForm"
+    ).style.display = "none";
+
+
+    loadStudents();
+
+
+    alert(
+        "✅ Student details updated successfully!"
+    );
+
+}
+
+
+/* ==================================================
+   CANCEL EDIT
+================================================== */
+
+function cancelStudentEdit() {
+
+    currentStudent =
+        null;
+
+
+    document.getElementById(
+        "editStudentForm"
+    ).style.display = "none";
+
+}
+
+
+/* ==================================================
+   CERTIFICATE
+================================================== */
+
+function openStudentCertificate(studentId) {
+
+    const student =
+        findStudent(studentId);
+
+
+    if (!student) {
+
+        alert(
+            "❌ Student record not found."
+        );
+
+        return;
+
+    }
+
+
+    const certificates =
+        getSuryaModule("certificates");
+
+
+    const existingCertificate =
+        certificates.find(
+            function(certificate) {
+
+                return (
+                    certificate.studentId ===
+                    student.id
+                );
+
+            }
+        );
+
+
+    if (existingCertificate) {
+
+        alert(
+
+            "📜 Certificate already exists.\n\n" +
+
+            "Certificate ID: " +
+            existingCertificate.certificateId
+
+        );
+
+        return;
+
+    }
+
+
+    const certificateId =
+        generateCertificateId();
+
+
+    const newCertificate = {
+
+        certificateId:
+            certificateId,
+
+        studentId:
+            student.id,
+
+        studentName:
+            student.name,
+
+        course:
+            student.course,
+
+        issueDate:
+            new Date().toLocaleDateString(
+                "en-GB",
+                {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                }
+            ),
+
+        status:
+            "Verified"
+
+    };
+
+
+    certificates.push(
+        newCertificate
+    );
+
+
+    updateSuryaModule(
+        "certificates",
+        certificates
+    );
+
+
+    alert(
+
+        "✅ Certificate created successfully!\n\n" +
+
+        "Certificate ID: " +
+        certificateId
+
+    );
+
+}
+
+
+/* ==================================================
+   PAGE LOAD
+================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        loadStudents();
+
+    }
+);
+
+</script>
+
+
+</body>
+</html>

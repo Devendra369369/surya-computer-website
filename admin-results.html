@@ -1,0 +1,1686 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-results.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 09-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Result Management | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet"
+          href="assets/css/style.css">
+
+    <link rel="stylesheet"
+          href="assets/css/responsive.css">
+          
+    <script src="assets/js/data-manager.js"></script>
+    <script src="assets/js/id-generator.js"></script>
+
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com
+</div>
+
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png"
+         alt="Logo"
+         class="logo">
+
+    <div class="title">
+
+        <h1>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h1>
+
+        <p>
+            Result Management
+        </p>
+
+    </div>
+
+</header>
+
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+
+    <a href="admin.html">
+        Admin Dashboard
+    </a>
+
+    <a href="admin-students.html">
+        Students
+    </a>
+
+    <a href="result.html">
+        Public Result
+    </a>
+
+</nav>
+
+
+<!-- RESULT MANAGEMENT -->
+
+<section class="admin-results">
+
+    <div class="admin-header">
+
+        <h2>
+            📊 Result Management
+        </h2>
+
+        <p>
+            Manage student examination results
+        </p>
+
+    </div>
+
+
+    <!-- SEARCH -->
+
+    <div class="result-search">
+
+        <input
+            type="text"
+            id="resultSearch"
+            placeholder="Search Student ID or Name"
+            onkeyup="searchResult()"
+        >
+
+    </div>
+
+
+    <!-- RESULT CARD -->
+
+    <div
+        class="result-card"
+        id="resultCard"
+    >
+
+        <div class="result-card-header">
+
+            <h3>
+                👨‍🎓 Demo Student
+            </h3>
+
+            <span class="result-published">
+                Published
+            </span>
+
+        </div>
+
+
+        <div class="result-details">
+
+            <p>
+                <strong>Student ID:</strong>
+                STU001
+            </p>
+
+            <p>
+                <strong>Course:</strong>
+                ADCA
+            </p>
+
+            <p>
+                <strong>Exam:</strong>
+                Final Examination 2026
+            </p>
+
+            <p>
+                <strong>Total Marks:</strong>
+                500
+            </p>
+
+            <p>
+                <strong>Obtained Marks:</strong>
+                425
+            </p>
+
+            <p>
+                <strong>Percentage:</strong>
+                85%
+            </p>
+
+            <p>
+                <strong>Grade:</strong>
+                A
+            </p>
+
+            <p>
+                <strong>Result:</strong>
+                PASS
+            </p>
+
+        </div>
+
+
+        <div class="result-actions">
+
+            <button
+                type="button"
+                onclick="viewResult()"
+            >
+                👁️ View
+            </button>
+
+
+            <button
+                type="button"
+                onclick="editResult()"
+            >
+                ✏️ Edit
+            </button>
+
+
+            <button
+                type="button"
+                onclick="publishResult()"
+            >
+                📢 Publish
+            </button>
+
+        </div>
+
+    </div>
+<!-- RESULT ENTRY FORM -->
+
+<div
+    id="resultEntryForm"
+    class="result-entry-form"
+    style="display:none;"
+>
+
+    <h3>📝 Enter Student Result</h3>
+
+    <p>
+        <strong>Student:</strong>
+        <span id="entryStudentName"></span>
+    </p>
+
+    <p>
+        <strong>Student ID:</strong>
+        <span id="entryStudentId"></span>
+    </p>
+
+    <p>
+        <strong>Course:</strong>
+        <span id="entryCourse"></span>
+    </p>
+
+    <input
+        type="text"
+        id="examName"
+        placeholder="Examination Name"
+    >
+
+    <input
+        type="number"
+        id="totalMarks"
+        placeholder="Total Marks"
+        min="1"
+    >
+
+    <input
+        type="number"
+        id="obtainedMarks"
+        placeholder="Obtained Marks"
+        min="0"
+    >
+
+    <button
+        type="button"
+        onclick="calculateResult()"
+    >
+        Calculate Result
+    </button>
+
+    <div id="calculatedResult"></div>
+
+    <button
+        type="button"
+        onclick="saveResult()"
+    >
+        💾 Save Result
+    </button>
+
+    <button
+        type="button"
+        onclick="cancelResultEntry()"
+    >
+        Cancel
+    </button>
+
+</div>
+
+    <div
+        id="noResult"
+        class="no-result"
+    >
+        ❌ Result not found
+    </div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 +91 7084275870
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+<script>
+
+/* ==================================================
+   RESULT MANAGEMENT
+================================================== */
+
+let currentResult = null;
+let selectedStudent = null;
+
+
+/* ==================================================
+   LOAD RESULTS
+================================================== */
+
+function loadResults() {
+
+    const results =
+        getSuryaModule("results");
+
+    if (results.length === 0) {
+
+        document
+            .getElementById("resultCard")
+            .style.display = "none";
+
+        document
+            .getElementById("noResult")
+            .style.display = "block";
+
+        return;
+    }
+
+    currentResult = results[0];
+
+    displayResult(currentResult);
+}
+
+
+/* ==================================================
+   DISPLAY RESULT
+================================================== */
+
+function displayResult(result) {
+
+    const card =
+        document.getElementById("resultCard");
+
+    const noResult =
+        document.getElementById("noResult");
+
+    card.style.display = "block";
+    noResult.style.display = "none";
+
+    card.innerHTML = `
+
+        <div class="result-card-header">
+
+            <h3>
+                👨‍🎓 ${result.studentName}
+            </h3>
+
+            <span class="result-published">
+                ${result.status}
+            </span>
+
+        </div>
+
+        <div class="result-details">
+
+            <p>
+                <strong>Student ID:</strong>
+                ${result.studentId}
+            </p>
+
+            <p>
+                <strong>Course:</strong>
+                ${result.course}
+            </p>
+
+            <p>
+                <strong>Exam:</strong>
+                ${result.exam}
+            </p>
+
+            <p>
+                <strong>Total Marks:</strong>
+                ${result.totalMarks}
+            </p>
+
+            <p>
+                <strong>Obtained Marks:</strong>
+                ${result.obtainedMarks}
+            </p>
+
+            <p>
+                <strong>Percentage:</strong>
+                ${result.percentage}%
+            </p>
+
+            <p>
+                <strong>Grade:</strong>
+                ${result.grade}
+            </p>
+
+            <p>
+                <strong>Result:</strong>
+                ${result.result}
+            </p>
+
+        </div>
+
+        <div class="result-actions">
+
+            <button
+                type="button"
+                onclick="viewResult()"
+            >
+                👁️ View
+            </button>
+
+            <button
+                type="button"
+                onclick="editResult()"
+            >
+                ✏️ Edit
+            </button>
+
+            <button
+                type="button"
+                onclick="publishResult()"
+            >
+                📢 Publish
+            </button>
+
+        </div>
+
+    `;
+}
+
+
+/* ==================================================
+   SEARCH RESULT
+   Multiple Exams Supported
+================================================== */
+
+function searchResult() {
+
+    const search =
+        document
+        .getElementById("resultSearch")
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    const results =
+        getSuryaModule("results");
+
+
+    const students =
+        getSuryaModule("students");
+
+
+    const card =
+        document.getElementById("resultCard");
+
+
+    const noResult =
+        document.getElementById("noResult");
+
+
+    /* ==================================================
+       EMPTY SEARCH
+    ================================================== */
+
+    if (search === "") {
+
+        if (results.length > 0) {
+
+            currentResult =
+                results[0];
+
+            displayResult(
+                currentResult
+            );
+
+        }
+
+        else {
+
+            card.style.display =
+                "none";
+
+            noResult.style.display =
+                "block";
+
+        }
+
+        return;
+    }
+
+
+    /* ==================================================
+       FIND ALL RESULTS
+       Student ID / Name / Course
+    ================================================== */
+
+    const foundResults =
+        results.filter(function(result) {
+
+            return (
+
+                String(result.studentName || "")
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(result.studentId || "")
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(result.course || "")
+                    .toLowerCase()
+                    .includes(search)
+
+            );
+
+        });
+
+
+    /* ==================================================
+       RESULTS FOUND
+    ================================================== */
+
+    if (foundResults.length > 0) {
+
+        card.style.display =
+            "block";
+
+        noResult.style.display =
+            "none";
+
+
+        /* ------------------------------------------
+           Current result
+        ------------------------------------------ */
+
+        currentResult =
+            foundResults[0];
+
+
+        /* ------------------------------------------
+           Display ALL matching results
+        ------------------------------------------ */
+
+        card.innerHTML = `
+
+            <div class="result-card-header">
+
+                <h3>
+                    👨‍🎓 ${foundResults[0].studentName}
+                </h3>
+
+                <span>
+                    ${foundResults.length}
+                    Result(s)
+                </span>
+
+            </div>
+
+
+            ${
+
+                foundResults
+                .map(function(result, index) {
+
+                    return `
+
+                        <div
+                            class="result-details"
+                            style="
+                                border:1px solid #ddd;
+                                padding:15px;
+                                margin:10px 0;
+                                border-radius:10px;
+                            "
+                        >
+
+                            <h4>
+                                📚
+                                ${result.exam}
+                            </h4>
+
+
+                            <p>
+                                <strong>
+                                    Student ID:
+                                </strong>
+                                ${result.studentId}
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Course:
+                                </strong>
+                                ${result.course}
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Total Marks:
+                                </strong>
+                                ${result.totalMarks}
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Obtained Marks:
+                                </strong>
+                                ${result.obtainedMarks}
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Percentage:
+                                </strong>
+                                ${result.percentage}%
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Grade:
+                                </strong>
+                                ${result.grade}
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Result:
+                                </strong>
+                                ${result.result}
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Status:
+                                </strong>
+                                ${result.status}
+                            </p>
+
+
+                            <div class="result-actions">
+
+                                <button
+                                    type="button"
+                                    onclick='selectResultForAction(${JSON.stringify(result)})'
+                                >
+                                    👁️ View
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    onclick='editSpecificResult(${JSON.stringify(result)})'
+                                >
+                                    ✏️ Edit
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    onclick='publishSpecificResult(${JSON.stringify(result)})'
+                                >
+                                    📢 Publish
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+                })
+                .join("")
+
+            }
+
+        `;
+
+        return;
+    }
+
+
+    /* ==================================================
+       SEARCH STUDENT WITHOUT RESULT
+    ================================================== */
+
+    const foundStudent =
+        students.find(function(student) {
+
+            return (
+
+                String(student.name || "")
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(student.id || "")
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(student.course || "")
+                    .toLowerCase()
+                    .includes(search)
+
+            );
+
+        });
+
+
+    if (foundStudent) {
+
+        currentResult =
+            null;
+
+
+        card.style.display =
+            "block";
+
+
+        noResult.style.display =
+            "none";
+
+
+        card.innerHTML = `
+
+            <div class="result-card-header">
+
+                <h3>
+                    👨‍🎓 ${foundStudent.name}
+                </h3>
+
+                <span>
+                    No Result
+                </span>
+
+            </div>
+
+
+            <div class="result-details">
+
+                <p>
+                    <strong>
+                        Student ID:
+                    </strong>
+                    ${foundStudent.id}
+                </p>
+
+
+                <p>
+                    <strong>
+                        Course:
+                    </strong>
+                    ${foundStudent.course}
+                </p>
+
+
+                <p>
+                    This student does not have
+                    a result yet.
+                </p>
+
+            </div>
+
+
+            <div class="result-actions">
+
+                <button
+                    type="button"
+                    onclick='openResultEntry(${JSON.stringify(foundStudent)})'
+                >
+                    📝 Enter Result
+                </button>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    /* ==================================================
+       NOTHING FOUND
+    ================================================== */
+
+    card.style.display =
+        "none";
+
+
+    noResult.style.display =
+        "block";
+
+}
+
+
+/* ==================================================
+   SELECT RESULT
+================================================== */
+
+function selectResultForAction(result) {
+
+    currentResult =
+        result;
+
+
+    viewResult();
+
+}
+
+
+/* ==================================================
+   EDIT SPECIFIC RESULT
+================================================== */
+
+function editSpecificResult(result) {
+
+    currentResult =
+        result;
+
+
+    selectedStudent = {
+
+        id:
+            result.studentId,
+
+        name:
+            result.studentName,
+
+        course:
+            result.course
+
+    };
+
+
+    editResult();
+
+}
+
+
+/* ==================================================
+   PUBLISH SPECIFIC RESULT
+================================================== */
+
+function publishSpecificResult(result) {
+
+    const results =
+        getSuryaModule("results");
+
+
+    const resultIndex =
+        results.findIndex(function(item) {
+
+            return (
+
+                item.studentId ===
+                result.studentId
+
+                &&
+
+                String(item.exam || "")
+                    .trim()
+                    .toLowerCase() ===
+
+                String(result.exam || "")
+                    .trim()
+                    .toLowerCase()
+
+            );
+
+        });
+
+
+    if (resultIndex === -1) {
+
+        alert(
+            "Result record not found."
+        );
+
+        return;
+    }
+
+
+    results[resultIndex].status =
+        "Published";
+
+
+    updateSuryaModule(
+        "results",
+        results
+    );
+
+
+    currentResult =
+        results[resultIndex];
+
+
+    alert(
+        "✅ Result Published Successfully!"
+    );
+
+
+    searchResult();
+
+}
+
+/* ==================================================
+   VIEW RESULT
+================================================== */
+
+function viewResult() {
+
+    if (!currentResult) {
+
+        alert(
+            "Result record not found."
+        );
+
+        return;
+    }
+
+    alert(
+
+        "Student Result\n\n" +
+
+        "Name: " +
+        currentResult.studentName +
+
+        "\n\nStudent ID: " +
+        currentResult.studentId +
+
+        "\n\nCourse: " +
+        currentResult.course +
+
+        "\n\nExam: " +
+        currentResult.exam +
+
+        "\n\nTotal Marks: " +
+        currentResult.totalMarks +
+
+        "\n\nObtained Marks: " +
+        currentResult.obtainedMarks +
+
+        "\n\nPercentage: " +
+        currentResult.percentage +
+        "%" +
+
+        "\n\nGrade: " +
+        currentResult.grade +
+
+        "\n\nResult: " +
+        currentResult.result
+
+    );
+
+}
+
+
+/* ==================================================
+   EDIT RESULT
+================================================== */
+
+function editResult() {
+
+    if (!currentResult) {
+
+        alert(
+            "Result record not found."
+        );
+
+        return;
+    }
+
+
+    /* ------------------------------------------
+       Open Result Entry Form
+    ------------------------------------------ */
+
+    document
+        .getElementById("resultEntryForm")
+        .style.display = "block";
+
+
+    /* ------------------------------------------
+       Fill Student Details
+    ------------------------------------------ */
+
+    document
+        .getElementById("entryStudentName")
+        .textContent =
+        currentResult.studentName;
+
+
+    document
+        .getElementById("entryStudentId")
+        .textContent =
+        currentResult.studentId;
+
+
+    document
+        .getElementById("entryCourse")
+        .textContent =
+        currentResult.course;
+
+
+    /* ------------------------------------------
+       Fill Existing Result
+    ------------------------------------------ */
+
+    document
+        .getElementById("examName")
+        .value =
+        currentResult.exam;
+
+
+    document
+        .getElementById("totalMarks")
+        .value =
+        currentResult.totalMarks;
+
+
+    document
+        .getElementById("obtainedMarks")
+        .value =
+        currentResult.obtainedMarks;
+
+
+    /* ------------------------------------------
+       Set Selected Student
+    ------------------------------------------ */
+
+    selectedStudent = {
+
+        id:
+            currentResult.studentId,
+
+        name:
+            currentResult.studentName,
+
+        course:
+            currentResult.course
+
+    };
+
+
+    /* ------------------------------------------
+       Clear Previous Calculation
+    ------------------------------------------ */
+
+    document
+        .getElementById("calculatedResult")
+        .innerHTML = "";
+
+
+    /* ------------------------------------------
+       Scroll To Form
+    ------------------------------------------ */
+
+    document
+        .getElementById("resultEntryForm")
+        .scrollIntoView({
+            behavior: "smooth"
+        });
+
+}
+/* ==================================================
+   PUBLISH RESULT
+================================================== */
+
+function publishResult() {
+
+    if (!currentResult) {
+
+        alert(
+            "Result record not found."
+        );
+
+        return;
+    }
+
+    const results =
+        getSuryaModule("results");
+
+    const resultIndex =
+        results.findIndex(function(result) {
+
+            return (
+                result.studentId ===
+                currentResult.studentId
+            );
+
+        });
+
+
+    if (resultIndex === -1) {
+
+        alert(
+            "Result record not found."
+        );
+
+        return;
+    }
+
+
+    results[resultIndex].status =
+        "Published";
+
+
+    updateSuryaModule(
+        "results",
+        results
+    );
+
+
+    currentResult =
+        results[resultIndex];
+
+
+    displayResult(currentResult);
+
+
+    alert(
+        "Result Published Successfully!"
+    );
+
+}
+
+
+/* ==================================================
+   OPEN RESULT ENTRY
+================================================== */
+function openResultEntry(student) {
+
+    selectedStudent = student;
+
+
+    document
+        .getElementById("entryStudentName")
+        .textContent = student.name;
+
+
+    document
+        .getElementById("entryStudentId")
+        .textContent = student.id;
+
+
+    document
+        .getElementById("entryCourse")
+        .textContent = student.course;
+
+
+    document
+        .getElementById("examName")
+        .value = "";
+
+
+    document
+        .getElementById("totalMarks")
+        .value = "";
+
+
+    document
+        .getElementById("obtainedMarks")
+        .value = "";
+
+
+    document
+        .getElementById("calculatedResult")
+        .innerHTML = "";
+
+
+    document
+        .getElementById("resultEntryForm")
+        .style.display = "block";
+
+
+    document
+        .getElementById("resultEntryForm")
+        .scrollIntoView({
+            behavior: "smooth"
+        });
+
+}
+/* ==================================================
+   CALCULATE RESULT
+================================================== */
+
+function calculateResult() {
+
+    const totalMarks =
+        Number(
+            document
+            .getElementById("totalMarks")
+            .value
+        );
+
+
+    const obtainedMarks =
+        Number(
+            document
+            .getElementById("obtainedMarks")
+            .value
+        );
+
+
+    const calculatedResult =
+        document
+        .getElementById("calculatedResult");
+
+
+    /* ------------------------------------------
+       Validate marks
+    ------------------------------------------ */
+
+    if (!totalMarks || totalMarks <= 0) {
+
+        calculatedResult.innerHTML =
+            "Please enter valid Total Marks.";
+
+        return;
+    }
+
+
+    if (
+        obtainedMarks < 0 ||
+        obtainedMarks > totalMarks
+    ) {
+
+        calculatedResult.innerHTML =
+            "Please enter valid Obtained Marks.";
+
+        return;
+    }
+
+
+    /* ------------------------------------------
+       Calculate Percentage
+    ------------------------------------------ */
+
+    const percentage =
+        (obtainedMarks / totalMarks) * 100;
+
+
+    const roundedPercentage =
+        Number(
+            percentage.toFixed(2)
+        );
+
+
+    /* ------------------------------------------
+       Calculate Grade
+    ------------------------------------------ */
+
+    let grade;
+
+
+    if (roundedPercentage >= 80) {
+
+        grade = "A";
+
+    } else if (roundedPercentage >= 60) {
+
+        grade = "B";
+
+    } else if (roundedPercentage >= 50) {
+
+        grade = "C";
+
+    } else if (roundedPercentage >= 40) {
+
+        grade = "D";
+
+    } else {
+
+        grade = "F";
+
+    }
+
+
+    /* ------------------------------------------
+       Calculate PASS / FAIL
+    ------------------------------------------ */
+
+    const result =
+        roundedPercentage >= 40
+        ? "PASS"
+        : "FAIL";
+
+
+    /* ------------------------------------------
+       Show Calculation
+    ------------------------------------------ */
+
+    calculatedResult.innerHTML = `
+
+        <div>
+
+            <p>
+                <strong>Percentage:</strong>
+                ${roundedPercentage}%
+            </p>
+
+            <p>
+                <strong>Grade:</strong>
+                ${grade}
+            </p>
+
+            <p>
+                <strong>Result:</strong>
+                ${result}
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+/* ==================================================
+   SAVE / UPDATE RESULT
+   Multiple Exams Supported
+================================================== */
+
+function saveResult() {
+
+    if (!selectedStudent) {
+
+        alert(
+            "Student record not selected."
+        );
+
+        return;
+    }
+
+
+    const examName =
+        document
+        .getElementById("examName")
+        .value
+        .trim();
+
+
+    const totalMarks =
+        Number(
+            document
+            .getElementById("totalMarks")
+            .value
+        );
+
+
+    const obtainedMarks =
+        Number(
+            document
+            .getElementById("obtainedMarks")
+            .value
+        );
+
+
+    /* ==================================================
+       VALIDATION
+    ================================================== */
+
+    if (!examName) {
+
+        alert(
+            "Please enter Examination Name."
+        );
+
+        return;
+    }
+
+
+    if (
+        !totalMarks ||
+        totalMarks <= 0
+    ) {
+
+        alert(
+            "Please enter valid Total Marks."
+        );
+
+        return;
+    }
+
+
+    if (
+        obtainedMarks < 0 ||
+        obtainedMarks > totalMarks
+    ) {
+
+        alert(
+            "Please enter valid Obtained Marks."
+        );
+
+        return;
+    }
+
+
+    /* ==================================================
+       CALCULATE PERCENTAGE
+    ================================================== */
+
+    const percentage =
+        Number(
+            (
+                (obtainedMarks / totalMarks) * 100
+            ).toFixed(2)
+        );
+
+
+    /* ==================================================
+       CALCULATE GRADE
+    ================================================== */
+
+    let grade;
+
+    if (percentage >= 80) {
+
+        grade = "A";
+
+    }
+
+    else if (percentage >= 60) {
+
+        grade = "B";
+
+    }
+
+    else if (percentage >= 50) {
+
+        grade = "C";
+
+    }
+
+    else if (percentage >= 40) {
+
+        grade = "D";
+
+    }
+
+    else {
+
+        grade = "F";
+
+    }
+
+
+    /* ==================================================
+       PASS / FAIL
+    ================================================== */
+
+    const result =
+        percentage >= 40
+        ? "PASS"
+        : "FAIL";
+
+
+    /* ==================================================
+       LOAD RESULTS
+    ================================================== */
+
+    const results =
+        getSuryaModule("results");
+
+
+    /* ==================================================
+       FIND EXISTING RESULT
+       MATCH = STUDENT ID + EXAM NAME
+    ================================================== */
+
+    const resultIndex =
+        results.findIndex(function(item) {
+
+            return (
+
+                item.studentId ===
+                selectedStudent.id
+
+                &&
+
+                String(item.exam || "")
+                    .trim()
+                    .toLowerCase() ===
+                examName
+                    .trim()
+                    .toLowerCase()
+
+            );
+
+        });
+
+
+    /* ==================================================
+       PRESERVE STATUS
+    ================================================== */
+
+    let status = "Draft";
+
+
+    if (resultIndex !== -1) {
+
+        status =
+            results[resultIndex].status ||
+            "Draft";
+
+    }
+
+
+    /* ==================================================
+       CREATE RESULT
+    ================================================== */
+
+    const newResult = {
+
+        studentId:
+            selectedStudent.id,
+
+        studentName:
+            selectedStudent.name,
+
+        course:
+            selectedStudent.course,
+
+        exam:
+            examName,
+
+        totalMarks:
+            totalMarks,
+
+        obtainedMarks:
+            obtainedMarks,
+
+        percentage:
+            percentage,
+
+        grade:
+            grade,
+
+        result:
+            result,
+
+        status:
+            status
+
+    };
+
+
+    /* ==================================================
+       UPDATE SAME EXAM
+    ================================================== */
+
+    if (resultIndex !== -1) {
+
+        results[resultIndex] =
+            newResult;
+
+    }
+
+
+    /* ==================================================
+       CREATE NEW EXAM
+    ================================================== */
+
+    else {
+
+        results.push(
+            newResult
+        );
+
+    }
+
+
+    /* ==================================================
+       SAVE DATA
+    ================================================== */
+
+    updateSuryaModule(
+        "results",
+        results
+    );
+
+
+    /* ==================================================
+       UPDATE CURRENT RESULT
+    ================================================== */
+
+    currentResult =
+        newResult;
+
+
+    /* ==================================================
+       CLOSE FORM
+    ================================================== */
+
+    document
+        .getElementById("resultEntryForm")
+        .style.display = "none";
+
+
+    /* ==================================================
+       DISPLAY RESULT
+    ================================================== */
+
+    displayResult(
+        currentResult
+    );
+
+
+    /* ==================================================
+       SUCCESS MESSAGE
+    ================================================== */
+
+    if (resultIndex !== -1) {
+
+        alert(
+            "✅ Existing examination result updated successfully."
+        );
+
+    }
+
+    else {
+
+        alert(
+            "✅ New examination result saved successfully."
+        );
+
+    }
+
+}
+
+/* ==================================================
+   PAGE LOAD
+================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        loadResults();
+
+    }
+);
+
+</script>
+
+</body>
+</html>

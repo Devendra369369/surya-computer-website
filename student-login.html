@@ -1,0 +1,156 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : student-login.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 08-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Login | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com
+</div>
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Kamalpur, Chandauli, Uttar Pradesh</p>
+    </div>
+
+</header>
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="courses.html">Courses</a>
+    <a href="admission.html">Admission</a>
+    <a href="result.html">Result</a>
+    <a href="certificate.html">Certificate</a>
+    <a href="student-login.html">Student Login</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="contact.html">Contact</a>
+
+</nav>
+
+<!-- STUDENT LOGIN -->
+
+<section class="student-login">
+
+    <h2>Student Login</h2>
+
+    <p>Login to access your student account.</p>
+
+    <form id="studentLoginForm">
+
+        <input
+            type="text"
+            id="studentId"
+            placeholder="Student ID"
+            required
+        >
+
+        <input
+            type="password"
+            id="studentPassword"
+            placeholder="Password"
+            required
+        >
+
+        <button type="submit">
+            🔐 Login
+        </button>
+
+    </form>
+
+    <div id="loginMessage"></div>
+    <div class="admin-access">
+    <p>Institute Staff?</p>
+
+    <a href="admin-login.html">
+        🔐 Admin Login
+    </a>
+</div>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+
+    <p>
+        © 2026 Surya Computer Of Education Center |
+        All Rights Reserved.
+    </p>
+
+</footer>
+
+<script>
+
+const loginForm =
+    document.getElementById("studentLoginForm");
+
+const loginMessage =
+    document.getElementById("loginMessage");
+
+loginForm.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const studentId =
+        document.getElementById("studentId").value.trim();
+
+    const password =
+        document.getElementById("studentPassword").value.trim();
+
+    if (
+        studentId === "STU001" &&
+        password === "123456"
+    ) {
+
+        window.location.href = "student-dashboard.html";
+
+    } else {
+
+        loginMessage.innerHTML = `
+            <div class="login-error">
+                ❌ Invalid Student ID or Password
+            </div>
+        `;
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

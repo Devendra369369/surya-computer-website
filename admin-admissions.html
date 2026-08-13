@@ -1,0 +1,899 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-admissions.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 09-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admission Applications | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/data-manager.js"></script>
+
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com
+</div>
+
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Admission Management</p>
+    </div>
+
+</header>
+
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="admin.html">Admin Dashboard</a>
+    <a href="admission.html">New Admission</a>
+</nav>
+
+
+<!-- ADMISSION MANAGEMENT -->
+
+<section class="admin-admissions">
+
+    <div class="admin-header">
+
+        <h2>🎓 Admission Applications</h2>
+
+        <p>
+            Manage student admission applications
+        </p>
+
+    </div>
+    
+    <!-- ==================================================
+     ADMISSION STATISTICS
+================================================== -->
+
+<div class="admission-stats">
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            📋
+        </div>
+
+        <h3>
+            Total Applications
+        </h3>
+
+        <strong id="totalApplications">
+            0
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            ⏳
+        </div>
+
+        <h3>
+            Pending
+        </h3>
+
+        <strong id="pendingApplications">
+            0
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            ✅
+        </div>
+
+        <h3>
+            Approved
+        </h3>
+
+        <strong id="approvedApplications">
+            0
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            ❌
+        </div>
+
+        <h3>
+            Rejected
+        </h3>
+
+        <strong id="rejectedApplications">
+            0
+        </strong>
+
+    </div>
+
+</div>
+
+
+    <!-- =========================================
+         APPLICATION LIST
+    ========================================== -->
+
+    <div
+        id="applicationList"
+        class="application-list"
+    >
+    </div>
+
+
+    <!-- =========================================
+         NO APPLICATION MESSAGE
+    ========================================== -->
+
+    <div
+        id="noApplications"
+        class="no-applications"
+        style="display:none;"
+    >
+        ❌ No admission applications found.
+    </div>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>SURYA COMPUTER OF EDUCATION CENTER</h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 +91 7084275870
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+<script>
+
+/* ==================================================
+   ADMISSION MANAGEMENT
+================================================== */
+
+let currentApplication = null;
+
+
+/* ==================================================
+   LOAD APPLICATIONS
+================================================== */
+
+function loadApplications() {
+
+    const admissions =
+        getSuryaModule("admissions");
+
+
+    const applicationList =
+        document.getElementById(
+            "applicationList"
+        );
+
+
+    const noApplications =
+        document.getElementById(
+            "noApplications"
+        );
+
+
+    applicationList.innerHTML = "";
+
+
+    if (
+        !Array.isArray(admissions) ||
+        admissions.length === 0
+    ) {
+
+        noApplications.style.display =
+            "block";
+
+        updateAdmissionCounts(
+            admissions
+        );
+
+        return;
+    }
+
+
+    noApplications.style.display =
+        "none";
+
+
+    admissions.forEach(
+        function(application) {
+
+            displayApplication(
+                application
+            );
+
+        }
+    );
+
+
+    updateAdmissionCounts(
+        admissions
+    );
+
+}
+
+
+/* ==================================================
+   DISPLAY APPLICATION
+================================================== */
+
+function displayApplication(application) {
+
+    const applicationList =
+        document.getElementById(
+            "applicationList"
+        );
+
+
+    const card =
+        document.createElement("div");
+
+
+    card.className =
+        "application-card";
+
+
+    let statusClass =
+        "status-pending";
+
+
+    if (
+        application.status ===
+        "Approved"
+    ) {
+
+        statusClass =
+            "status-approved";
+
+    }
+
+
+    if (
+        application.status ===
+        "Rejected"
+    ) {
+
+        statusClass =
+            "status-rejected";
+
+    }
+
+
+    card.innerHTML = `
+
+        <div class="application-top">
+
+            <h3>
+                ${application.id}
+            </h3>
+
+            <span
+                class="${statusClass}"
+            >
+                ${application.status}
+            </span>
+
+        </div>
+
+
+        <div class="application-details">
+
+            <p>
+                <strong>Student Name:</strong>
+                ${application.studentName}
+            </p>
+
+            <p>
+                <strong>Father's Name:</strong>
+                ${application.fatherName}
+            </p>
+
+            <p>
+                <strong>Course:</strong>
+                ${application.course}
+            </p>
+
+            <p>
+                <strong>Mobile:</strong>
+                ${application.mobile}
+            </p>
+
+            <p>
+                <strong>Application Date:</strong>
+                ${application.applicationDate || "N/A"}
+            </p>
+
+            ${
+                application.admissionId
+                ?
+                `
+                <p>
+                    <strong>Admission ID:</strong>
+                    ${application.admissionId}
+                </p>
+                `
+                :
+                ""
+            }
+
+            ${
+                application.studentId
+                ?
+                `
+                <p>
+                    <strong>Student ID:</strong>
+                    ${application.studentId}
+                </p>
+                `
+                :
+                ""
+            }
+
+        </div>
+
+
+        <div class="application-actions">
+
+            <button
+                class="view-btn"
+                type="button"
+                onclick="viewApplication('${application.id}')"
+            >
+                👁️ View Details
+            </button>
+
+
+            <button
+                class="approve-btn"
+                type="button"
+                onclick="approveApplication('${application.id}')"
+                ${application.status !== "Pending" ? "disabled" : ""}
+            >
+                ✅ Approve
+            </button>
+
+
+            <button
+                class="reject-btn"
+                type="button"
+                onclick="rejectApplication('${application.id}')"
+                ${application.status !== "Pending" ? "disabled" : ""}
+            >
+                ❌ Reject
+            </button>
+
+        </div>
+
+    `;
+
+
+    applicationList.appendChild(
+        card
+    );
+
+}
+
+
+/* ==================================================
+   ADMISSION COUNTS
+================================================== */
+
+function updateAdmissionCounts(
+    admissions
+) {
+
+    const total =
+        admissions.length;
+
+
+    const pending =
+        admissions.filter(
+            function(application) {
+
+                return (
+                    application.status ===
+                    "Pending"
+                );
+
+            }
+        ).length;
+
+
+    const approved =
+        admissions.filter(
+            function(application) {
+
+                return (
+                    application.status ===
+                    "Approved"
+                );
+
+            }
+        ).length;
+
+
+    const rejected =
+        admissions.filter(
+            function(application) {
+
+                return (
+                    application.status ===
+                    "Rejected"
+                );
+
+            }
+        ).length;
+
+
+    const totalElement =
+        document.getElementById(
+            "totalApplications"
+        );
+
+    const pendingElement =
+        document.getElementById(
+            "pendingApplications"
+        );
+
+    const approvedElement =
+        document.getElementById(
+            "approvedApplications"
+        );
+
+    const rejectedElement =
+        document.getElementById(
+            "rejectedApplications"
+        );
+
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            total;
+
+    }
+
+
+    if (pendingElement) {
+
+        pendingElement.textContent =
+            pending;
+
+    }
+
+
+    if (approvedElement) {
+
+        approvedElement.textContent =
+            approved;
+
+    }
+
+
+    if (rejectedElement) {
+
+        rejectedElement.textContent =
+            rejected;
+
+    }
+
+}
+
+
+/* ==================================================
+   FIND APPLICATION
+================================================== */
+
+function findApplication(
+    applicationId
+) {
+
+    const admissions =
+        getSuryaModule("admissions");
+
+
+    return admissions.find(
+        function(application) {
+
+            return (
+                application.id ===
+                applicationId
+            );
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   APPROVE APPLICATION
+================================================== */
+
+function approveApplication(
+    applicationId
+) {
+
+    const admissions =
+        getSuryaModule("admissions");
+
+
+    const students =
+        getSuryaModule("students");
+
+
+    const application =
+        admissions.find(
+            function(app) {
+
+                return (
+                    app.id ===
+                    applicationId
+                );
+
+            }
+        );
+
+
+    if (!application) {
+
+        alert(
+            "Application record not found."
+        );
+
+        return;
+    }
+
+
+    if (
+        application.status ===
+        "Approved"
+    ) {
+
+        alert(
+            "This application is already approved."
+        );
+
+        return;
+    }
+
+
+    if (
+        application.status ===
+        "Rejected"
+    ) {
+
+        alert(
+            "Rejected application cannot be approved."
+        );
+
+        return;
+    }
+
+
+    /* ==================================================
+       GENERATE ADMISSION ID
+    ================================================== */
+
+    const newAdmissionId =
+        generateAdmissionId();
+
+
+    /* ==================================================
+       GENERATE COURSE-WISE STUDENT ID
+    ================================================== */
+
+    const newStudentId =
+        generateStudentId(
+            application.course
+        );
+
+
+    /* ==================================================
+       CREATE STUDENT
+    ================================================== */
+
+    const newStudent = {
+
+        id:
+            newStudentId,
+
+        admissionId:
+            newAdmissionId,
+
+        applicationId:
+            application.id,
+
+        name:
+            application.studentName,
+
+        fatherName:
+            application.fatherName,
+
+        course:
+            application.course,
+
+        mobile:
+            application.mobile,
+
+        status:
+            "Active"
+
+    };
+
+
+    /* ==================================================
+       SAVE STUDENT
+    ================================================== */
+
+    students.push(
+        newStudent
+    );
+
+
+    updateSuryaModule(
+        "students",
+        students
+    );
+
+
+    /* ==================================================
+       UPDATE APPLICATION
+    ================================================== */
+
+    application.status =
+        "Approved";
+
+
+    application.admissionId =
+        newAdmissionId;
+
+
+    application.studentId =
+        newStudentId;
+
+
+    updateSuryaModule(
+        "admissions",
+        admissions
+    );
+
+
+    /* ==================================================
+       REFRESH APPLICATION LIST
+    ================================================== */
+
+    loadApplications();
+
+
+    /* ==================================================
+       SUCCESS MESSAGE
+    ================================================== */
+
+    alert(
+
+        "✅ Application Approved!\n\n" +
+
+        "Admission ID: " +
+        newAdmissionId +
+
+        "\n\nStudent ID: " +
+        newStudentId +
+
+        "\n\nStudent Record Created Successfully."
+
+    );
+
+}
+
+
+/* ==================================================
+   REJECT APPLICATION
+================================================== */
+
+function rejectApplication(
+    applicationId
+) {
+
+    const admissions =
+        getSuryaModule("admissions");
+
+
+    const application =
+        admissions.find(
+            function(app) {
+
+                return (
+                    app.id ===
+                    applicationId
+                );
+
+            }
+        );
+
+
+    if (!application) {
+
+        alert(
+            "Application record not found."
+        );
+
+        return;
+    }
+
+
+    if (
+        application.status !==
+        "Pending"
+    ) {
+
+        alert(
+            "This application has already been processed."
+        );
+
+        return;
+    }
+
+
+    application.status =
+        "Rejected";
+
+
+    updateSuryaModule(
+        "admissions",
+        admissions
+    );
+
+
+    loadApplications();
+
+
+    alert(
+        "❌ Application Rejected."
+    );
+
+}
+
+
+/* ==================================================
+   VIEW APPLICATION
+================================================== */
+
+function viewApplication(
+    applicationId
+) {
+
+    const application =
+        findApplication(
+            applicationId
+        );
+
+
+    if (!application) {
+
+        alert(
+            "Application record not found."
+        );
+
+        return;
+    }
+
+
+    alert(
+
+        "📋 Application Details\n\n" +
+
+        "Application ID: " +
+        application.id +
+
+        "\n\nStudent Name: " +
+        application.studentName +
+
+        "\n\nFather's Name: " +
+        application.fatherName +
+
+        "\n\nCourse: " +
+        application.course +
+
+        "\n\nMobile: " +
+        application.mobile +
+
+        "\n\nStatus: " +
+        application.status +
+
+        (
+            application.admissionId
+            ?
+            "\n\nAdmission ID: " +
+            application.admissionId
+            :
+            ""
+        ) +
+
+        (
+            application.studentId
+            ?
+            "\n\nStudent ID: " +
+            application.studentId
+            :
+            ""
+        )
+
+    );
+
+}
+
+
+/* ==================================================
+   PAGE LOAD
+================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        loadApplications();
+
+    }
+);
+
+</script>
+
+</body>
+</html>

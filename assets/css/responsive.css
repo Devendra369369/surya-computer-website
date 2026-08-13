@@ -1,0 +1,65 @@
+/*==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : responsiv.css
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+==================================================*/
+@media (max-width:768px){
+
+.hero-content{
+    flex-direction:column;
+    text-align:center;
+}
+
+.hero-right{
+    margin-top:30px;
+}
+
+.hero-right img{
+    max-width:320px;
+}
+
+}
+
+@media (max-width:768px){
+
+.hero-content{
+    flex-direction:column;
+    text-align:center;
+}
+
+.hero-left h1{
+    font-size:34px;
+}
+
+.hero-left p{
+    font-size:18px;
+}
+
+.hero-buttons{
+    justify-content:center;
+}
+
+.hero-right img{
+    max-width:300px;
+    margin-top:30px;
+}
+
+}
+@media (max-width:768px){
+
+.director{
+    flex-direction:column;
+    text-align:center;
+}
+
+}
+
+@media(max-width:768px){
+
+.contact-container{
+    grid-template-columns:1fr;
+}
+
+}

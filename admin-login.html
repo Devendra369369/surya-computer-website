@@ -1,0 +1,171 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-login.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 09-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Login | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+
+</head>
+
+<body>
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com
+</div>
+
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Admin Login</p>
+    </div>
+
+</header>
+
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="courses.html">Courses</a>
+    <a href="contact.html">Contact</a>
+
+</nav>
+
+
+<section class="admin-login">
+
+    <div class="admin-login-card">
+
+        <div class="admin-login-icon">
+            🔐
+        </div>
+
+        <h2>Admin Login</h2>
+
+        <p>
+            Authorized personnel only
+        </p>
+
+
+        <form id="adminLoginForm">
+
+            <input
+                type="text"
+                id="adminUsername"
+                placeholder="Admin Username"
+                required
+            >
+
+            <input
+                type="password"
+                id="adminPassword"
+                placeholder="Admin Password"
+                required
+            >
+
+            <button type="submit">
+                Login
+            </button>
+
+        </form>
+
+
+        <div id="adminLoginMessage"></div>
+
+    </div>
+
+</section>
+
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>SURYA COMPUTER OF EDUCATION CENTER</h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 +91 7084275870
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+
+<script>
+
+const adminLoginForm =
+    document.getElementById("adminLoginForm");
+
+const adminLoginMessage =
+    document.getElementById("adminLoginMessage");
+
+
+adminLoginForm.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const username =
+        document.getElementById("adminUsername").value.trim();
+
+    const password =
+        document.getElementById("adminPassword").value.trim();
+
+
+    /*
+    DEMO LOGIN
+    */
+
+    if (
+        username === "admin" &&
+        password === "ADMIN123"
+    ) {
+
+        window.location.href = "admin.html";
+
+    } else {
+
+        adminLoginMessage.innerHTML = `
+            <div class="login-error">
+                ❌ Invalid Admin Username or Password
+            </div>
+        `;
+
+    }
+
+});
+
+</script>
+
+
+</body>
+</html>

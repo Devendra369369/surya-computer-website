@@ -1,0 +1,818 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admission.html
+Version : v1.1.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 07-08-2026
+Updated : 12-08-2026
+
+Purpose :
+Online Admission + Student Photo Storage
+==================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Admission | Surya Computer Of Education Center
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="assets/css/responsive.css"
+    >
+
+    <script src="assets/js/data-manager.js"></script>
+
+</head>
+
+
+<body>
+
+
+<!--==================================================
+TOP BAR
+==================================================-->
+
+<div class="top-bar">
+
+    📞 7084275870 |
+
+    ✉️ sunilkumar5757kp@gmail.com |
+
+    ▶️ YouTube: @sunilkumar-1cmd
+
+</div>
+
+
+<!--==================================================
+HEADER
+==================================================-->
+
+<header class="header">
+
+    <img
+        src="assets/images/logo.png"
+        alt="Logo"
+        class="logo"
+    >
+
+    <div class="title">
+
+        <h1>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h1>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+    </div>
+
+</header>
+
+
+<!--==================================================
+NAVIGATION
+==================================================-->
+
+<nav class="navbar">
+
+    <a href="index.html">
+        Home
+    </a>
+
+    <a href="about.html">
+        About
+    </a>
+
+    <a href="courses.html">
+        Courses
+    </a>
+
+    <a href="admission.html">
+        Admission
+    </a>
+
+    <a href="gallery.html">
+        Gallery
+    </a>
+
+    <a href="contact.html">
+        Contact
+    </a>
+
+</nav>
+
+
+<!--==================================================
+ADMISSION SECTION
+==================================================-->
+
+<section class="admission">
+
+    <h2>
+        Online Admission Form
+    </h2>
+
+    <p>
+        Fill in your details carefully.
+    </p>
+
+</section>
+
+
+<!--==================================================
+ADMISSION FORM
+==================================================-->
+
+<form
+    class="admission-form"
+    id="admissionForm"
+>
+
+
+    <!-- STUDENT NAME -->
+
+    <input
+        type="text"
+        id="studentName"
+        placeholder="Student Full Name"
+        required
+    >
+
+
+    <!-- FATHER NAME -->
+
+    <input
+        type="text"
+        id="fatherName"
+        placeholder="Father's Name"
+        required
+    >
+
+
+    <!-- MOTHER NAME -->
+
+    <input
+        type="text"
+        id="motherName"
+        placeholder="Mother's Name"
+    >
+
+
+    <!-- DOB -->
+
+    <input
+        type="date"
+        id="dateOfBirth"
+        required
+    >
+
+
+    <!-- COURSE -->
+
+    <select
+        id="course"
+        required
+    >
+
+        <option value="">
+            Select Course
+        </option>
+
+        <option>
+            CCC
+        </option>
+
+        <option>
+            DCA
+        </option>
+
+        <option>
+            ADCA
+        </option>
+
+        <option>
+            Tally Prime
+        </option>
+
+        <option>
+            Typing
+        </option>
+
+        <option>
+            Basic Computer
+        </option>
+
+    </select>
+
+
+    <!-- MOBILE -->
+
+    <input
+        type="tel"
+        id="mobile"
+        placeholder="Mobile Number"
+        required
+    >
+
+
+    <!-- EMAIL -->
+
+    <input
+        type="email"
+        id="email"
+        placeholder="Email Address"
+    >
+
+
+    <!-- ADDRESS -->
+
+    <textarea
+        id="address"
+        placeholder="Full Address"
+        rows="4"
+    ></textarea>
+
+
+    <!--==================================================
+         STUDENT PHOTO
+    ==================================================-->
+
+    <label for="studentPhoto">
+
+        📷 Upload Student Photo
+
+    </label>
+
+
+    <input
+        type="file"
+        id="studentPhoto"
+        accept="image/*"
+        required
+    >
+
+
+    <!-- PHOTO PREVIEW -->
+
+    <div
+        id="photoPreviewContainer"
+        style="
+            display:none;
+            text-align:center;
+            margin:10px 0;
+        "
+    >
+
+        <p>
+            <strong>
+                Photo Preview
+            </strong>
+        </p>
+
+        <img
+            id="photoPreview"
+            alt="Student Photo Preview"
+            style="
+                width:120px;
+                height:150px;
+                object-fit:cover;
+                border:2px solid #222;
+                border-radius:5px;
+            "
+        >
+
+    </div>
+
+
+    <!--==================================================
+         AADHAAR
+    ==================================================-->
+
+    <label for="aadhaarCard">
+
+        📄 Upload Aadhaar Card
+
+    </label>
+
+
+    <input
+        type="file"
+        id="aadhaarCard"
+        accept="image/*,.pdf"
+    >
+
+
+    <!-- SUBMIT -->
+
+    <button
+        type="submit"
+    >
+
+        Submit Admission
+
+    </button>
+
+
+</form>
+
+
+<!--==================================================
+FOOTER
+==================================================-->
+
+<footer>
+
+    <p>
+
+        © 2026 Surya Computer Of Education Center |
+        All Rights Reserved.
+
+    </p>
+
+</footer>
+
+
+<script>
+
+/* ==================================================
+   ADMISSION FORM
+================================================== */
+
+const admissionForm =
+    document.getElementById(
+        "admissionForm"
+    );
+
+
+/* ==================================================
+   PHOTO INPUT
+================================================== */
+
+const studentPhotoInput =
+    document.getElementById(
+        "studentPhoto"
+    );
+
+
+const photoPreview =
+    document.getElementById(
+        "photoPreview"
+    );
+
+
+const photoPreviewContainer =
+    document.getElementById(
+        "photoPreviewContainer"
+    );
+
+
+/* ==================================================
+   PHOTO PREVIEW
+================================================== */
+
+studentPhotoInput.addEventListener(
+    "change",
+    function() {
+
+
+        const file =
+            this.files[0];
+
+
+        if (!file) {
+
+            photoPreviewContainer.style.display =
+                "none";
+
+            photoPreview.src = "";
+
+            return;
+
+        }
+
+
+        /* CHECK IMAGE */
+
+        if (
+            !file.type.startsWith("image/")
+        ) {
+
+            alert(
+                "❌ Please select a valid image file."
+            );
+
+            this.value = "";
+
+            photoPreviewContainer.style.display =
+                "none";
+
+            return;
+
+        }
+
+
+        /* FILE SIZE */
+
+        const maxSize =
+            2 * 1024 * 1024;
+
+
+        if (
+            file.size > maxSize
+        ) {
+
+            alert(
+                "❌ Student photo must be 2 MB or smaller."
+            );
+
+            this.value = "";
+
+            photoPreviewContainer.style.display =
+                "none";
+
+            return;
+
+        }
+
+
+        /* PREVIEW */
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            function(event) {
+
+                photoPreview.src =
+                    event.target.result;
+
+                photoPreviewContainer.style.display =
+                    "block";
+
+            };
+
+
+        reader.readAsDataURL(file);
+
+    }
+);
+
+
+/* ==================================================
+   FILE TO DATA URL
+================================================== */
+
+function readFileAsDataURL(file) {
+
+    return new Promise(
+        function(resolve, reject) {
+
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function() {
+
+                    resolve(
+                        reader.result
+                    );
+
+                };
+
+
+            reader.onerror =
+                function() {
+
+                    reject(
+                        new Error(
+                            "Photo could not be read."
+                        )
+                    );
+
+                };
+
+
+            reader.readAsDataURL(file);
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   SUBMIT ADMISSION
+================================================== */
+
+admissionForm.addEventListener(
+    "submit",
+    async function(event) {
+
+
+        event.preventDefault();
+
+
+        try {
+
+
+            /* =========================================
+               GET FORM DATA
+            ========================================= */
+
+
+            const studentName =
+                document
+                .getElementById(
+                    "studentName"
+                )
+                .value
+                .trim();
+
+
+            const fatherName =
+                document
+                .getElementById(
+                    "fatherName"
+                )
+                .value
+                .trim();
+
+
+            const motherName =
+                document
+                .getElementById(
+                    "motherName"
+                )
+                .value
+                .trim();
+
+
+            const dateOfBirth =
+                document
+                .getElementById(
+                    "dateOfBirth"
+                )
+                .value;
+
+
+            const course =
+                document
+                .getElementById(
+                    "course"
+                )
+                .value
+                .trim();
+
+
+            const mobile =
+                document
+                .getElementById(
+                    "mobile"
+                )
+                .value
+                .trim();
+
+
+            const email =
+                document
+                .getElementById(
+                    "email"
+                )
+                .value
+                .trim();
+
+
+            const address =
+                document
+                .getElementById(
+                    "address"
+                )
+                .value
+                .trim();
+
+
+            /* =========================================
+               PHOTO
+            ========================================= */
+
+
+            const photoFile =
+                studentPhotoInput.files[0];
+
+
+            if (!photoFile) {
+
+                alert(
+                    "❌ Please upload student photo."
+                );
+
+                return;
+
+            }
+
+
+            /* =========================================
+               READ PHOTO
+            ========================================= */
+
+
+            const photoData =
+                await readFileAsDataURL(
+                    photoFile
+                );
+
+
+            /* =========================================
+               EXISTING APPLICATIONS
+            ========================================= */
+
+
+            const admissions =
+                getSuryaModule(
+                    "admissions"
+                );
+
+
+            /* =========================================
+               GENERATE APPLICATION ID
+            ========================================= */
+
+
+            const newApplicationId =
+                generateApplicationId();
+
+
+            /* =========================================
+               APPLICATION DATE
+            ========================================= */
+
+
+            const applicationDate =
+                new Date()
+                .toLocaleDateString(
+                    "en-GB",
+                    {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric"
+                    }
+                );
+
+
+            /* =========================================
+               CREATE APPLICATION
+            ========================================= */
+
+
+            const newApplication = {
+
+                id:
+                    newApplicationId,
+
+                studentName:
+                    studentName,
+
+                fatherName:
+                    fatherName,
+
+                motherName:
+                    motherName,
+
+                dateOfBirth:
+                    dateOfBirth,
+
+                course:
+                    course,
+
+                mobile:
+                    mobile,
+
+                email:
+                    email,
+
+                address:
+                    address,
+
+                photo:
+                    photoData,
+
+                photoName:
+                    photoFile.name,
+
+                photoType:
+                    photoFile.type,
+
+                applicationDate:
+                    applicationDate,
+
+                status:
+                    "Pending"
+
+            };
+
+
+            /* =========================================
+               SAVE APPLICATION
+            ========================================= */
+
+
+            admissions.push(
+                newApplication
+            );
+
+
+            updateSuryaModule(
+                "admissions",
+                admissions
+            );
+
+
+            /* =========================================
+               SAVE LAST APPLICATION ID
+            ========================================= */
+
+
+            localStorage.setItem(
+                "lastApplicationId",
+                newApplicationId
+            );
+
+
+            /* =========================================
+               SUCCESS
+            ========================================= */
+
+            alert(
+
+                "✅ Admission submitted successfully!\n\n" +
+
+                "Application ID: " +
+                newApplicationId +
+                "\n\n" +
+
+                "Student photo saved successfully."
+
+            );
+
+
+            /* =========================================
+               OPEN SUCCESS PAGE
+            ========================================= */
+
+            window.location.href =
+                "admission-success.html";
+
+
+        }
+
+        catch (error) {
+
+
+            console.error(
+                "ADMISSION ERROR:",
+                error
+            );
+
+
+            alert(
+
+                "❌ Admission could not be saved.\n\n" +
+
+                "Please try again."
+
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>
