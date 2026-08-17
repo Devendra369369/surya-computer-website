@@ -1,0 +1,488 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-courses.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 09-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Course Management | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet"
+          href="assets/css/style.css">
+
+    <link rel="stylesheet"
+          href="assets/css/responsive.css">
+          
+    <script src="assets/js/data-manager.js"></script>
+
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com
+</div>
+
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png"
+         alt="Logo"
+         class="logo">
+
+    <div class="title">
+
+        <h1>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h1>
+
+        <p>
+            Course Management
+        </p>
+
+    </div>
+
+</header>
+
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+
+    <a href="admin.html">
+        Admin Dashboard
+    </a>
+
+    <a href="admin-students.html">
+        Students
+    </a>
+
+    <a href="admin-results.html">
+        Results
+    </a>
+
+    <a href="admin-notices.html">
+        Notices
+    </a>
+
+</nav>
+
+
+<!-- COURSE MANAGEMENT -->
+
+<section class="admin-courses">
+
+    <div class="admin-header">
+
+        <h2>
+            📚 Course Management
+        </h2>
+
+        <p>
+            Manage institute courses
+        </p>
+
+    </div>
+
+
+    <!-- ADD COURSE -->
+
+    <div class="course-form-card">
+
+        <h3>
+            ➕ Add New Course
+        </h3>
+
+        <input
+            type="text"
+            id="courseName"
+            placeholder="Course Name"
+        >
+
+        <input
+            type="text"
+            id="courseDuration"
+            placeholder="Course Duration"
+        >
+
+        <input
+            type="number"
+            id="courseFee"
+            placeholder="Course Fee"
+        >
+
+        <textarea
+            id="courseDescription"
+            rows="3"
+            placeholder="Course Description"
+        ></textarea>
+
+        <button
+            type="button"
+            onclick="addCourse()"
+        >
+            ➕ Add Course
+        </button>
+
+    </div>
+
+
+    <!-- COURSE LIST -->
+
+    <div class="course-list">
+
+        <h3>
+            📋 Available Courses
+        </h3>
+
+
+        <!-- COURSE 1 -->
+
+        <div class="admin-course-card">
+
+            <div>
+
+                <h4>💻 CCC</h4>
+
+                <p>
+                    Course on Computer Concepts
+                </p>
+
+                <p>
+                    <strong>Duration:</strong>
+                    3 Months
+                </p>
+
+                <p>
+                    <strong>Fee:</strong>
+                    ₹3000
+                </p>
+
+                <span class="course-active">
+                    Active
+                </span>
+
+            </div>
+
+            <div class="course-actions">
+
+                <button
+                    type="button"
+                    onclick="editCourse()"
+                >
+                    ✏️ Edit
+                </button>
+
+                <button
+                    type="button"
+                    onclick="deleteCourse(this)"
+                >
+                    🗑️ Delete
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- COURSE 2 -->
+
+        <div class="admin-course-card">
+
+            <div>
+
+                <h4>📚 DCA</h4>
+
+                <p>
+                    Diploma in Computer Application
+                </p>
+
+                <p>
+                    <strong>Duration:</strong>
+                    6 Months
+                </p>
+
+                <p>
+                    <strong>Fee:</strong>
+                    ₹5000
+                </p>
+
+                <span class="course-active">
+                    Active
+                </span>
+
+            </div>
+
+            <div class="course-actions">
+
+                <button
+                    type="button"
+                    onclick="editCourse()"
+                >
+                    ✏️ Edit
+                </button>
+
+                <button
+                    type="button"
+                    onclick="deleteCourse(this)"
+                >
+                    🗑️ Delete
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- COURSE 3 -->
+
+        <div class="admin-course-card">
+
+            <div>
+
+                <h4>🎓 ADCA</h4>
+
+                <p>
+                    Advanced Diploma in Computer Application
+                </p>
+
+                <p>
+                    <strong>Duration:</strong>
+                    12 Months
+                </p>
+
+                <p>
+                    <strong>Fee:</strong>
+                    ₹8000
+                </p>
+
+                <span class="course-active">
+                    Active
+                </span>
+
+            </div>
+
+            <div class="course-actions">
+
+                <button
+                    type="button"
+                    onclick="editCourse()"
+                >
+                    ✏️ Edit
+                </button>
+
+                <button
+                    type="button"
+                    onclick="deleteCourse(this)"
+                >
+                    🗑️ Delete
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- COURSE 4 -->
+
+        <div class="admin-course-card">
+
+            <div>
+
+                <h4>🧾 Tally Prime</h4>
+
+                <p>
+                    Accounting & GST
+                </p>
+
+                <p>
+                    <strong>Duration:</strong>
+                    3 Months
+                </p>
+
+                <p>
+                    <strong>Fee:</strong>
+                    ₹4000
+                </p>
+
+                <span class="course-active">
+                    Active
+                </span>
+
+            </div>
+
+            <div class="course-actions">
+
+                <button
+                    type="button"
+                    onclick="editCourse()"
+                >
+                    ✏️ Edit
+                </button>
+
+                <button
+                    type="button"
+                    onclick="deleteCourse(this)"
+                >
+                    🗑️ Delete
+                </button>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 7084275870
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+
+<script>
+
+function addCourse() {
+
+    const name =
+        document
+        .getElementById("courseName")
+        .value
+        .trim();
+
+    const duration =
+        document
+        .getElementById("courseDuration")
+        .value
+        .trim();
+
+    const fee =
+        document
+        .getElementById("courseFee")
+        .value
+        .trim();
+
+    const description =
+        document
+        .getElementById("courseDescription")
+        .value
+        .trim();
+
+
+    if (
+        name === "" ||
+        duration === "" ||
+        fee === "" ||
+        description === ""
+    ) {
+
+        alert(
+            "⚠️ Please fill all course details."
+        );
+
+        return;
+
+    }
+
+
+    alert(
+        "✅ Course Added Successfully!\n\n" +
+        "Course: " + name
+    );
+
+
+    document
+    .getElementById("courseName")
+    .value = "";
+
+    document
+    .getElementById("courseDuration")
+    .value = "";
+
+    document
+    .getElementById("courseFee")
+    .value = "";
+
+    document
+    .getElementById("courseDescription")
+    .value = "";
+
+}
+
+
+function editCourse() {
+
+    alert(
+        "✏️ Course Edit Module\n\n" +
+        "Editing functionality will be connected later."
+    );
+
+}
+
+
+function deleteCourse(button) {
+
+    const confirmDelete =
+        confirm(
+            "Are you sure you want to delete this course?"
+        );
+
+
+    if (confirmDelete) {
+
+        button
+        .closest(".admin-course-card")
+        .remove();
+
+    }
+
+}
+
+</script>
+
+
+</body>
+</html>

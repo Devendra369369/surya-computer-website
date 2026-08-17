@@ -1,0 +1,23 @@
+# ===== BACKUP FILES =====
+*.backup-*
+*.backup
+*.bak
+
+# ===== TEMP / EDITOR FILES =====
+*.tmp
+*.temp
+*.swp
+*~
+untitled.txt
+
+# ===== LOCAL / SYSTEM =====
+.DS_Store
+Thumbs.db
+
+# ===== NODE / BUILD =====
+node_modules/
+dist/
+build/
+
+# ===== LOCAL GIT =====
+.git/

@@ -1,0 +1,342 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : student-dashboard.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 08-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Dashboard | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/student-signature.js"></script>
+    <script src="assets/js/student-marcsheet.js"></script>
+
+</head>
+
+<body>
+
+<!--==================================================
+TOP BAR
+==================================================-->
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com
+</div>
+
+
+<!--==================================================
+HEADER
+==================================================-->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Kamalpur, Chandauli, Uttar Pradesh</p>
+    </div>
+
+</header>
+
+
+<!--==================================================
+NAVIGATION
+==================================================-->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="courses.html">Courses</a>
+    <a href="result.html">Result</a>
+    <a href="certificate.html">Certificate</a>
+    <a href="contact.html">Contact</a>
+
+</nav>
+
+
+<!--==================================================
+STUDENT DASHBOARD
+==================================================-->
+
+<section class="student-dashboard">
+
+    <div class="dashboard-header">
+
+        <h2>👨‍🎓 Student Dashboard</h2>
+
+        <p>
+            Welcome, <strong id="dashboardStudentName">Loading...</strong>
+        </p>
+
+    </div>
+
+
+    <!-- PROFILE -->
+
+    <div class="dashboard-card">
+
+        <h3>👤 Student Profile</h3>
+        <div style="text-align:center; margin:15px 0;">
+    <h4>✍️ Student Signature</h4>
+
+    <img
+        id="studentSignature"
+        src="assets/images/signature-placeholder.svg"
+        alt="Student Signature"
+        style="max-width:220px; height:80px; object-fit:contain;"
+    >
+        </div>
+
+        <div style="text-align:center; margin:15px 0;">
+            <img
+                id="dashboardStudentPhoto"
+                src="assets/images/student-placeholder.svg"
+                alt="Student Photo"
+                style="width:120px; height:150px; object-fit:cover; border-radius:8px; border:1px solid #ddd;"
+                onerror="this.src='assets/images/student-placeholder.svg'"
+            >
+        </div>
+       
+        <div style="text-align:center; margin:15px 0;">
+            <img
+                id="studentMarcsheet"
+                src="assets/images/Marcsheet-placeholder.svg"
+                alt="Student Marcsheet"
+                style="width:120px; height:180px; object-fit:contain; border:1px solid #ddd;"
+            >
+        </div>
+
+
+        <p>
+            <strong>Student Name:</strong>
+            <span id="dashboardName">Loading...</span>
+        </p>
+
+        <p>
+            <strong>Student ID:</strong>
+            <span id="dashboardId">Loading...</span>
+        </p>
+
+        <p>
+            <strong>Course:</strong>
+            <span id="dashboardCourse">Loading...</span>
+        </p>
+        <p>
+    <strong>Mobile:</strong>
+    <span id="dashboardMobile">Loading...</span>
+</p>
+
+<p>
+    <strong>Admission Year:</strong>
+    2026
+</p>
+
+<p>
+    <strong>Course Status:</strong>
+    <span id="dashboardStatus">Loading...</span>
+</p>
+
+    </div>
+
+
+    <!-- RESULT -->
+
+    <div class="dashboard-card">
+
+        <h3>📊 Examination Result</h3>
+
+        <p>
+            Check your latest examination result.
+        </p>
+
+        <a href="result.html" class="dashboard-btn">
+            Check Result
+        </a>
+
+    </div>
+
+
+    <!-- CERTIFICATE -->
+
+    <div class="dashboard-card">
+
+        <h3>📜 Certificate</h3>
+
+        <p>
+            Verify your course certificate.
+        </p>
+
+        <a href="certificate.html" class="dashboard-btn">
+            Verify Certificate
+        </a>
+
+    </div>
+
+
+    <!-- COURSES -->
+
+    <div class="dashboard-card">
+
+        <h3>📚 My Course</h3>
+
+        <p>
+            Current Course: <strong>ADCA</strong>
+        </p>
+
+        <a href="courses.html" class="dashboard-btn">
+            View Courses
+        </a>
+
+    </div>
+
+
+    <!-- NOTICES -->
+
+    <div class="dashboard-card">
+
+        <h3>📢 Latest Notices</h3>
+
+        <p>
+            Check the latest institute announcements.
+        </p>
+
+        <a href="index.html" class="dashboard-btn">
+            View Notices
+        </a>
+
+    </div>
+
+
+    <!-- LOGOUT -->
+
+    <div class="dashboard-logout">
+
+        <button onclick="logoutStudent()">
+            🚪 Logout
+        </button>
+
+    </div>
+
+</section>
+
+
+<!--==================================================
+FOOTER
+==================================================-->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>SURYA COMPUTER OF EDUCATION CENTER</h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 +91 7084275870
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+
+<!--==================================================
+DASHBOARD SCRIPT
+==================================================-->
+
+<script src="assets/js/data-manager.js"></script>
+
+<script>
+
+const loggedInStudentId =
+    localStorage.getItem("loggedInStudentId");
+
+const students =
+    getSuryaModule("students");
+
+const student =
+    students.find(function(item) {
+
+        return item.id === loggedInStudentId;
+
+    });
+
+if (!student) {
+
+    alert("Student session not found. Please login again.");
+
+    window.location.href =
+        "student-login.html";
+
+} else {
+
+    document.getElementById("dashboardStudentName").textContent =
+        student.name || "Student";
+    showStudentSignature(student);
+    showStudentMarcsheet(student);
+
+    const dashboardPhoto =
+        document.getElementById("dashboardStudentPhoto");
+
+    if (dashboardPhoto) {
+
+        dashboardPhoto.src =
+            student.photo ||
+            "assets/images/student-placeholder.svg";
+
+    }
+
+
+    document.getElementById("dashboardName").textContent =
+        student.name || "N/A";
+
+    document.getElementById("dashboardId").textContent =
+        student.id || "N/A";
+
+    document.getElementById("dashboardCourse").textContent =
+        student.course || "N/A";
+
+    document.getElementById("dashboardMobile").textContent =
+        student.mobile || "N/A";
+
+    document.getElementById("dashboardStatus").textContent =
+        student.status || "N/A";
+
+}
+
+function logoutStudent() {
+
+    localStorage.removeItem("loggedInStudentId");
+
+    alert("You have been logged out.");
+
+    window.location.href =
+        "student-login.html";
+
+}
+
+</script>
+
+</body>
+</html>

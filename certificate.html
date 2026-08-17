@@ -1,0 +1,314 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : certificate.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 08-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Certificate Verification | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/data-manager.js"></script>
+
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com
+</div>
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Kamalpur, Chandauli, Uttar Pradesh</p>
+    </div>
+
+</header>
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="courses.html">Courses</a>
+    <a href="admission.html">Admission</a>
+    <a href="result.html">Result</a>
+    <a href="certificate.html">Certificate</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="contact.html">Contact</a>
+
+</nav>
+
+<!-- CERTIFICATE VERIFICATION -->
+
+<section class="certificate-section">
+
+    <h2>Certificate Verification</h2>
+
+    <p>
+        Enter your Certificate ID to verify your certificate.
+    </p>
+
+    <form class="certificate-form">
+
+        <input
+            type="text"
+            id="certificateId"
+            placeholder="Enter Certificate ID"
+            required
+        >
+
+        <button type="submit">
+            🔍 Verify Certificate
+        </button>
+
+    </form>
+
+    <div id="certificateResult"></div>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+
+    <p>
+        © 2026 Surya Computer Of Education Center |
+        All Rights Reserved.
+    </p>
+
+</footer>
+<script>
+
+const CERTIFICATE_API =
+    "https://script.google.com/macros/s/AKfycbw-Rfg_UepqZYi-9DfKElmPJdDI_80q02pjQFDxp9vemGi0h1MhKDDgJz_Lan9_CYlVlg/exec";
+
+
+const certificateForm =
+    document.querySelector(".certificate-form");
+
+const certificateResult =
+    document.getElementById("certificateResult");
+
+
+certificateForm.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const certificateId =
+            document
+                .getElementById("certificateId")
+                .value
+                .trim()
+                .toUpperCase();
+
+
+        if (!certificateId) {
+
+            certificateResult.innerHTML = `
+                <div class="certificate-card">
+                    <h3>Please enter Certificate ID.</h3>
+                </div>
+            `;
+
+            return;
+        }
+
+
+        certificateResult.innerHTML = `
+            <div class="certificate-card">
+                <h3>🔄 Verifying Certificate...</h3>
+                <p>Please wait...</p>
+            </div>
+        `;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    CERTIFICATE_API +
+                    "?action=certificate&id=" +
+                    encodeURIComponent(certificateId)
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !data.success ||
+                !data.certificate
+            ) {
+
+                certificateResult.innerHTML = `
+                    <div class="certificate-card">
+                        <h3>❌ Certificate Not Found</h3>
+
+                        <p>
+                            ${data.message || "Certificate could not be verified."}
+                        </p>
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            const certificate =
+                data.certificate;
+
+
+            if (
+                String(certificate["Status"])
+                    .trim()
+                    .toLowerCase()
+                !== "verified"
+            ) {
+
+                certificateResult.innerHTML = `
+                    <div class="certificate-card">
+                        <h3>⚠️ Certificate Not Verified</h3>
+
+                        <p>
+                            This certificate is not currently verified.
+                        </p>
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            certificateResult.innerHTML = `
+
+                <div class="certificate-card">
+
+                    <h2>
+                        ✅ Certificate Verified
+                    </h2>
+
+                    <p>
+                        <strong>Student Name:</strong>
+                        ${certificate["Student Name"]}
+                    </p>
+
+                    <p>
+                        <strong>Father Name:</strong>
+                        ${certificate["Father Name"]}
+                    </p>
+
+                    <p>
+                        <strong>Certificate ID:</strong>
+                        ${certificate["Certificate ID"]}
+                    </p>
+
+                    <p>
+                        <strong>Student ID:</strong>
+                        ${certificate["Student ID"]}
+                    </p>
+
+                    <p>
+                        <strong>Course:</strong>
+                        ${certificate["Course"]}
+                    </p>
+
+                    <p>
+                        <strong>Total Marks:</strong>
+                        ${certificate["Total Marks"]}
+                    </p>
+
+                    <p>
+                        <strong>Obtained Marks:</strong>
+                        ${certificate["Obtained Marks"]}
+                    </p>
+
+                    <p>
+                        <strong>Percentage:</strong>
+                        ${certificate["Percentage"]}%
+                    </p>
+
+                    <p>
+                        <strong>Grade:</strong>
+                        ${certificate["Grade"]}
+                    </p>
+
+                    <p>
+                        <strong>Result:</strong>
+                        ${certificate["Result"]}
+                    </p>
+
+                    <p>
+                        <strong>Issue Date:</strong>
+                        ${certificate["Issue Date"]}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        ${certificate["Status"]}
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "CERTIFICATE API ERROR:",
+                error
+            );
+
+
+            certificateResult.innerHTML = `
+                <div class="certificate-card">
+
+                    <h3>
+                        ⚠️ Verification Service Error
+                    </h3>
+
+                    <p>
+                        Internet connection or server problem.
+                        Please try again.
+                    </p>
+
+                </div>
+            `;
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="220" viewBox="0 0 180 220">
+  <rect width="180" height="220" rx="12" fill="#eeeeee"/>
+  <circle cx="90" cy="75" r="38" fill="#aaaaaa"/>
+  <path d="M30 190c5-42 29-62 60-62s55 20 60 62" fill="#aaaaaa"/>
+  <text x="90" y="210" text-anchor="middle" font-family="Arial" font-size="12" fill="#666">Student Photo</text>
+</svg>

@@ -1,0 +1,1292 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-admissions.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 09-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admission Applications | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/data-manager.js"></script>
+
+<style>
+#applicationViewModal > div {
+    background:#ffffff !important;
+    color:#111111 !important;
+}
+
+#applicationViewModal > div p,
+#applicationViewModal > div h2,
+#applicationViewModal > div strong {
+    color:#111111 !important;
+}
+
+#applicationViewModal > div button {
+    color:#111111 !important;
+    background:#f5f5f5 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    #applicationViewModal > div {
+        background:#1e1e1e !important;
+        color:#ffffff !important;
+    }
+
+    #applicationViewModal > div p,
+    #applicationViewModal > div h2,
+    #applicationViewModal > div strong {
+        color:#ffffff !important;
+    }
+
+    #applicationViewModal > div button {
+        color:#ffffff !important;
+        background:#333333 !important;
+    }
+}
+</style>
+<style>
+#applicationViewModal,
+#applicationViewModal * {
+    color:#111111 !important;
+}
+
+#applicationViewModal > div {
+    background:#ffffff !important;
+}
+
+#applicationViewModal p,
+#applicationViewModal h2,
+#applicationViewModal strong {
+    color:#111111 !important;
+}
+
+#applicationViewModal button {
+    color:#ffffff !important;
+    background:#1565c0 !important;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com
+</div>
+
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Admission Management</p>
+    </div>
+
+</header>
+
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="admin.html">Admin Dashboard</a>
+    <a href="admission.html">New Admission</a>
+</nav>
+
+
+<!-- ADMISSION MANAGEMENT -->
+
+<section class="admin-admissions">
+
+    <div class="admin-header">
+
+        <h2>🎓 Admission Applications</h2>
+
+        <p>
+            Manage student admission applications
+        </p>
+
+    </div>
+    
+    <!-- ==================================================
+     ADMISSION STATISTICS
+================================================== -->
+
+<div class="admission-stats">
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            📋
+        </div>
+
+        <h3>
+            Total Applications
+        </h3>
+
+        <strong id="totalApplications">
+            0
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            ⏳
+        </div>
+
+        <h3>
+            Pending
+        </h3>
+
+        <strong id="pendingApplications">
+            0
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            ✅
+        </div>
+
+        <h3>
+            Approved
+        </h3>
+
+        <strong id="approvedApplications">
+            0
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            ❌
+        </div>
+
+        <h3>
+            Rejected
+        </h3>
+
+        <strong id="rejectedApplications">
+            0
+        </strong>
+
+    </div>
+
+</div>
+
+
+    <!-- =========================================
+         APPLICATION LIST
+    ========================================== -->
+
+    <div
+        id="applicationList"
+        class="application-list"
+    >
+    </div>
+
+
+    <!-- =========================================
+         NO APPLICATION MESSAGE
+    ========================================== -->
+
+    <div
+        id="noApplications"
+        class="no-applications"
+        style="display:none;"
+    >
+        ❌ No admission applications found.
+    </div>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>SURYA COMPUTER OF EDUCATION CENTER</h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 +91 7084275870
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+<script>
+
+/* ==================================================
+   ADMISSION MANAGEMENT
+================================================== */
+
+let currentApplication = null;
+
+
+/* ==================================================
+   LOAD APPLICATIONS
+================================================== */
+
+function loadApplications() {
+
+    const admissions =
+        getSuryaModule("admissions");
+
+
+    const applicationList =
+        document.getElementById(
+            "applicationList"
+        );
+
+
+    const noApplications =
+        document.getElementById(
+            "noApplications"
+        );
+
+
+    applicationList.innerHTML = "";
+
+
+    if (
+        !Array.isArray(admissions) ||
+        admissions.length === 0
+    ) {
+
+        noApplications.style.display =
+            "block";
+
+        updateAdmissionCounts(
+            admissions
+        );
+
+        return;
+    }
+
+
+    noApplications.style.display =
+        "none";
+
+
+    admissions.forEach(
+        function(application) {
+
+            displayApplication(
+                application
+            );
+
+        }
+    );
+
+
+    updateAdmissionCounts(
+        admissions
+    );
+
+}
+
+
+/* ==================================================
+   DISPLAY APPLICATION
+================================================== */
+
+function displayApplication(application) {
+
+    const applicationList =
+        document.getElementById(
+            "applicationList"
+        );
+
+
+    const card =
+        document.createElement("div");
+
+
+    card.className =
+        "application-card";
+
+
+    let statusClass =
+        "status-pending";
+
+
+    if (
+        application.status ===
+        "Approved"
+    ) {
+
+        statusClass =
+            "status-approved";
+
+    }
+
+
+    if (
+        application.status ===
+        "Rejected"
+    ) {
+
+        statusClass =
+            "status-rejected";
+
+    }
+
+
+    /* ==================================================
+       STUDENT PHOTO
+    ================================================== */
+
+    const photoHTML =
+        application.photo
+        ?
+        `
+        <div
+            class="application-photo"
+            style="
+                text-align:center;
+                margin-bottom:15px;
+            "
+        >
+
+            <img
+                src="${application.photo}"
+                alt="Student Photo"
+                style="
+                    width:100px;
+                    height:125px;
+                    object-fit:cover;
+                    border-radius:8px;
+                    border:2px solid #ddd;
+                    display:block;
+                    margin:0 auto 8px;
+                "
+            >
+
+            <strong>
+                Student Photo
+            </strong>
+
+        </div>
+        `
+        :
+        `
+        <div
+            class="application-photo"
+            style="
+                text-align:center;
+                margin-bottom:15px;
+            "
+        >
+
+            <div
+                style="
+                    width:100px;
+                    height:125px;
+                    margin:0 auto 8px;
+                    border:2px solid #ddd;
+                    border-radius:8px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    font-size:40px;
+                "
+            >
+                👤
+            </div>
+
+            <strong>
+                Photo Not Available
+            </strong>
+
+        </div>
+        `;
+
+
+    card.innerHTML = `
+
+        <div class="application-top">
+
+            <h3>
+                ${application.id}
+            </h3>
+
+            <span
+                class="${statusClass}"
+            >
+                ${application.status}
+            </span>
+
+        </div>
+
+
+        ${photoHTML}
+
+
+        <div class="application-details">
+
+            <p>
+                <strong>Student Name:</strong>
+                ${application.studentName}
+            </p>
+
+            <p>
+                <strong>Father's Name:</strong>
+                ${application.fatherName}
+            </p>
+
+            <p>
+                <strong>Course:</strong>
+                ${application.course}
+            </p>
+
+            <p>
+                <strong>Mobile:</strong>
+                ${application.mobile}
+            </p>
+
+            <p>
+                <strong>Application Date:</strong>
+                ${application.applicationDate || "N/A"}
+            </p>
+
+
+            ${
+                application.admissionId
+                ?
+                `
+                <p>
+                    <strong>Admission ID:</strong>
+                    ${application.admissionId}
+                </p>
+                `
+                :
+                ""
+            }
+
+
+            ${
+                application.studentId
+                ?
+                `
+                <p>
+                    <strong>Student ID:</strong>
+                    ${application.studentId}
+                </p>
+                `
+                :
+                ""
+            }
+
+        </div>
+
+
+        <div class="application-actions">
+
+            <button
+                class="view-btn"
+                type="button"
+                onclick="viewApplication('${application.id}')"
+            >
+                👁️ View Details
+            </button>
+
+
+            <button
+                class="approve-btn"
+                type="button"
+                onclick="approveApplication('${application.id}')"
+                ${application.status !== "Pending" ? "disabled" : ""}
+            >
+                ✅ Approve
+            </button>
+
+
+            <button
+                class="reject-btn"
+                type="button"
+                onclick="rejectApplication('${application.id}')"
+                ${application.status !== "Pending" ? "disabled" : ""}
+            >
+                ❌ Reject
+            </button>
+
+        </div>
+
+    `;
+
+
+    applicationList.appendChild(
+        card
+    );
+
+}
+    
+
+
+/* ==================================================
+   ADMISSION COUNTS
+================================================== */
+
+function updateAdmissionCounts(
+    admissions
+) {
+
+    const total =
+        admissions.length;
+
+
+    const pending =
+        admissions.filter(
+            function(application) {
+
+                return (
+                    application.status ===
+                    "Pending"
+                );
+
+            }
+        ).length;
+
+
+    const approved =
+        admissions.filter(
+            function(application) {
+
+                return (
+                    application.status ===
+                    "Approved"
+                );
+
+            }
+        ).length;
+
+
+    const rejected =
+        admissions.filter(
+            function(application) {
+
+                return (
+                    application.status ===
+                    "Rejected"
+                );
+
+            }
+        ).length;
+
+
+    const totalElement =
+        document.getElementById(
+            "totalApplications"
+        );
+
+    const pendingElement =
+        document.getElementById(
+            "pendingApplications"
+        );
+
+    const approvedElement =
+        document.getElementById(
+            "approvedApplications"
+        );
+
+    const rejectedElement =
+        document.getElementById(
+            "rejectedApplications"
+        );
+
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            total;
+
+    }
+
+
+    if (pendingElement) {
+
+        pendingElement.textContent =
+            pending;
+
+    }
+
+
+    if (approvedElement) {
+
+        approvedElement.textContent =
+            approved;
+
+    }
+
+
+    if (rejectedElement) {
+
+        rejectedElement.textContent =
+            rejected;
+
+    }
+
+}
+
+
+/* ==================================================
+   FIND APPLICATION
+================================================== */
+
+function findApplication(
+    applicationId
+) {
+
+    const admissions =
+        getSuryaModule("admissions");
+
+
+    return admissions.find(
+        function(application) {
+
+            return (
+                application.id ===
+                applicationId
+            );
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   APPROVE APPLICATION
+================================================== */
+
+function approveApplication(
+    applicationId
+) {
+
+    const admissions =
+        getSuryaModule("admissions");
+
+
+    const students =
+        getSuryaModule("students");
+
+
+    const application =
+        admissions.find(
+            function(app) {
+
+                return (
+                    app.id ===
+                    applicationId
+                );
+
+            }
+        );
+
+
+    if (!application) {
+
+        alert(
+            "Application record not found."
+        );
+
+        return;
+    }
+
+
+    if (
+        application.status ===
+        "Approved"
+    ) {
+
+        alert(
+            "This application is already approved."
+        );
+
+        return;
+    }
+
+
+    if (
+        application.status ===
+        "Rejected"
+    ) {
+
+        alert(
+            "Rejected application cannot be approved."
+        );
+
+        return;
+    }
+
+
+    /* ==================================================
+       GENERATE ADMISSION ID
+    ================================================== */
+
+    const newAdmissionId =
+        generateAdmissionId();
+
+
+    /* ==================================================
+       GENERATE COURSE-WISE STUDENT ID
+    ================================================== */
+
+    const newStudentId =
+        generateStudentId(
+            application.course
+        );
+
+
+    /* ==================================================
+       CREATE STUDENT
+    ================================================== */
+
+    const newStudent = {
+
+    id:
+        newStudentId,
+
+    admissionId:
+        newAdmissionId,
+
+    applicationId:
+        application.id,
+
+    name:
+        application.studentName,
+
+    fatherName:
+        application.fatherName,
+
+    motherName:
+        application.motherName || "",
+
+    dateOfBirth:
+        application.dateOfBirth || "",
+
+    course:
+        application.course,
+
+    mobile:
+        application.mobile,
+
+    email:
+        application.email || "",
+
+    address:
+        application.address || "",
+
+    photo:
+        application.photo || "",
+
+    photoName:
+        application.photoName || "",
+
+    photoType:
+        application.photoType || "",
+
+    signature:
+        application.signature || "",
+
+    marcsheet:
+        application.marcsheet || "",
+
+    password:
+        String(application.mobile || "").slice(-6),
+
+    status:
+        "Active"
+
+};
+
+
+    /* ==================================================
+       SAVE STUDENT
+    ================================================== */
+
+    students.push(
+        newStudent
+    );
+
+
+    updateSuryaModule(
+        "students",
+        students
+    );
+
+
+    /* ==================================================
+       UPDATE APPLICATION
+    ================================================== */
+
+    application.status =
+        "Approved";
+
+
+    application.admissionId =
+        newAdmissionId;
+
+
+    application.studentId =
+        newStudentId;
+
+
+    updateSuryaModule(
+        "admissions",
+        admissions
+    );
+
+
+    /* ==================================================
+       REFRESH APPLICATION LIST
+    ================================================== */
+
+    loadApplications();
+
+
+    /* ==================================================
+       SUCCESS MESSAGE
+    ================================================== */
+
+    alert(
+
+        "✅ Application Approved!\n\n" +
+
+        "Admission ID: " +
+        newAdmissionId +
+
+        "\n\nStudent ID: " +
+        newStudentId +
+
+        "\n\nStudent Record Created Successfully."
+
+    );
+
+}
+
+
+/* ==================================================
+   REJECT APPLICATION
+================================================== */
+
+function rejectApplication(
+    applicationId
+) {
+
+    const admissions =
+        getSuryaModule("admissions");
+
+
+    const application =
+        admissions.find(
+            function(app) {
+
+                return (
+                    app.id ===
+                    applicationId
+                );
+
+            }
+        );
+
+
+    if (!application) {
+
+        alert(
+            "Application record not found."
+        );
+
+        return;
+    }
+
+
+    if (
+        application.status !==
+        "Pending"
+    ) {
+
+        alert(
+            "This application has already been processed."
+        );
+
+        return;
+    }
+
+
+    application.status =
+        "Rejected";
+
+
+    updateSuryaModule(
+        "admissions",
+        admissions
+    );
+
+
+    loadApplications();
+
+
+    alert(
+        "❌ Application Rejected."
+    );
+
+}
+
+
+/* ==================================================
+   VIEW APPLICATION
+================================================== */
+
+function viewApplication(applicationId) {
+
+    const application =
+        findApplication(
+            applicationId
+        );
+
+
+    if (!application) {
+
+        alert(
+            "Application record not found."
+        );
+
+        return;
+    }
+
+
+    /* ==================================================
+       PHOTO
+    ================================================== */
+
+    const photoHTML =
+        application.photo
+        ?
+        `
+        <img
+            src="${application.photo}"
+            alt="Student Photo"
+            style="
+                width:120px;
+                height:150px;
+                object-fit:cover;
+                border:2px solid #222;
+                border-radius:8px;
+                display:block;
+                margin:0 auto 15px;
+            "
+        >
+        `
+        :
+        `
+        <div
+            style="
+                width:120px;
+                height:150px;
+                border:2px solid #ccc;
+                border-radius:8px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                margin:0 auto 15px;
+                font-size:45px;
+            "
+        >
+            👤
+        </div>
+        `;
+
+
+    /* ==================================================
+       CREATE VIEW MODAL
+    ================================================== */
+
+    const modal =
+        document.createElement("div");
+
+
+    modal.id =
+        "applicationViewModal";
+
+
+    modal.style.cssText = `
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.65);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:20px;
+        z-index:9999;
+    `;
+
+
+    modal.innerHTML = `
+
+        <div
+            style="
+                background:#fff;
+                width:100%;
+                max-width:450px;
+                max-height:90vh;
+                overflow-y:auto;
+                border-radius:12px;
+                padding:20px;
+                box-sizing:border-box;
+                position:relative;
+            "
+        >
+
+            <button
+                type="button"
+                onclick="closeApplicationView()"
+                style="
+                    position:absolute;
+                    right:12px;
+                    top:10px;
+                    border:none;
+                    background:#1565c0 !important;
+                    color:#ffffff !important;
+                    background:none;
+                    font-size:25px;
+                    cursor:pointer;
+                "
+            >
+                ✖️
+            </button>
+
+
+            <h2
+                style="
+                    text-align:center;
+                    margin-top:5px;
+                "
+            >
+                📋 Application Details
+            </h2>
+
+
+            ${photoHTML}
+
+
+            <p>
+                <strong>Application ID:</strong>
+                ${application.id}
+            </p>
+
+
+            <p>
+                <strong>Student Name:</strong>
+                ${application.studentName}
+            </p>
+
+
+            <p>
+                <strong>Father's Name:</strong>
+                ${application.fatherName}
+            </p>
+
+
+            <p>
+                <strong>Mother's Name:</strong>
+                ${application.motherName || "N/A"}
+            </p>
+
+
+            <p>
+                <strong>Date of Birth:</strong>
+                ${application.dateOfBirth || "N/A"}
+            </p>
+
+
+            <p>
+                <strong>Course:</strong>
+                ${application.course}
+            </p>
+
+
+            <p>
+                <strong>Mobile:</strong>
+                ${application.mobile}
+            </p>
+
+
+            <p>
+                <strong>Email:</strong>
+                ${application.email || "N/A"}
+            </p>
+
+
+            <p>
+                <strong>Address:</strong>
+                ${application.address || "N/A"}
+            </p>
+
+
+            <p>
+                <strong>Application Date:</strong>
+                ${application.applicationDate || "N/A"}
+            </p>
+
+
+            <p>
+                <strong>Status:</strong>
+                ${application.status}
+            </p>
+
+
+            ${
+                application.admissionId
+                ?
+                `
+                <p>
+                    <strong>Admission ID:</strong>
+                    ${application.admissionId}
+                </p>
+                `
+                :
+                ""
+            }
+
+
+            ${
+                application.studentId
+                ?
+                `
+                <p>
+                    <strong>Student ID:</strong>
+                    ${application.studentId}
+                </p>
+                `
+                :
+                ""
+            }
+
+
+            <button
+                type="button"
+                onclick="closeApplicationView()"
+                style="
+                    width:100%;
+                    padding:12px;
+                    margin-top:10px;
+                    border:none;
+                    background:#1565c0 !important;
+                    color:#ffffff !important;
+                    border-radius:6px;
+                    cursor:pointer;
+                "
+            >
+                Close
+            </button>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    /* ==================================================
+       CLOSE WHEN CLICKING OUTSIDE
+    ================================================== */
+
+    modal.addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                event.target ===
+                modal
+            ) {
+
+                closeApplicationView();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   CLOSE APPLICATION VIEW
+================================================== */
+
+function closeApplicationView() {
+
+    const modal =
+        document.getElementById(
+            "applicationViewModal"
+        );
+
+
+    if (modal) {
+
+        modal.remove();
+
+    }
+
+}
+
+/* ==================================================
+   PAGE LOAD
+================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        loadApplications();
+
+    }
+);
+
+</script>
+
+</body>
+</html>

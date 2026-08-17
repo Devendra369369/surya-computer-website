@@ -1,0 +1,333 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-notices.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 09-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Notice Management | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet"
+          href="assets/css/style.css">
+
+    <link rel="stylesheet"
+          href="assets/css/responsive.css">
+          
+    <script src="assets/js/data-manager.js"></script>
+
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 7084275870 |
+    ✉️ sunilkumar5757kp@gmail.com
+</div>
+
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png"
+         alt="Logo"
+         class="logo">
+
+    <div class="title">
+
+        <h1>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h1>
+
+        <p>
+            Notice Management
+        </p>
+
+    </div>
+
+</header>
+
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+
+    <a href="admin.html">
+        Admin Dashboard
+    </a>
+
+    <a href="admin-admissions.html">
+        Admissions
+    </a>
+
+    <a href="admin-students.html">
+        Students
+    </a>
+
+</nav>
+
+
+<!-- NOTICE MANAGEMENT -->
+
+<section class="admin-notices">
+
+    <div class="admin-header">
+
+        <h2>
+            📢 Notice Management
+        </h2>
+
+        <p>
+            Manage institute announcements
+        </p>
+
+    </div>
+
+
+    <!-- ADD NOTICE -->
+
+    <div class="notice-form-card">
+
+        <h3>
+            ➕ Add New Notice
+        </h3>
+
+        <input
+            type="text"
+            id="noticeTitle"
+            placeholder="Notice Title"
+        >
+
+        <textarea
+            id="noticeMessage"
+            rows="4"
+            placeholder="Write notice details..."
+        ></textarea>
+
+        <button
+            type="button"
+            onclick="addNotice()"
+        >
+            ➕ Add Notice
+        </button>
+
+    </div>
+
+
+    <!-- NOTICE LIST -->
+
+    <div class="notice-list">
+
+        <h3>
+            📋 Published Notices
+        </h3>
+
+
+        <!-- NOTICE 1 -->
+
+        <div class="admin-notice-card">
+
+            <div>
+
+                <h4>
+                    📢 ADCA Admission Open 2026
+                </h4>
+
+                <p>
+                    ADCA new batch admission is now open.
+                </p>
+
+                <small>
+                    09 August 2026
+                </small>
+
+            </div>
+
+            <div class="notice-actions">
+
+                <button
+                    type="button"
+                    onclick="editNotice()"
+                >
+                    ✏️ Edit
+                </button>
+
+                <button
+                    type="button"
+                    onclick="deleteNotice(this)"
+                >
+                    🗑️ Delete
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- NOTICE 2 -->
+
+        <div class="admin-notice-card">
+
+            <div>
+
+                <h4>
+                    📢 CCC New Batch Starting Soon
+                </h4>
+
+                <p>
+                    Contact office for new batch details.
+                </p>
+
+                <small>
+                    09 August 2026
+                </small>
+
+            </div>
+
+            <div class="notice-actions">
+
+                <button
+                    type="button"
+                    onclick="editNotice()"
+                >
+                    ✏️ Edit
+                </button>
+
+                <button
+                    type="button"
+                    onclick="deleteNotice(this)"
+                >
+                    🗑️ Delete
+                </button>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 7084275870
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+
+<script>
+
+function addNotice() {
+
+    const title =
+        document
+        .getElementById("noticeTitle")
+        .value
+        .trim();
+
+    const message =
+        document
+        .getElementById("noticeMessage")
+        .value
+        .trim();
+
+
+    if (title === "" || message === "") {
+
+        alert(
+            "⚠️ Please enter Notice Title and Notice Details."
+        );
+
+        return;
+
+    }
+
+
+    alert(
+        "✅ Notice Added Successfully!\n\n" +
+        title
+    );
+
+
+    document
+    .getElementById("noticeTitle")
+    .value = "";
+
+    document
+    .getElementById("noticeMessage")
+    .value = "";
+
+}
+
+
+function editNotice() {
+
+    alert(
+        "✏️ Notice Edit Module\n\n" +
+        "Editing functionality will be connected later."
+    );
+
+}
+
+
+function deleteNotice(button) {
+
+    const confirmDelete =
+        confirm(
+            "Are you sure you want to delete this notice?"
+        );
+
+
+    if (confirmDelete) {
+
+        button
+        .closest(".admin-notice-card")
+        .remove();
+
+    }
+
+}
+
+</script>
+
+
+</body>
+</html>
