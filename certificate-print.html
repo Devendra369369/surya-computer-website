@@ -1,12 +1,13 @@
 <!--
 ==================================================
-Project : SURYA COMPUTER OF EDUCATION CENTER
-File    : certificate-print.html
-Version : v3.0.0
-Author  : Devendra Kumar
-Guide   : AERON
+Project  : SURYA COMPUTER OF EDUCATION CENTER
+File     : certificate-print.html
+Version  : v3.0.0
+Author   : Sunil Kumar
+Developer: Devendra Kumar
+Guide    : AERON
 
-Purpose :
+Purpose  :
 Professional A4 Certificate - Page 1
 ==================================================
 -->
@@ -1178,7 +1179,7 @@ Professional A4 Certificate - Page 1
    CERTIFICATE LOADER
 ================================================== */
 
-function loadCertificate() {
+async function loadCertificate() {
 
 
     const params =
@@ -1214,32 +1215,35 @@ function loadCertificate() {
     }
 
 
-    const certificates =
-        getSuryaModule(
-            "certificates"
+    /* ==================================================
+   LOAD CERTIFICATE FROM GOOGLE DATABASE
+================================================== */
+
+const SURYA_DATABASE_API =
+    "https://script.google.com/macros/s/AKfycbxWG_ick4oYevNkOACXY-A-DurFLbXyDjurvNyOaORXJ1mpx8Bs41xvdJbd867Hcy3PDg/exec";
+
+
+try {
+
+    const response =
+        await fetch(
+            SURYA_DATABASE_API +
+            "?action=certificate" +
+            "&id=" +
+            encodeURIComponent(
+                certificateId
+            )
         );
 
 
-    const certificate =
-        certificates.find(
-            function(item) {
-
-                return (
-
-                    item.certificateId &&
-
-                    item.certificateId
-                        .toUpperCase() ===
-                    certificateId.toUpperCase()
-
-                );
-
-            }
-        );
+    const result =
+        await response.json();
 
 
-
-    if (!certificate) {
+    if (
+        !result.success ||
+        !result.certificate
+    ) {
 
         content.innerHTML = `
 
@@ -1263,29 +1267,13 @@ function loadCertificate() {
 
     }
 
-      /* ==================================================
-       LOAD STUDENT DATA
-    ================================================== */
 
-    const students =
-        getSuryaModule("students");
-
-
-    const student =
-        students.find(
-            function(item) {
-
-                return (
-                    item.id ===
-                    certificate.studentId
-                );
-
-            }
-        );
+    const certificate =
+        result.certificate;
 
 
     /* ==================================================
-       STUDENT PHOTO
+       LOAD STUDENT DOCUMENTS
     ================================================== */
 
     const studentPhoto =
@@ -1294,33 +1282,248 @@ function loadCertificate() {
         );
 
 
-    if (studentPhoto) {
-
-        studentPhoto.src =
-            student && student.photo
-                ? student.photo
-                : "assets/images/student-placeholder.svg";
-
-    }
-
-        /* ==================================================
-       STUDENT SIGNATURE
-    ================================================== */
-
     const studentSignature =
         document.getElementById(
             "studentSignature"
         );
 
 
-    if (studentSignature) {
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
 
-        studentSignature.src =
-            student && student.signature
-                ? student.signature
-                : "assets/images/signature-placeholder.svg";
+
+    await loadStudentDocuments(
+        certificate.studentId
+    );
+
+
+    /* ==================================================
+       GET STUDENT RECORD
+    ================================================== */
+
+    async function loadStudentDocuments(
+        studentId
+    ) {
+
+        if (!adminToken) {
+
+            console.error(
+                "ADMIN TOKEN NOT FOUND"
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const studentResponse =
+                await fetch(
+                    SURYA_DATABASE_API +
+                    "?action=application" +
+                    "&id=" +
+                    encodeURIComponent(
+                        studentId
+                    ) +
+                    "&token=" +
+                    encodeURIComponent(
+                        adminToken
+                    )
+                );
+
+
+            const studentResult =
+                await studentResponse.json();
+
+
+            if (
+                !studentResult.success ||
+                !studentResult.application
+            ) {
+
+                console.error(
+                    "STUDENT RECORD LOAD FAILED:",
+                    studentResult.message
+                );
+
+                return;
+
+            }
+
+
+            const student =
+                studentResult.application;
+
+
+            /* =========================================
+               PHOTO
+            ========================================= */
+
+            if (
+                studentPhoto &&
+                student.photoUrl
+            ) {
+
+                const photoFileId =
+                    extractDriveFileId(
+                        student.photoUrl
+                    );
+
+
+                if (photoFileId) {
+
+                    const photoResponse =
+                        await fetch(
+                            SURYA_DATABASE_API +
+                            "?action=studentPhoto" +
+                            "&id=" +
+                            encodeURIComponent(
+                                photoFileId
+                            ) +
+                            "&token=" +
+                            encodeURIComponent(
+                                adminToken
+                            )
+                        );
+
+
+                    const photoResult =
+                        await photoResponse.json();
+
+
+                    if (
+                        photoResult.success &&
+                        photoResult.data
+                    ) {
+
+                        studentPhoto.src =
+                            "data:" +
+                            photoResult.mimeType +
+                            ";base64," +
+                            photoResult.data;
+
+                    }
+
+                }
+
+            }
+
+
+            /* =========================================
+               SIGNATURE
+            ========================================= */
+
+            if (
+                studentSignature &&
+                student.signatureUrl
+            ) {
+
+                const signatureFileId =
+                    extractDriveFileId(
+                        student.signatureUrl
+                    );
+
+
+                if (signatureFileId) {
+
+                    const signatureResponse =
+                        await fetch(
+                            SURYA_DATABASE_API +
+                            "?action=studentSignature" +
+                            "&id=" +
+                            encodeURIComponent(
+                                signatureFileId
+                            ) +
+                            "&token=" +
+                            encodeURIComponent(
+                                adminToken
+                            )
+                        );
+
+
+                    const signatureResult =
+                        await signatureResponse.json();
+
+
+                    if (
+                        signatureResult.success &&
+                        signatureResult.data
+                    ) {
+
+                        studentSignature.src =
+                            "data:" +
+                            signatureResult.mimeType +
+                            ";base64," +
+                            signatureResult.data;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "STUDENT DOCUMENT LOAD ERROR:",
+                error
+            );
+
+        }
 
     }
+        } catch (error) {
+
+          console.error(
+              "CERTIFICATE LOAD ERROR:",
+              error
+          );
+
+          content.innerHTML = `
+              <div class="error-message">
+                  ❌ Certificate loading failed.
+                  <br><br>
+                  Please try again.
+              </div>
+          `;
+
+          return;
+
+}
+
+
+    /* ==================================================
+       EXTRACT GOOGLE DRIVE FILE ID
+    ================================================== */
+
+    function extractDriveFileId(
+        url
+    ) {
+
+        if (!url) {
+
+            return "";
+
+        }
+
+
+        const match =
+            String(url).match(
+                /[?&]id=([^&]+)/i
+            );
+
+
+        return match
+            ? match[1]
+            : "";
+
+    }
+
 
     /* ==================================================
        RESULT DATA
@@ -1330,6 +1533,9 @@ function loadCertificate() {
         certificate.percentage ||
         certificate.marksPercentage ||
         "—";
+ 
+   
+
 
 
     const grade =

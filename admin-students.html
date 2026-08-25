@@ -291,24 +291,205 @@ Created : 09-08-2026
 
 let currentStudent = null;
 
-
 /* ==================================================
-   LOAD STUDENTS
+   SURYA CENTRAL DATABASE API
 ================================================== */
 
-function loadStudents() {
+const SURYA_DATABASE_API =
+    "https://script.google.com/macros/s/AKfycbxWG_ick4oYevNkOACXY-A-DurFLbXyDjurvNyOaORXJ1mpx8Bs41xvdJbd867Hcy3PDg/exec";
 
-    const students =
-        getSuryaModule("students");
 
-    updateStudentSummary(students);
+/* ==================================================
+   LOAD STUDENTS FROM CENTRAL DATABASE
+================================================== */
 
-    updateCourseSummary(students);
+async function loadStudents() {
 
-    displayStudents(students);
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+    if (!adminToken) {
+
+        window.location.replace(
+            "admin-login.html"
+        );
+
+        return;
+
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API +
+                "?action=students&token=" +
+                encodeURIComponent(
+                    adminToken
+                )
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Students database request failed."
+            );
+
+        }
+
+        const data =
+            await response.json();
+
+        if (
+            !data.success ||
+            !Array.isArray(data.students)
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Students could not be loaded."
+            );
+
+        }
+
+        /*
+           CENTRAL DATABASE → LOCAL PAGE FORMAT
+        */
+
+        const students =
+            data.students.map(
+                function(student) {
+
+                    return {
+
+                        id:
+                            student.id ||
+                            student["Student ID"] ||
+                            "",
+
+                        admissionId:
+                            student.admissionId ||
+                            student["Admission ID"] ||
+                            "",
+
+                        applicationId:
+                            student.applicationId ||
+                            student["Application ID"] ||
+                            "",
+
+                        name:
+                            student.name ||
+                            student["Student Name"] ||
+                            "",
+
+                        fatherName:
+                            student.fatherName ||
+                            student["Father Name"] ||
+                            "",
+
+                        motherName:
+                            student.motherName ||
+                            student["Mother Name"] ||
+                            "",
+
+                        dob:
+                            student.dob ||
+                            student["DOB"] ||
+                            "",
+
+                        mobile:
+                            student.mobile ||
+                            student["Mobile"] ||
+                            "",
+
+                        email:
+                            student.email ||
+                            student["Email"] ||
+                            "",
+
+                        address:
+                            student.address ||
+                            student["Address"] ||
+                            "",
+
+                        course:
+                            student.course ||
+                            student["Course"] ||
+                            "",
+
+                        photo:
+                            student.photo ||
+                            student["Photo"] ||
+                            "",
+
+                        signature:
+                            student.signature ||
+                            student["Signature"] ||
+                            "",
+
+                        admissionDate:
+                            student.admissionDate ||
+                            student["Admission Date"] ||
+                            "",
+
+                        status:
+                            student.status ||
+                            student["Status"] ||
+                            "Active",
+
+                        certificateId:
+                            student.certificateId ||
+                            student["Certificate ID"] ||
+                            ""
+
+                    };
+
+                }
+            );
+
+        /*
+           KEEP PAGE MODULE IN SYNC
+        */
+
+        updateSuryaModule(
+            "students",
+            students
+        );
+
+        /*
+           DISPLAY CENTRAL STUDENTS
+        */
+
+        updateStudentSummary(
+            students
+        );
+
+        updateCourseSummary(
+            students
+        );
+
+        displayStudents(
+            students
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "LOAD STUDENTS ERROR:",
+            error
+        );
+
+        alert(
+            "❌ Central Database से Students load नहीं हो सके.\n\n" +
+            error.message
+        );
+
+    }
 
 }
-
 
 /* ==================================================
    STUDENT SUMMARY
@@ -888,10 +1069,10 @@ function editStudent(studentId) {
 
 
 /* ==================================================
-   SAVE STUDENT CHANGES
+   SAVE STUDENT CHANGES — CENTRAL DATABASE API
 ================================================== */
 
-function saveStudentChanges() {
+async function saveStudentChanges() {
 
     if (!currentStudent) {
 
@@ -904,27 +1085,20 @@ function saveStudentChanges() {
     }
 
 
-    const students =
-        getSuryaModule("students");
-
-
-    const index =
-        students.findIndex(
-            function(student) {
-
-                return (
-                    student.id ===
-                    currentStudent.id
-                );
-
-            }
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
         );
 
 
-    if (index === -1) {
+    if (!adminToken) {
 
         alert(
-            "❌ Student record not found."
+            "❌ Admin session expired. Please login again."
+        );
+
+        window.location.replace(
+            "admin-login.html"
         );
 
         return;
@@ -932,71 +1106,176 @@ function saveStudentChanges() {
     }
 
 
-    students[index].name =
-        document
-        .getElementById(
-            "editStudentName"
-        )
-        .value
-        .trim();
+    const studentId =
+        currentStudent.id;
 
 
-    students[index].fatherName =
-        document
-        .getElementById(
-            "editFatherName"
-        )
-        .value
-        .trim();
+    const updatedData = {
+
+        studentId:
+            studentId,
+
+        name:
+            document
+                .getElementById("editStudentName")
+                .value
+                .trim(),
+
+        fatherName:
+            document
+                .getElementById("editFatherName")
+                .value
+                .trim(),
+
+        course:
+            document
+                .getElementById("editCourse")
+                .value
+                .trim(),
+
+        mobile:
+            document
+                .getElementById("editMobile")
+                .value
+                .trim(),
+
+        status:
+            document
+                .getElementById("editStudentStatus")
+                .value,
+
+        token:
+            adminToken,
+
+        action:
+            "updateStudent"
+
+    };
 
 
-    students[index].course =
-        document
-        .getElementById(
-            "editCourse"
-        )
-        .value
-        .trim();
+    if (!updatedData.name) {
+
+        alert(
+            "❌ Student name is required."
+        );
+
+        return;
+
+    }
 
 
-    students[index].mobile =
-        document
-        .getElementById(
-            "editMobile"
-        )
-        .value
-        .trim();
+    try {
+
+        const response =
+            await fetch(
+
+                SURYA_DATABASE_API,
+
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "text/plain;charset=UTF-8"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            updatedData
+                        )
+
+                }
+
+            );
 
 
-    students[index].status =
-        document
-        .getElementById(
-            "editStudentStatus"
-        )
-        .value;
+        const result =
+            await response.json();
 
 
-    updateSuryaModule(
-        "students",
-        students
-    );
+        console.log(
+            "UPDATE STUDENT API RESULT:",
+            result
+        );
 
 
-    currentStudent =
-        students[index];
+        if (!result.success) {
+
+            alert(
+
+                "❌ Student update failed.\n\n" +
+
+                (
+                    result.message ||
+                    "Unknown error."
+                )
+
+            );
+
+            return;
+
+        }
 
 
-    document.getElementById(
-        "editStudentForm"
-    ).style.display = "none";
+        /* =========================================
+           UPDATE SUCCESS
+        ========================================= */
+
+        alert(
+
+            "✅ Student details updated successfully!\n\n" +
+
+            "Student ID: " +
+            studentId
+
+        );
 
 
-    loadStudents();
+        currentStudent =
+            null;
 
 
-    alert(
-        "✅ Student details updated successfully!"
-    );
+        document.getElementById(
+            "editStudentForm"
+        ).style.display =
+            "none";
+
+
+        /*
+         * IMPORTANT:
+         * Do not generate/change any ID.
+         * Reload students from Central Database.
+         */
+
+        loadStudents();
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "UPDATE STUDENT API ERROR:",
+            error
+        );
+
+
+        alert(
+
+            "❌ Student update request failed.\n\n" +
+
+            (
+                error.message ||
+                String(error)
+            )
+
+        );
+
+    }
 
 }
 

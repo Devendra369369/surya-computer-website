@@ -2,7 +2,8 @@
 Project : SURYA COMPUTER OF EDUCATION CENTER
 File    : style.css
 Version : v1.0.0
-Author  : Devendra Kumar
+Author  : Sunil kumar 
+Developer  : Devendra Kumar
 Guide   : AERON
 ==================================================*/
 /* Reset */
@@ -1398,4 +1399,283 @@ textarea:focus,
 select:focus {
     outline: 2px solid #1976d2;
     outline-offset: 1px;
+}
+
+/* ==================================================
+   PREMIUM CERTIFICATE BORDER
+================================================== */
+
+.certificate-page {
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    padding: 6mm;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* OUTER FRAME */
+.outer-border {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding: 5px;
+
+    border: 3px solid #1f2937;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #f8f8f8
+        );
+
+    box-shadow:
+        inset 0 0 0 2px #c9a227;
+}
+
+/* SECOND FRAME */
+.inner-border {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    padding: 7mm;
+
+    border: 1px solid #c9a227;
+
+    background: #fff;
+}
+
+/* INNER DECORATIVE LINE */
+.inner-border::before {
+    content: "";
+    position: absolute;
+
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+
+    border: 1px solid rgba(31, 41, 55, 0.45);
+
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* INNER GOLD ACCENT */
+.inner-border::after {
+    content: "";
+    position: absolute;
+
+    top: 13px;
+    left: 13px;
+    right: 13px;
+    bottom: 13px;
+
+    border: 1px solid rgba(201, 162, 39, 0.55);
+
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ==================================================
+   PREMIUM CORNER ORNAMENTS
+================================================== */
+
+.corner {
+    position: absolute;
+
+    width: 42px;
+    height: 42px;
+
+    z-index: 5;
+
+    border: 3px solid #c9a227;
+
+    pointer-events: none;
+}
+
+/* Small inner corner */
+.corner::after {
+    content: "";
+
+    position: absolute;
+
+    width: 18px;
+    height: 18px;
+
+    border: 1px solid #1f2937;
+}
+
+/* TOP LEFT */
+.corner-tl {
+    top: 5px;
+    left: 5px;
+
+    border-right: none;
+    border-bottom: none;
+}
+
+.corner-tl::after {
+    top: 5px;
+    left: 5px;
+
+    border-right: none;
+    border-bottom: none;
+}
+
+/* TOP RIGHT */
+.corner-tr {
+    top: 5px;
+    right: 5px;
+
+    border-left: none;
+    border-bottom: none;
+}
+
+.corner-tr::after {
+    top: 5px;
+    right: 5px;
+
+    border-left: none;
+    border-bottom: none;
+}
+
+/* BOTTOM LEFT */
+.corner-bl {
+    bottom: 5px;
+    left: 5px;
+
+    border-right: none;
+    border-top: none;
+}
+
+.corner-bl::after {
+    bottom: 5px;
+    left: 5px;
+
+    border-right: none;
+    border-top: none;
+}
+
+/* BOTTOM RIGHT */
+.corner-br {
+    bottom: 5px;
+    right: 5px;
+
+    border-left: none;
+    border-top: none;
+}
+
+.corner-br::after {
+    bottom: 5px;
+    right: 5px;
+
+    border-left: none;
+    border-top: none;
+}
+
+/* ==================================================
+   ROYAL BLUE + GOLD CERTIFICATE BORDER
+================================================== */
+
+.outer-border {
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+    position: relative;
+
+    /* Outer royal blue frame */
+    border: 5px solid #173f8a;
+
+    /* Gold inner accent */
+    box-shadow:
+        inset 0 0 0 3px #d4af37,
+        inset 0 0 0 6px #ffffff;
+}
+
+
+.inner-border {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    padding: 7mm;
+
+    /* Main inner border */
+    border: 2px solid #d4af37;
+
+    /* Thin royal-blue accent */
+    box-shadow:
+        inset 0 0 0 2px #173f8a;
+}
+
+
+/* ==================================================
+   DECORATIVE CORNERS
+================================================== */
+
+.corner {
+    position: absolute;
+
+    width: 38px;
+    height: 38px;
+
+    z-index: 10;
+
+    border: 4px solid #d4af37;
+
+    /* small royal-blue accent */
+    box-shadow:
+        0 0 0 2px #173f8a;
+}
+
+
+/* TOP LEFT */
+
+.corner-tl {
+    top: 7px;
+    left: 7px;
+
+    border-right: none;
+    border-bottom: none;
+
+}
+
+
+/* TOP RIGHT */
+
+.corner-tr {
+    top: 7px;
+    right: 7px;
+
+    border-left: none;
+    border-bottom: none;
+
+}
+
+
+/* BOTTOM LEFT */
+
+.corner-bl {
+    bottom: 7px;
+    left: 7px;
+
+    border-right: none;
+    border-top: none;
+
+}
+
+
+/* BOTTOM RIGHT */
+
+.corner-br {
+    bottom: 7px;
+    right: 7px;
+
+    border-left: none;
+    border-top: none;
+
 }
