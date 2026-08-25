@@ -1,23 +1,47 @@
-# ===== BACKUP FILES =====
-*.backup-*
-*.backup
+# ==================================================
+# SURYA COMPUTER - BACKUP / DEBUG FILES
+# ==================================================
+
+# Backup files
 *.bak
+*.bak*
+*.backup
+*.backup*
+*BACKUP*
+*backup*
 
-# ===== TEMP / EDITOR FILES =====
-*.tmp
-*.temp
-*.swp
-*~
-untitled.txt
+# BEFORE / OLD versions
+*BEFORE*
+*before*
+*.before-*
+*.before_*
 
-# ===== LOCAL / SYSTEM =====
+# Temporary test/debug scripts
+CHECK_*.js
+FINAL_CHECK_*.js
+FRESH_ADMIN_*.js
+REAL_ADMIN_SCRIPT_*.js
+aeron_check_*.js
+aeron_real_*.js
+
+# Temporary development files
+photo-diff.txt
+check_html_js.py
+fix_result_id.py
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+
+# OS/editor junk
 .DS_Store
 Thumbs.db
 
-# ===== NODE / BUILD =====
-node_modules/
-dist/
-build/
-
-# ===== LOCAL GIT =====
-.git/
+# Temporary final/debug files
+FINAL_ADMIN_SCRIPT_*.js
+admin-results.html.COURSE-FIXED
+admin-results.html.RESULT-CURRENT-STABLE
+admin-results.html.RESULT-STABLE*
+certificate-print.after-syntax-fix.html
+untitled.txt

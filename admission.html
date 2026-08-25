@@ -497,9 +497,67 @@ FOOTER
     </p>
 
 </footer>
+  <script>
+/* ==================================================
+   SURYA CEC CENTRAL DATABASE API
+================================================== */
+
+const SURYA_DATABASE_API =
+    "https://script.google.com/macros/s/AKfycbxWG_ick4oYevNkOACXY-A-DurFLbXyDjurvNyOaORXJ1mpx8Bs41xvdJbd867Hcy3PDg/exec";
 
 
-<script>
+/* ==================================================
+   FILE → BASE64
+   Existing File objects को बिना बदले backend के
+   लिए Base64 में convert करता है.
+================================================== */
+
+function fileToBase64(file) {
+
+    return new Promise(
+        function(resolve, reject) {
+
+            if (!file) {
+
+                resolve("");
+
+                return;
+
+            }
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function() {
+
+                    resolve(
+                        reader.result
+                    );
+
+                };
+
+
+            reader.onerror =
+                function() {
+
+                    reject(
+                        new Error(
+                            "File could not be read."
+                        )
+                    );
+
+                };
+
+
+            reader.readAsDataURL(file);
+
+        }
+    );
+
+}
+
 
 /* ==================================================
    ADMISSION FORM
@@ -662,6 +720,16 @@ aadhaarInput.addEventListener(
 );
 
 /* ==================================================
+   SUBMISSION LOCK
+================================================== */
+
+let admissionSubmitting = false;
+
+const submitAdmissionBtn =
+    document.getElementById("submitAdmissionBtn");
+
+
+/* ==================================================
    SUBMIT ADMISSION
 ================================================== */
 
@@ -669,13 +737,49 @@ admissionForm.addEventListener(
     "submit",
     async function(event) {
 
-
         event.preventDefault();
+
+
+        /* =========================================
+           HARD SINGLE-TAP LOCK
+        ========================================= */
+
+        if (admissionSubmitting) {
+
+            console.warn(
+                "ADMISSION SUBMISSION ALREADY IN PROGRESS"
+            );
+
+            return;
+        }
+
+
+        admissionSubmitting = true;
+
+
+        /* =========================================
+           DISABLE BUTTON IMMEDIATELY
+        ========================================= */
+
+        if (submitAdmissionBtn) {
+
+            submitAdmissionBtn.disabled = true;
+
+            submitAdmissionBtn.textContent =
+                "Submitting Admission...";
+
+            submitAdmissionBtn.style.opacity =
+                "0.6";
+
+            submitAdmissionBtn.style.pointerEvents =
+                "none";
+
+        }
 
 
         try {
 
-
+          
             /* =========================================
                GET FORM DATA
             ========================================= */
@@ -828,296 +932,284 @@ if (
 
 }
 
-    
+    /* ==================================================
+   GOOGLE DATABASE SUBMIT
+================================================== */
 
-            /* =========================================
-               EXISTING APPLICATIONS
-            ========================================= */
+const apiData = {
+
+    action: "submitAdmission",
+
+    studentName:
+        studentName,
+
+    fatherName:
+        fatherName,
+
+    motherName:
+        motherName,
+
+    dateOfBirth:
+        dateOfBirth,
+
+    course:
+        course,
+
+    mobile:
+        mobile,
+
+    email:
+        email,
+
+    address:
+        address,
+
+    /* =========================
+       STUDENT PHOTO
+    ========================= */
+
+    photo:
+        photoData,
+
+    photoName:
+        photoFile.name,
+
+    photoType:
+        photoFile.type,
+
+    /* =========================
+       SIGNATURE
+    ========================= */
+
+    signature:
+        window.studentSignatureData || "",
+
+    signatureName:
+        "SIGNATURE",
+
+    signatureType:
+        "image/png",
+
+    /* =========================
+       MARKSHEET
+    ========================= */
+
+    marcsheet:
+        window.studentMarcsheetData || "",
+
+    marcsheetName:
+        "MARKSHEET",
+
+    marcsheetType:
+        "image/jpeg",
+
+    /* =========================
+       AADHAAR
+    ========================= */
+
+    aadhaarData: {
+
+        mode:
+            aadhaarData.mode,
+
+        frontData:
+            await fileToBase64(
+                aadhaarData.frontFile
+            ),
+
+        frontName:
+            aadhaarData.frontFile.name,
+
+        frontType:
+            aadhaarData.frontFile.type,
+
+        backData:
+            aadhaarData.backFile
+                ? await fileToBase64(
+                    aadhaarData.backFile
+                )
+                : "",
+
+        backName:
+            aadhaarData.backFile
+                ? aadhaarData.backFile.name
+                : "",
+
+        backType:
+            aadhaarData.backFile
+                ? aadhaarData.backFile.type
+                : ""
+
+    }
+
+};
 
 
-            const admissions =
-                getSuryaModule(
-                    "admissions"
-                );
-         
+/* ==================================================
+   SEND TO GOOGLE APPS SCRIPT
+================================================== */
 
-                /* =========================================
-   DUPLICATE APPLICATION CHECK
-========================================= */
+const response =
+    await fetch(
+        SURYA_DATABASE_API,
+        {
 
-const admissionRecords =
-    Array.isArray(admissions)
-        ? admissions
-        : [];
+            method:
+                "POST",
 
+            headers: {
 
-const duplicateApplication =
-    admissionRecords.find(
-        function(application) {
+                "Content-Type":
+                    "text/plain;charset=utf-8"
 
-            const sameMobile =
-                String(application.mobile || "")
-                .trim() ===
-                String(mobile || "")
-                .trim();
+            },
 
-
-            const sameCourse =
-                String(application.course || "")
-                .trim()
-                .toLowerCase() ===
-                String(course || "")
-                .trim()
-                .toLowerCase();
-
-
-            const sameName =
-                String(application.studentName || "")
-                .trim()
-                .toLowerCase() ===
-                String(studentName || "")
-                .trim()
-                .toLowerCase();
-
-
-            return (
-                sameMobile &&
-                sameCourse &&
-                sameName &&
-                application.status === "Pending"
-            );
+            body:
+                JSON.stringify(
+                    apiData
+                )
 
         }
     );
 
 
-if (duplicateApplication) {
-
-    alert(
-
-        "⚠️ यह admission application पहले से मौजूद है.\n\n" +
-
-        "Application ID: " +
-        duplicateApplication.id +
-
-        "\n\n" +
-
-        "इस application को दोबारा submit करने की जरूरत नहीं है."
-
-    );
-
-    return;
-
-}
+const result =
+    await response.json();
 
 
-           /* =========================================
-   GENERATE APPLICATION ID
-========================================= */
+/* ==================================================
+   CHECK RESPONSE
+================================================== */
 
-const newApplicationId =
-    generateApplicationId();
+if (
+    !result.success
+) {
 
-          /* =========================================
-   SAVE AADHAAR PDF OR FRONT + BACK
-========================================= */
-
-try {
-
-    await saveAadhaarFiles(
-        newApplicationId,
-        aadhaarData
+    throw new Error(
+        result.message ||
+        "Admission submission failed."
     );
 
 }
 
-catch (error) {
 
-    alert(
-        "❌ Aadhaar could not be saved.\n\n" +
-        error.message
-    );
+/* ==================================================
+   SAVE APPLICATION ID
+================================================== */
 
-    return;
+localStorage.setItem(
 
-}
+    "lastApplicationId",
 
+    result.applicationId
 
+);
 
-            /* =========================================
-               APPLICATION DATE
-            ========================================= */
+/* ==================================================
+   SAVE APPLICATION ACKNOWLEDGEMENT DATA
+================================================== */
 
+localStorage.setItem(
+    "lastAdmissionData",
+    JSON.stringify({
 
-            const applicationDate =
-                new Date()
-                .toLocaleDateString(
-                    "en-GB",
-                    {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric"
-                    }
-                );
+        applicationId:
+            result.applicationId,
 
+        studentName:
+            studentName,
 
-            /* =========================================
-               CREATE APPLICATION
-            ========================================= */
+        fatherName:
+            fatherName,
 
+        motherName:
+            motherName,
 
-            const newApplication = {
+        dateOfBirth:
+            dateOfBirth,
 
-                id:
-                    newApplicationId,
+        course:
+            course,
 
-                studentName:
-                    studentName,
+        mobile:
+            mobile,
 
-                fatherName:
-                    fatherName,
+        email:
+            email,
 
-                motherName:
-                    motherName,
+        address:
+            address,
 
-                dateOfBirth:
-                    dateOfBirth,
+        applicationDate:
+            new Date().toISOString(),
 
-                course:
-                    course,
+        status:
+            result.status || "Pending",
 
-                mobile:
-                    mobile,
+        photo:
+            photoData,
 
-                email:
-                    email,
+        photoName:
+            photoFile.name,
 
-                address:
-                    address,              
+        signatureSubmitted:
+            !!window.studentSignatureData,
 
-                photo:
-                    photoData,
+        marksheetSubmitted:
+            !!window.studentMarcsheetData,
 
-                photoName:
-                    photoFile.name,
+        aadhaarSubmitted:
+            !!aadhaarData
 
-                photoType:
-                    photoFile.type,
-              
-                signature:
-                    window.studentSignatureData || "",
-                marcsheet:
-                    window.studentMarcsheetData || "",
-              
-               aadhaarUploaded:
-                  true,
+    })
+);
 
-                aadhaarMode:
-                    aadhaarData.mode,
+/* ==================================================
+   SUCCESS
+================================================== */
 
-                aadhaarName:
-                    aadhaarData.frontFile.name,
+alert(
 
-                aadhaarType:
-                    aadhaarData.frontFile.type,
+    "✅ Admission submitted successfully!\n\n" +
 
-                aadhaarFrontName:
-                    aadhaarData.frontFile.name,
+    "Application ID: " +
 
-                aadhaarBackName:
-                    aadhaarData.backFile
-                ? aadhaarData.backFile.name
-                        : "",
+    result.applicationId +
 
-                aadhaarBackUploaded:
-                        aadhaarData.mode === "image"
-                            ? true
-                            : false,
+    "\n\n" +
 
-                applicationDate:
-                    applicationDate,
+    "Student documents saved successfully."
 
-                status:
-                    "Pending"
-
-            };
+);
 
 
-            /* =========================================
-               SAVE APPLICATION
-            ========================================= */
+/* ==================================================
+   OPEN SUCCESS PAGE
+================================================== */
 
-
-            admissions.push(
-                newApplication
-            );
-
-
-            updateSuryaModule(
-                "admissions",
-                admissions
-            );
-
-
-            /* =========================================
-               SAVE LAST APPLICATION ID
-            ========================================= */
-
-
-            localStorage.setItem(
-                "lastApplicationId",
-                newApplicationId
-            );
-
-
-            /* =========================================
-               SUCCESS
-            ========================================= */
-
-            alert(
-
-                "✅ Admission submitted successfully!\n\n" +
-
-                "Application ID: " +
-                newApplicationId +
-                "\n\n" +
-
-                "Student photo saved successfully."
-
-            );
-
-
-            /* =========================================
-               OPEN SUCCESS PAGE
-            ========================================= */
-
-            window.location.href =
-                "admission-success.html";
-
+window.location.href =
+    "admission-success.html";
 
         }
 
         catch (error) {
 
-    console.error(
-        "ADMISSION ERROR:",
-        error
-    );
+            console.error(
+                "ADMISSION ERROR:",
+                error
+            );
 
-
-    alert(
-
-        "❌ Admission could not be saved.\n\n" +
-
-        "Error: " +
-        (error.message || error)
-
-    );
+            alert(
+                "❌ Admission submission status could not be confirmed.\n\n" +
+                "IMPORTANT: Please DO NOT press Submit again.\n\n" +
+                "Check the admin panel / Google Sheet before trying again."
+            );
 
         }
 
     }
 );
+
 
 initStudentSignatureUpload();
 initStudentMarcsheetUpload();

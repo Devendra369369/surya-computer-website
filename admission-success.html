@@ -2,10 +2,10 @@
 ==================================================
 Project : SURYA COMPUTER OF EDUCATION CENTER
 File    : admission-success.html
-Version : v1.0.0
+Version : v2.0.0
 Author  : Devendra Kumar
 Guide   : AERON
-Created : 08-08-2026
+Purpose : Admission Acknowledgement
 ==================================================
 -->
 <!DOCTYPE html>
@@ -14,94 +14,702 @@ Created : 08-08-2026
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admission Submitted | Surya Computer Of Education Center</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
-    <script src="assets/js/data-manager.js"></script>
+    <title>
+        Admission Acknowledgement |
+        Surya Computer Of Education Center
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="assets/css/responsive.css"
+    >
+
+    <style>
+
+        .ack-wrapper {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 15px;
+        }
+
+        .ack-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+            border: 1px solid #ddd;
+        }
+
+        .ack-header {
+            text-align: center;
+            border-bottom: 2px solid #222;
+            padding-bottom: 18px;
+            margin-bottom: 20px;
+        }
+
+        .ack-header img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+
+        .ack-header h2 {
+            margin: 5px 0;
+            font-size: 24px;
+        }
+
+        .ack-header p {
+            margin: 4px 0;
+        }
+
+        .success-badge {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            background: #e8f7e8;
+        }
+
+        .student-top {
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+
+        .student-photo-box {
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        .student-photo {
+            width: 130px;
+            height: 160px;
+            object-fit: cover;
+            border: 2px solid #222;
+            border-radius: 6px;
+            display: block;
+        }
+
+        .student-photo-box p {
+            margin-top: 7px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .application-id-box {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .application-id-box p {
+            margin: 5px 0;
+        }
+
+        .application-id-box h3 {
+            margin: 5px 0 15px;
+            font-size: 22px;
+        }
+
+        .ack-section {
+            margin-top: 22px;
+        }
+
+        .ack-section h3 {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .detail-item {
+            padding: 10px;
+            border: 1px solid #e1e1e1;
+            border-radius: 6px;
+        }
+
+        .detail-label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            word-break: break-word;
+        }
+
+        .address-box {
+            padding: 12px;
+            border: 1px solid #e1e1e1;
+            border-radius: 6px;
+            line-height: 1.6;
+        }
+
+        .status-pending {
+            display: inline-block;
+            padding: 7px 14px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        .documents-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .documents-list li {
+            padding: 9px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .acknowledgement {
+            margin-top: 25px;
+            padding: 18px;
+            border-left: 4px solid #222;
+            background: #f7f7f7;
+            line-height: 1.7;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .action-buttons button,
+        .action-buttons a {
+            padding: 11px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1px solid #222;
+            background: #222;
+            color: #fff;
+        }
+
+        .action-buttons .secondary {
+            background: #fff;
+            color: #222;
+        }
+
+        .privacy-note {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        @media print {
+
+            .top-bar,
+            .navbar,
+            footer,
+            .action-buttons {
+                display: none !important;
+            }
+
+            .ack-wrapper {
+                margin: 0;
+                max-width: none;
+            }
+
+            .ack-card {
+                box-shadow: none;
+                border: 1px solid #222;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .student-top {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .application-id-box {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ack-card {
+                padding: 15px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
+
 <body>
 
+
 <div class="top-bar">
+
     📞 7084275870 |
     ✉️ sunilkumar5757kp@gmail.com
+
 </div>
+
 
 <header class="header">
 
-    <img src="assets/images/logo.png" alt="Logo" class="logo">
+    <img
+        src="assets/images/logo.png"
+        alt="Institute Logo"
+        class="logo"
+    >
 
     <div class="title">
-        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
-        <p>Kamalpur, Chandauli, Uttar Pradesh</p>
+
+        <h1>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h1>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
     </div>
 
 </header>
 
+
 <nav class="navbar">
 
     <a href="index.html">Home</a>
+
     <a href="about.html">About</a>
+
     <a href="courses.html">Courses</a>
+
     <a href="admission.html">Admission</a>
+
     <a href="result.html">Result</a>
+
     <a href="certificate.html">Certificate</a>
+
     <a href="student-login.html">Student Login</a>
+
     <a href="gallery.html">Gallery</a>
+
     <a href="contact.html">Contact</a>
 
 </nav>
 
 
-<section class="admission-success">
+<section class="ack-wrapper">
 
-    <div class="success-card">
 
-        <div class="success-icon">
-            ✅
+    <div class="ack-card">
+
+
+        <!-- HEADER -->
+
+        <div class="ack-header">
+
+            <img
+                src="assets/images/logo.png"
+                alt="Institute Logo"
+            >
+
+            <h2>
+                ADMISSION ACKNOWLEDGEMENT
+            </h2>
+
+            <p>
+                SURYA COMPUTER OF EDUCATION CENTER
+            </p>
+
+            <p>
+                Kamalpur, Chandauli, Uttar Pradesh
+            </p>
+
+            <div class="success-badge">
+                ✅ Application Submitted Successfully
+            </div>
+
         </div>
 
-        <h2>Admission Application Submitted</h2>
 
-        <p>
-            Thank you for applying to
-            <strong>Surya Computer Of Education Center.</strong>
-        </p>
+        <!-- STUDENT + APPLICATION -->
 
-        <div class="application-id">
+        <div class="student-top">
 
-            <p>Application ID</p>
 
-            <h3 id="applicationId">SC-ADM-001</h3>
+            <div class="student-photo-box">
+
+                <img
+                    id="studentPhoto"
+                    class="student-photo"
+                    alt="Student Photo"
+                >
+
+                <p>
+                    Student Photo
+                </p>
+
+            </div>
+
+
+            <div class="application-id-box">
+
+                <p>
+                    <strong>
+                        Application / Registration ID
+                    </strong>
+                </p>
+
+                <h3 id="applicationId">
+                    —
+                </h3>
+
+                <p>
+                    <strong>
+                        Application Date:
+                    </strong>
+
+                    <span id="applicationDate">
+                        —
+                    </span>
+                </p>
+
+                <p>
+                    <strong>
+                        Application Status:
+                    </strong>
+
+                    <span
+                        id="applicationStatus"
+                        class="status-pending"
+                    >
+                        Pending
+                    </span>
+
+                </p>
+
+            </div>
+
 
         </div>
 
-        <p>
-            Your application has been received successfully.
-        </p>
 
-        <p>
-            Our institute will verify your application
-            and contact you regarding the next steps.
-        </p>
+        <!-- STUDENT DETAILS -->
 
-        <div class="success-buttons">
+        <div class="ack-section">
 
-            <a href="index.html" class="btn">
-                🏠 Go to Home
+            <h3>
+                Student Details
+            </h3>
+
+
+            <div class="details-grid">
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Student Name
+                    </span>
+
+                    <span
+                        id="studentName"
+                        class="detail-value"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Father Name
+                    </span>
+
+                    <span
+                        id="fatherName"
+                        class="detail-value"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Mother Name
+                    </span>
+
+                    <span
+                        id="motherName"
+                        class="detail-value"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Date of Birth
+                    </span>
+
+                    <span
+                        id="dateOfBirth"
+                        class="detail-value"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Course
+                    </span>
+
+                    <span
+                        id="course"
+                        class="detail-value"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Mobile
+                    </span>
+
+                    <span
+                        id="mobile"
+                        class="detail-value"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Email
+                    </span>
+
+                    <span
+                        id="email"
+                        class="detail-value"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+            <div
+                class="detail-item"
+                style="margin-top:10px;"
+            >
+
+                <span class="detail-label">
+                    Address
+                </span>
+
+                <div
+                    id="address"
+                    class="address-box"
+                >
+                    —
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- SUBMITTED DOCUMENTS -->
+
+        <div class="ack-section">
+
+            <h3>
+                Submitted Documents
+            </h3>
+
+
+            <ul class="documents-list">
+
+
+                <li>
+                    📷
+                    Student Photo
+                    <strong>
+                        — Submitted
+                    </strong>
+                </li>
+
+
+                <li>
+                    ✍️
+                    Student Signature
+                    <strong id="signatureStatus">
+                        — Submitted
+                    </strong>
+                </li>
+
+
+                <li>
+                    📄
+                    Marksheet
+                    <strong id="marksheetStatus">
+                        — Submitted
+                    </strong>
+                </li>
+
+
+                <li>
+                    🪪
+                    Aadhaar Card
+                    <strong id="aadhaarStatus">
+                        — Submitted
+                    </strong>
+                </li>
+
+
+            </ul>
+
+        </div>
+
+
+        <!-- INSTITUTE ACKNOWLEDGEMENT -->
+
+        <div class="acknowledgement">
+
+            <h3>
+                Institute Acknowledgement
+            </h3>
+
+            <p>
+
+                This is to acknowledge that the above
+                admission application has been successfully
+                received by
+
+                <strong>
+                    SURYA COMPUTER OF EDUCATION CENTER
+                </strong>.
+
+            </p>
+
+            <p>
+
+                The application and submitted documents
+                will be verified by the institute.
+                Admission will be confirmed only after
+                successful verification.
+
+            </p>
+
+            <p>
+
+                Students are advised to keep this
+                acknowledgement and their
+                <strong>
+                    Application / Registration ID
+                </strong>
+                safe for future reference.
+
+            </p>
+
+        </div>
+
+
+        <div class="privacy-note">
+
+            🔒 Sensitive document details such as
+            Aadhaar, marksheet and signature are not
+            displayed on this acknowledgement page.
+
+        </div>
+
+
+        <!-- BUTTONS -->
+
+        <div class="action-buttons">
+
+            <button
+                onclick="window.print()"
+            >
+                🖨️ Print Acknowledgement
+            </button>
+
+
+            <a
+                href="index.html"
+                class="secondary"
+            >
+                🏠 Home
             </a>
 
-            <a href="admission.html" class="btn btn-outline">
+
+            <a
+                href="admission.html"
+                class="secondary"
+            >
                 📝 New Admission
             </a>
 
         </div>
 
+
     </div>
+
 
 </section>
 
@@ -110,7 +718,9 @@ Created : 08-08-2026
 
     <div class="footer-content">
 
-        <h2>SURYA COMPUTER OF EDUCATION CENTER</h2>
+        <h2>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h2>
 
         <p>
             Kamalpur, Chandauli, Uttar Pradesh
@@ -128,32 +738,365 @@ Created : 08-08-2026
 
 </footer>
 
+
 <script>
 
 /* ==================================================
-   SHOW LAST APPLICATION ID
+   LOAD ADMISSION ACKNOWLEDGEMENT
 ================================================== */
 
-const applicationId =
-    localStorage.getItem("lastApplicationId");
+
+const rawAdmissionData =
+    localStorage.getItem(
+        "lastAdmissionData"
+    );
 
 
-const applicationIdElement =
-    document.getElementById("applicationId");
+if (!rawAdmissionData) {
 
-
-if (applicationId) {
-
-    applicationIdElement.textContent =
-        applicationId;
+    alert(
+        "Admission acknowledgement data not found."
+    );
 
 } else {
 
-    applicationIdElement.textContent =
-        "Application ID not available";
+
+    try {
+
+
+        const data =
+            JSON.parse(
+                rawAdmissionData
+            );
+
+
+        /* =========================================
+           HELPER
+        ========================================= */
+
+        function setText(
+            id,
+            value
+        ) {
+
+            const element =
+                document.getElementById(id);
+
+            if (element) {
+
+                element.textContent =
+                    value || "—";
+
+            }
+
+        }
+
+
+        /* =========================================
+           MASK MOBILE
+           SHOW FIRST 2 + LAST 2
+        ========================================= */
+
+        function maskMobile(
+            mobile
+        ) {
+
+            const value =
+                String(
+                    mobile || ""
+                ).replace(
+                    /\s+/g,
+                    ""
+                );
+
+
+            if (value.length <= 4) {
+
+                return value;
+
+            }
+
+
+            return (
+                value.substring(
+                    0,
+                    2
+                ) +
+
+                "******" +
+
+                value.substring(
+                    value.length - 2
+                )
+            );
+
+        }
+
+
+        /* =========================================
+           MASK EMAIL
+           SHOW FIRST 2 + LAST CHARACTER
+        ========================================= */
+
+        function maskEmail(
+            email
+        ) {
+
+            const value =
+                String(
+                    email || ""
+                ).trim();
+
+
+            const atIndex =
+                value.indexOf("@");
+
+
+            if (
+                atIndex <= 0
+            ) {
+
+                return value
+                    ? "******"
+                    : "—";
+
+            }
+
+
+            const local =
+                value.substring(
+                    0,
+                    atIndex
+                );
+
+
+            const domain =
+                value.substring(
+                    atIndex
+                );
+
+
+            if (
+                local.length <= 2
+            ) {
+
+                return (
+                    local.charAt(0) +
+                    "****" +
+                    domain
+                );
+
+            }
+
+
+            return (
+                local.substring(
+                    0,
+                    2
+                ) +
+
+                "****" +
+
+                local.substring(
+                    local.length - 1
+                ) +
+
+                domain
+            );
+
+        }
+
+
+        /* =========================================
+           FORMAT DATE
+        ========================================= */
+
+        function formatDate(
+            value
+        ) {
+
+            if (!value) {
+
+                return "—";
+
+            }
+
+
+            const date =
+                new Date(
+                    value
+                );
+
+
+            if (
+                isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                return value;
+
+            }
+
+
+            return date.toLocaleDateString(
+                "en-IN",
+                {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric"
+                }
+            );
+
+        }
+
+
+        /* =========================================
+           BASIC DETAILS
+        ========================================= */
+
+        setText(
+            "applicationId",
+            data.applicationId
+        );
+
+
+        setText(
+            "studentName",
+            data.studentName
+        );
+
+
+        setText(
+            "fatherName",
+            data.fatherName
+        );
+
+
+        setText(
+            "motherName",
+            data.motherName
+        );
+
+
+        setText(
+            "dateOfBirth",
+            data.dateOfBirth
+        );
+
+
+        setText(
+            "course",
+            data.course
+        );
+
+
+        setText(
+            "mobile",
+            maskMobile(
+                data.mobile
+            )
+        );
+
+
+        setText(
+            "email",
+            maskEmail(
+                data.email
+            )
+        );
+
+
+        setText(
+            "address",
+            data.address
+        );
+
+
+        setText(
+            "applicationDate",
+            formatDate(
+                data.applicationDate
+            )
+        );
+
+
+        setText(
+            "applicationStatus",
+            data.status 
+          ||
+            "Pending"
+        );
+
+
+       
+
+
+        /* ==================================================
+   STUDENT PHOTO
+================================================== */
+
+const photoElement =
+    document.getElementById(
+        "studentPhoto"
+    );
+
+if (
+    photoElement &&
+    data.photo
+) {
+
+    photoElement.src =
+        data.photo;
 
 }
 
+
+/* ==================================================
+   DOCUMENT STATUS
+================================================== */
+
+setText(
+    "signatureStatus",
+    data.signatureSubmitted
+        ? "Submitted"
+        : "Not Submitted"
+);
+
+setText(
+    "marksheetStatus",
+    data.marksheetSubmitted
+        ? "Submitted"
+        : "Not Submitted"
+);
+
+setText(
+    "aadhaarStatus",
+    data.aadhaarSubmitted
+        ? "Submitted"
+        : "Not Submitted"
+);
+
+
+/* ==================================================
+   ERROR HANDLING
+================================================== */
+
+} catch (error) {
+
+    console.error(
+        "ACKNOWLEDGEMENT ERROR:",
+        error
+    );
+
+    alert(
+        "Unable to load acknowledgement data."
+    );
+
+      }
+  }
+
 </script>
+
 </body>
 </html>

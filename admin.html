@@ -2,63 +2,131 @@
 ==================================================
 Project : SURYA COMPUTER OF EDUCATION CENTER
 File    : admin.html
-Version : v1.0.0
+Version : v1.1.0
 Author  : Devendra Kumar
 Guide   : AERON
-Created : 08-08-2026
+
+Security:
+- Admin session guard
+- Server-side logout
+- Change admin password
+- Password change revokes all sessions
 ==================================================
 -->
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admin Panel | Surya Computer Of Education Center</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
+    <title>
+        Admin Panel | Surya Computer Of Education Center
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="assets/css/responsive.css"
+    >
 
 </head>
 
+
 <body>
 
+
+<!-- ==================================================
+     TOP BAR
+================================================== -->
+
 <div class="top-bar">
+
     📞 7084275870 |
+
     ✉️ sunilkumar5757kp@gmail.com
+
 </div>
 
 
+<!-- ==================================================
+     HEADER
+================================================== -->
+
 <header class="header">
 
-    <img src="assets/images/logo.png" alt="Logo" class="logo">
+    <img
+        src="assets/images/logo.png"
+        alt="Logo"
+        class="logo"
+    >
 
     <div class="title">
-        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
-        <p>Admin Panel</p>
+
+        <h1>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h1>
+
+        <p>
+            Admin Panel
+        </p>
+
     </div>
 
 </header>
 
 
+<!-- ==================================================
+     NAVIGATION
+================================================== -->
+
 <nav class="navbar">
 
-    <a href="index.html">Home</a>
-    <a href="admission.html">Admission</a>
-    <a href="result.html">Result</a>
-    <a href="certificate.html">Certificate</a>
-    <a href="student-login.html">Student Login</a>
+    <a href="index.html">
+        Home
+    </a>
+
+    <a href="admission.html">
+        Admission
+    </a>
+
+    <a href="result.html">
+        Result
+    </a>
+
+    <a href="certificate.html">
+        Certificate
+    </a>
+
+    <a href="student-login.html">
+        Student Login
+    </a>
 
 </nav>
 
 
+<!-- ==================================================
+     ADMIN DASHBOARD
+================================================== -->
+
 <section class="admin-panel">
+
 
     <div class="admin-header">
 
-        <h2>⚙️ Admin Dashboard</h2>
+        <h2>
+            ⚙️ Admin Dashboard
+        </h2>
 
         <p>
             Institute Management Panel
@@ -69,118 +137,362 @@ Created : 08-08-2026
 
     <div class="admin-grid">
 
+
+        <!-- ==================================================
+             ADMISSIONS
+        ================================================== -->
+
         <div class="admin-card">
 
-            <div class="admin-icon">🎓</div>
+            <div class="admin-icon">
+                🎓
+            </div>
 
-            <h3>Admissions</h3>
+            <h3>
+                Admissions
+            </h3>
 
             <p>
                 Manage student admission applications.
             </p>
 
-
-            <a href="admin-admissions.html" class="admin-btn">
-    View Admissions
-</a>
+            <a
+                href="admin-admissions.html"
+                class="admin-btn"
+            >
+                View Admissions
+            </a>
 
         </div>
 
 
+        <!-- ==================================================
+             STUDENTS
+        ================================================== -->
+
         <div class="admin-card">
 
-            <div class="admin-icon">👨‍🎓</div>
+            <div class="admin-icon">
+                👨‍🎓
+            </div>
 
-            <h3>Students</h3>
+            <h3>
+                Students
+            </h3>
 
             <p>
                 Manage registered students.
             </p>
-            
-            <a href="admin-students.html" class="admin-btn">
-    Student Records
-</a>
+
+            <a
+                href="admin-students.html"
+                class="admin-btn"
+            >
+                Student Records
+            </a>
 
         </div>
 
 
+        <!-- ==================================================
+             RESULTS
+        ================================================== -->
+
         <div class="admin-card">
 
-            <div class="admin-icon">📊</div>
+            <div class="admin-icon">
+                📊
+            </div>
 
-            <h3>Results</h3>
+            <h3>
+                Results
+            </h3>
 
             <p>
                 Manage examination results.
             </p>
 
-            <a href="admin-results.html" class="admin-btn">
-    Manage Results
-</a>
+            <a
+                href="admin-results.html"
+                class="admin-btn"
+            >
+                Manage Results
+            </a>
 
         </div>
 
 
+        <!-- ==================================================
+             CERTIFICATES
+        ================================================== -->
+
         <div class="admin-card">
 
-            <div class="admin-icon">📜</div>
+            <div class="admin-icon">
+                📜
+            </div>
 
-            <h3>Certificates</h3>
+            <h3>
+                Certificates
+            </h3>
 
             <p>
                 Manage student certificates.
             </p>
 
-            <a href="admin-certificates.html" class="admin-btn">
-    Manage Certificates
-</a>
+            <a
+                href="admin-certificates.html"
+                class="admin-btn"
+            >
+                Manage Certificates
+            </a>
 
         </div>
 
 
+        <!-- ==================================================
+             NOTICES
+        ================================================== -->
+
         <div class="admin-card">
 
-            <div class="admin-icon">📢</div>
+            <div class="admin-icon">
+                📢
+            </div>
 
-            <h3>Notices</h3>
+            <h3>
+                Notices
+            </h3>
 
             <p>
                 Manage institute notices.
             </p>
 
-            <a href="admin-notices.html" class="admin-btn">
-    Manage Notices
-</a>
+            <a
+                href="admin-notices.html"
+                class="admin-btn"
+            >
+                Manage Notices
+            </a>
 
         </div>
 
 
+        <!-- ==================================================
+             COURSES
+        ================================================== -->
+
         <div class="admin-card">
 
-            <div class="admin-icon">📚</div>
+            <div class="admin-icon">
+                📚
+            </div>
 
-            <h3>Courses</h3>
+            <h3>
+                Courses
+            </h3>
 
             <p>
                 Manage available courses.
             </p>
 
-            <a href="admin-courses.html" class="admin-btn">
-    Manage Courses
-</a>
+            <a
+                href="admin-courses.html"
+                class="admin-btn"
+            >
+                Manage Courses
+            </a>
 
         </div>
 
+
+        <!-- ==================================================
+             ADMIN SECURITY
+        ================================================== -->
+
+        <div class="admin-card">
+
+            <div class="admin-icon">
+                🔐
+            </div>
+
+            <h3>
+                Admin Security
+            </h3>
+
+            <p>
+                Change your admin password
+                and protect your account.
+            </p>
+
+            <button
+                type="button"
+                class="admin-btn"
+                onclick="openPasswordPanel()"
+            >
+                Change Password
+            </button>
+
+        </div>
+
+
+        <!-- ==================================================
+             LOGOUT
+        ================================================== -->
+
+        <div class="admin-card">
+
+            <div class="admin-icon">
+                🚪
+            </div>
+
+            <h3>
+                Logout
+            </h3>
+
+            <p>
+                Securely sign out from the
+                admin dashboard.
+            </p>
+
+            <button
+                type="button"
+                class="admin-btn"
+                onclick="adminLogout()"
+            >
+                Logout
+            </button>
+
+        </div>
+
+
     </div>
+
+
+    <!-- ==================================================
+         CHANGE PASSWORD PANEL
+    ================================================== -->
+
+    <div
+        id="passwordPanel"
+        style="
+            display:none;
+            max-width:500px;
+            margin:30px auto;
+            padding:25px;
+            background:#ffffff;
+            border-radius:12px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.12);
+        "
+    >
+
+        <h2>
+            🔐 Change Admin Password
+        </h2>
+
+        <p>
+            Enter your current password and choose
+            a new password.
+        </p>
+
+
+        <form
+            id="changePasswordForm"
+        >
+
+
+            <input
+                type="password"
+                id="currentAdminPassword"
+                placeholder="Current Password"
+                minlength="8"
+                required
+                style="
+                    width:100%;
+                    padding:12px;
+                    margin:8px 0;
+                    box-sizing:border-box;
+                "
+            >
+
+
+            <input
+                type="password"
+                id="newAdminPassword"
+                placeholder="New Password"
+                minlength="8"
+                required
+                style="
+                    width:100%;
+                    padding:12px;
+                    margin:8px 0;
+                    box-sizing:border-box;
+                "
+            >
+
+
+            <input
+                type="password"
+                id="confirmAdminPassword"
+                placeholder="Confirm New Password"
+                minlength="8"
+                required
+                style="
+                    width:100%;
+                    padding:12px;
+                    margin:8px 0;
+                    box-sizing:border-box;
+                "
+            >
+
+
+            <button
+                type="submit"
+                class="admin-btn"
+            >
+                🔑 Change Password
+            </button>
+
+
+            <button
+                type="button"
+                class="admin-btn"
+                onclick="closePasswordPanel()"
+                style="margin-left:8px;"
+            >
+                Cancel
+            </button>
+
+
+        </form>
+
+
+        <div
+            id="passwordMessage"
+            style="
+                margin-top:15px;
+                font-weight:bold;
+            "
+        ></div>
+
+
+    </div>
+
 
 </section>
 
+
+<!-- ==================================================
+     FOOTER
+================================================== -->
 
 <footer class="footer">
 
     <div class="footer-content">
 
-        <h2>SURYA COMPUTER OF EDUCATION CENTER</h2>
+        <h2>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h2>
 
         <p>
             Kamalpur, Chandauli, Uttar Pradesh
@@ -198,5 +510,350 @@ Created : 08-08-2026
 
 </footer>
 
+
+<script>
+
+/* ==================================================
+   GOOGLE APPS SCRIPT API
+================================================== */
+
+const SURYA_DATABASE_API =
+    "https://script.google.com/macros/s/AKfycbxWG_ick4oYevNkOACXY-A-DurFLbXyDjurvNyOaORXJ1mpx8Bs41xvdJbd867Hcy3PDg/exec";
+
+
+/* ==================================================
+   ADMIN SESSION
+================================================== */
+
+const SURYA_ADMIN_TOKEN =
+    sessionStorage.getItem(
+        "SURYA_ADMIN_TOKEN"
+    );
+
+
+const SURYA_ADMIN_AUTH =
+    sessionStorage.getItem(
+        "SURYA_ADMIN_AUTH"
+    );
+
+
+/* ==================================================
+   SESSION GUARD
+================================================== */
+
+if (
+    SURYA_ADMIN_AUTH !== "true" ||
+    !SURYA_ADMIN_TOKEN
+) {
+
+    window.location.replace(
+        "admin-login.html"
+    );
+
+}
+
+
+/* ==================================================
+   OPEN PASSWORD PANEL
+================================================== */
+
+function openPasswordPanel() {
+
+    const panel =
+        document.getElementById(
+            "passwordPanel"
+        );
+
+    panel.style.display =
+        "block";
+
+    panel.scrollIntoView({
+        behavior: "smooth"
+    });
+
+}
+
+
+/* ==================================================
+   CLOSE PASSWORD PANEL
+================================================== */
+
+function closePasswordPanel() {
+
+    document.getElementById(
+        "passwordPanel"
+    ).style.display =
+        "none";
+
+    document.getElementById(
+        "changePasswordForm"
+    ).reset();
+
+    document.getElementById(
+        "passwordMessage"
+    ).innerHTML =
+        "";
+
+}
+
+
+/* ==================================================
+   CHANGE PASSWORD
+================================================== */
+
+document
+    .getElementById(
+        "changePasswordForm"
+    )
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const currentPassword =
+                document
+                    .getElementById(
+                        "currentAdminPassword"
+                    )
+                    .value;
+
+
+            const newPassword =
+                document
+                    .getElementById(
+                        "newAdminPassword"
+                    )
+                    .value;
+
+
+            const confirmPassword =
+                document
+                    .getElementById(
+                        "confirmAdminPassword"
+                    )
+                    .value;
+
+
+            const message =
+                document.getElementById(
+                    "passwordMessage"
+                );
+
+
+            /* =====================================
+               CONFIRM PASSWORD
+            ===================================== */
+
+            if (
+                newPassword !==
+                confirmPassword
+            ) {
+
+                message.innerHTML =
+                    "❌ New passwords do not match.";
+
+                return;
+
+            }
+
+
+            /* =====================================
+               PASSWORD LENGTH
+            ===================================== */
+
+            if (
+                newPassword.length < 8
+            ) {
+
+                message.innerHTML =
+                    "❌ Password must contain at least 8 characters.";
+
+                return;
+
+            }
+
+
+            message.innerHTML =
+                "⏳ Changing password...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        SURYA_DATABASE_API,
+                        {
+                            method:
+                                "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "text/plain;charset=utf-8"
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    action:
+                                        "changeAdminPassword",
+
+                                    token:
+                                        SURYA_ADMIN_TOKEN,
+
+                                    currentPassword:
+                                        currentPassword,
+
+                                    newPassword:
+                                        newPassword
+
+                                })
+
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                if (
+                    result.success
+                ) {
+
+                    message.innerHTML =
+                        "✅ Password changed successfully.";
+
+                    /*
+                       Backend has already revoked
+                       all admin sessions.
+                    */
+
+                    setTimeout(
+                        function() {
+
+                            sessionStorage.removeItem(
+                                "SURYA_ADMIN_TOKEN"
+                            );
+
+                            sessionStorage.removeItem(
+                                "SURYA_ADMIN_AUTH"
+                            );
+
+                            window.location.replace(
+                                "admin-login.html"
+                            );
+
+                        },
+                        1500
+                    );
+
+                }
+
+                else {
+
+                    message.innerHTML =
+                        "❌ " +
+                        (
+                            result.message ||
+                            "Password change failed."
+                        );
+
+                }
+
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "PASSWORD CHANGE ERROR:",
+                    error
+                );
+
+                message.innerHTML =
+                    "❌ Server connection failed.";
+
+            }
+
+        }
+    );
+
+
+/* ==================================================
+   SERVER-SIDE LOGOUT
+================================================== */
+
+async function adminLogout() {
+
+    const token =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+
+    try {
+
+        if (token) {
+
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            action:
+                                "adminLogout",
+
+                            token:
+                                token
+
+                        })
+
+                }
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "LOGOUT ERROR:",
+            error
+        );
+
+    }
+
+
+    sessionStorage.removeItem(
+        "SURYA_ADMIN_TOKEN"
+    );
+
+    sessionStorage.removeItem(
+        "SURYA_ADMIN_AUTH"
+    );
+
+
+    window.location.replace(
+        "admin-login.html"
+    );
+
+}
+
+</script>
+
+
 </body>
+
 </html>

@@ -123,6 +123,10 @@ Created : 09-08-2026
 
 <script>
 
+const SURYA_DATABASE_API =
+    "https://script.google.com/macros/s/AKfycbxWG_ick4oYevNkOACXY-A-DurFLbXyDjurvNyOaORXJ1mpx8Bs41xvdJbd867Hcy3PDg/exec";
+
+
 const adminLoginForm =
     document.getElementById("adminLoginForm");
 
@@ -130,39 +134,121 @@ const adminLoginMessage =
     document.getElementById("adminLoginMessage");
 
 
-adminLoginForm.addEventListener("submit", function(event) {
+adminLoginForm.addEventListener(
+    "submit",
+    async function(event) {
 
-    event.preventDefault();
-
-    const username =
-        document.getElementById("adminUsername").value.trim();
-
-    const password =
-        document.getElementById("adminPassword").value.trim();
+        event.preventDefault();
 
 
-    /*
-    DEMO LOGIN
-    */
+        const username =
+            document
+                .getElementById("adminUsername")
+                .value
+                .trim();
 
-    if (
-        username === "admin" &&
-        password === "ADMIN123"
-    ) {
 
-        window.location.href = "admin.html";
+        const password =
+            document
+                .getElementById("adminPassword")
+                .value
+                .trim();
 
-    } else {
 
-        adminLoginMessage.innerHTML = `
-            <div class="login-error">
-                ❌ Invalid Admin Username or Password
-            </div>
-        `;
+        adminLoginMessage.innerHTML =
+            "⏳ Authenticating...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    SURYA_DATABASE_API,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "text/plain;charset=utf-8"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                action:
+                                    "adminLogin",
+
+                                username:
+                                    username,
+
+                                password:
+                                    password
+
+                            })
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (
+                result.success &&
+                result.token
+            ) {
+
+                sessionStorage.setItem(
+                    "SURYA_ADMIN_TOKEN",
+                    result.token
+                );
+
+
+                sessionStorage.setItem(
+                    "SURYA_ADMIN_AUTH",
+                    "true"
+                );
+
+
+                window.location.href =
+                    "admin.html";
+
+
+            } else {
+
+                adminLoginMessage.innerHTML = `
+                    <div class="login-error">
+                        ❌ ${result.message || "Invalid login"}
+                    </div>
+                `;
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "ADMIN LOGIN ERROR:",
+                error
+            );
+
+
+            adminLoginMessage.innerHTML = `
+                <div class="login-error">
+                    ❌ Server connection failed.
+                    <br>
+                    <small>
+                        Please try again.
+                    </small>
+                </div>
+            `;
+
+        }
 
     }
 
-});
+);
 
 </script>
 
