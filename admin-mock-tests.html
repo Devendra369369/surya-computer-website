@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock Test Management | Surya Computer Of Education Center</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+<style>
+.mock-wrap{max-width:1100px;margin:30px auto;padding:18px}
+.mock-panel{background:#fff;border-radius:14px;padding:20px;margin:18px 0;box-shadow:0 4px 18px rgba(0,0,0,.08)}
+.mock-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.mock-grid input,.mock-grid select,.mock-grid textarea{width:100%;box-sizing:border-box;padding:11px;border:1px solid #ccc;border-radius:8px}
+.mock-btn{padding:11px 16px;border:0;border-radius:8px;cursor:pointer;margin:5px}
+.mock-btn.primary{background:#1769aa;color:#fff}.mock-btn.danger{background:#c62828;color:#fff}
+.question-row{border:1px solid #ddd;border-radius:10px;padding:14px;margin:12px 0}
+.option-row{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin:7px 0}
+.small{font-size:13px;opacity:.75}
+#message{font-weight:700;margin:12px 0}
+</style>
+    <script src="assets/js/admin-guard.js"></script>
+</head>
+<body>
+<div class="top-bar">📞 7084275870 | ✉️ sunilkumar5757@gmail.com</div>
+<header class="header">
+<img src="assets/images/logo.png" alt="Logo" class="logo">
+<div class="title"><h1>SURYA COMPUTER OF EDUCATION CENTER</h1><p>Mock Test Management</p></div>
+</header>
+<nav class="navbar">
+<a href="admin.html">Admin Dashboard</a>
+<a href="admin-students.html">Students</a>
+<a href="admin-results.html">Results</a>
+<a href="admin-certificates.html">Certificates</a>
+</nav>
+
+<main class="mock-wrap">
+<h2>📝 Mock Test Management</h2>
+<p class="small">Admin can create tests, add/update questions and publish/unpublish them.</p>
+<div id="message"></div>
+
+<section class="mock-panel">
+<h3>➕ Create / Edit Test</h3>
+<div class="mock-grid">
+<input id="testId" placeholder="Test ID (blank = automatic)">
+<input id="title" placeholder="Test title">
+<input id="course" placeholder="Course e.g. DCA">
+<input id="duration" type="number" min="1" placeholder="Duration (minutes)">
+<input id="totalMarks" type="number" min="1" placeholder="Total marks">
+<select id="status"><option value="Draft">Draft</option><option value="Published">Published</option></select>
+<textarea id="description" rows="3" placeholder="Instructions / description"></textarea>
+</div>
+<button class="mock-btn primary" onclick="saveTest()">💾 Save Test</button>
+<button class="mock-btn" onclick="clearForm()">Clear</button>
+</section>
+
+<section class="mock-panel">
+<h3>📚 Tests</h3>
+<div id="tests">Loading...</div>
+</section>
+
+<section class="mock-panel">
+<h3>❓ Question Editor</h3>
+<p class="small">Select a test above, then add questions. Correct answer is stored in the database and is revealed only after submission.</p>
+<div id="questionEditor">Select a test first.</div>
+</section>
+
+<section class="mock-panel">
+<h3>📊 Attempts</h3>
+<div id="attempts">Select a test to view attempts.</div>
+</section>
+</main>
+
+<script>
+const API="https://script.google.com/macros/s/AKfycbxmKAb9FbNVEEsir5P2wck6Im_Wwm_fPqL0jBMIksLUSd6Dkd8w074STmqESIVBGaCw7A/exec";
+const TOKEN=sessionStorage.getItem("SURYA_ADMIN_TOKEN");
+const AUTH=sessionStorage.getItem("SURYA_ADMIN_AUTH");
+if(AUTH!=="true" || !TOKEN) location.replace("admin-login.html");
+
+let selectedTest=null;
+
+function msg(t,err=false){document.getElementById("message").textContent=t;document.getElementById("message").style.color=err?"#c62828":"#16823b";}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+
+async function api(body){
+  const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...body,token:TOKEN})});
+  const d=await r.json(); if(!d.success) throw new Error(d.message||"Request failed"); return d;
+}
+
+async function loadTests(){
+  try{
+    const d=await api({action:"mockTests"});
+    const arr=d.tests||[];
+    document.getElementById("tests").innerHTML=arr.length?arr.map(t=>`
+      <div class="question-row">
+        <b>${esc(t["Test ID"])}</b> — ${esc(t["Title"])}
+        <br><span class="small">${esc(t["Course"])} | ${esc(t["Duration"])} min | ${esc(t["Status"])}</span>
+        <br>
+        <button class="mock-btn" onclick='selectTest(${JSON.stringify(t)})'>Questions</button>
+        <button class="mock-btn" onclick='editTest(${JSON.stringify(t)})'>Edit</button>
+        <button class="mock-btn" onclick='toggleTest("${encodeURIComponent(t["Test ID"])}","${encodeURIComponent(t["Status"])}")'>${t["Status"]==="Published"?"Unpublish":"Publish"}</button>
+      </div>`).join(""):"No mock tests yet.";
+  }catch(e){msg("❌ "+e.message,true);}
+}
+
+function editTest(t){
+  testId.value=t["Test ID"]||""; title.value=t["Title"]||""; course.value=t["Course"]||"";
+  duration.value=t["Duration"]||""; totalMarks.value=t["Total Marks"]||""; status.value=t["Status"]||"Draft";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function clearForm(){["testId","title","course","duration","totalMarks","description"].forEach(id=>document.getElementById(id).value="");status.value="Draft";}
+async function saveTest(){
+  try{
+    if(!title.value.trim()) throw new Error("Test title required.");
+    await api({action:"saveMockTest",test:{testId:testId.value.trim(),title:title.value.trim(),course:course.value.trim(),duration:duration.value,totalMarks:totalMarks.value,status:status.value,description:description.value.trim()}});
+    msg("✅ Test saved."); clearForm(); loadTests();
+  }catch(e){msg("❌ "+e.message,true);}
+}
+async function toggleTest(id,st){
+  try{await api({action:"setMockTestStatus",testId:decodeURIComponent(id),status:decodeURIComponent(st)==="Published"?"Draft":"Published"});msg("✅ Test status updated.");loadTests();}
+  catch(e){msg("❌ "+e.message,true);}
+}
+async function selectTest(t){
+  selectedTest=t; loadQuestions(); loadAttempts();
+}
+function questionForm(q={}){
+ return `<div class="question-row">
+ <input id="qText" value="${esc(q["Question"]||"")}" placeholder="Question" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #ccc;border-radius:8px">
+ <div class="option-row"><span>Option A</span><input id="optA" value="${esc(q["Option A"]||"")}"></div>
+ <div class="option-row"><span>Option B</span><input id="optB" value="${esc(q["Option B"]||"")}"></div>
+ <div class="option-row"><span>Option C</span><input id="optC" value="${esc(q["Option C"]||"")}"></div>
+ <div class="option-row"><span>Option D</span><input id="optD" value="${esc(q["Option D"]||"")}"></div>
+ <select id="correct"><option>A</option><option>B</option><option>C</option><option>D</option></select>
+ <input id="marks" type="number" min="1" value="${esc(q["Marks"]||1)}" placeholder="Marks">
+ <button class="mock-btn primary" onclick='saveQuestion(${JSON.stringify(q)})'>💾 Save Question</button>
+ </div>`;
+}
+async function loadQuestions(){
+ if(!selectedTest){questionEditor.textContent="Select a test first.";return;}
+ try{
+   const d=await api({action:"mockQuestions",testId:selectedTest["Test ID"]});
+   const arr=d.questions||[];
+   questionEditor.innerHTML=`<h4>${esc(selectedTest["Test ID"])} — ${esc(selectedTest["Title"])}</h4>
+   ${questionForm()}
+   <hr>${arr.map(q=>`<div class="question-row"><b>${esc(q["Question ID"])}</b><br>${esc(q["Question"])}<br><span class="small">A: ${esc(q["Option A"])} | B: ${esc(q["Option B"])} | C: ${esc(q["Option C"])} | D: ${esc(q["Option D"])} | Correct: ${esc(q["Correct Answer"])}</span>
+   <br><button class="mock-btn" onclick='loadQuestionIntoForm(${JSON.stringify(q)})'>Edit</button></div>`).join("")}`;
+ }catch(e){msg("❌ "+e.message,true);}
+}
+function loadQuestionIntoForm(q){
+ questionEditor.innerHTML=`<h4>Edit Question</h4>${questionForm(q)}`;
+ correct.value=q["Correct Answer"]||"A";
+}
+async function saveQuestion(q){
+ try{
+  await api({action:"saveMockQuestion",question:{questionId:q["Question ID"]||"",testId:selectedTest["Test ID"],question:qText.value,optionA:optA.value,optionB:optB.value,optionC:optC.value,optionD:optD.value,correctAnswer:correct.value,marks:marks.value}});
+  msg("✅ Question saved.");loadQuestions();
+ }catch(e){msg("❌ "+e.message,true);}
+}
+async function loadAttempts(){
+ if(!selectedTest)return;
+ try{
+  const d=await api({action:"mockAttempts",testId:selectedTest["Test ID"]});
+  const arr=d.attempts||[];
+  attempts.innerHTML=arr.length?arr.map(a=>`<div class="question-row"><b>${esc(a["Student ID"])}</b> — ${esc(a["Student Name"])}<br>Score: ${esc(a["Score"])} / ${esc(a["Total Marks"])} | ${esc(a["Percentage"])}% | ${esc(a["Submitted At"])}</div>`).join(""):"No attempts yet.";
+ }catch(e){attempts.textContent="Unable to load attempts.";}
+}
+loadTests();
+</script>
+</body>
+</html>

@@ -45,3 +45,9 @@ admin-results.html.RESULT-CURRENT-STABLE
 admin-results.html.RESULT-STABLE*
 certificate-print.after-syntax-fix.html
 untitled.txt
+
+# Local backups / temporary snapshots
+CIMP_CLEAN_FINAL_2026-08-26/
+CIMP_CLEAN_FINAL_2026-08-26_BEFORE_NEW_BACKEND/
+REMOTE_APPS_SCRIPT_PULL_2026-08-26/
+BEFORE_CLEAN_FINAL.patch

@@ -2,13 +2,14 @@
 ==================================================
 Project  : SURYA COMPUTER OF EDUCATION CENTER
 File     : certificate-print.html
-Version  : v3.0.0
+Version  : v5.0.0
 Author   : Sunil Kumar
 Developer: Devendra Kumar
 Guide    : AERON
 
 Purpose  :
-Professional A4 Certificate - Page 1
+Professional A4 Certificate
+Dynamic Certificate Front + Back + Subject Marks
 ==================================================
 -->
 
@@ -17,394 +18,567 @@ Professional A4 Certificate - Page 1
 
 <head>
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Certificate | Surya Computer Of Education Center
-    </title>
-
-    <script src="assets/js/data-manager.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-
-        html,
-        body {
-
-            margin: 0;
-            padding: 0;
-
-            background: #e7e7e7;
-
-            font-family:
-                "Times New Roman",
-                Georgia,
-                serif;
-
-        }
-
-
-        /* ==================================================
-           PRINT CONTROL
-        ================================================== */
-
-        .print-controls {
-
-            text-align: center;
-
-            padding: 15px;
-
-        }
-
-
-        .print-button {
-
-            padding: 12px 28px;
-
-            border: none;
-
-            border-radius: 6px;
-
-            background: #222;
-
-            color: #fff;
-
-            font-size: 16px;
-
-            font-weight: bold;
-
-            cursor: pointer;
-
-        }
-
-
-        .print-button:hover {
-
-            opacity: 0.85;
-
-        }
-
-
-        /* ==================================================
-           A4 PAGE
-        ================================================== */
-
-        .certificate-page {
-
-            width: 210mm;
-
-            height: 297mm;
-
-            margin: 0 auto;
-
-            padding: 7mm;
-
-            background: #fff;
-
-            position: relative;
-
-            overflow: hidden;
-
-        }
-
-
-        /* ==================================================
-           OUTER BORDER
-        ================================================== */
-
-        .outer-border {
-
-            width: 100%;
-
-            height: 100%;
-
-            border: 6px double #222;
-
-            padding: 4px;
-
-            position: relative;
-
-        }
-
-
-        .inner-border {
-
-            width: 100%;
-
-            height: 100%;
-
-            border: 1.5px solid #555;
-
-            padding: 7mm;
-
-            position: relative;
-
-        }
-
-
-        /* ==================================================
-           WATERMARK
-        ================================================== */
-
-        .watermark {
-
-            position: absolute;
-
-            top: 50%;
-
-            left: 50%;
-
-            transform:
-                translate(-50%, -50%)
-                rotate(-35deg);
-
-            font-size: 28px;
-
-            font-weight: bold;
-
-            letter-spacing: 3px;
-
-            color: rgba(0, 0, 0, 0.045);
-
-            white-space: nowrap;
-
-            pointer-events: none;
-
-            z-index: 0;
-
-        }
-
-
-        /* ==================================================
-           TOP REGISTRATION
-        ================================================== */
-
-        .registration-row {
-
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-
-            font-size: 10px;
-
-            font-weight: bold;
-
-            margin-bottom: 4px;
-
-        }
-
-
-        .registration-center {
-
-            text-align: center;
-
-            font-size: 9px;
-
-            margin-bottom: 5px;
-
-        }
-
-
-        .certified-line {
-
-            text-align: center;
-
-            font-size: 10px;
-
-            font-weight: bold;
-
-            margin-bottom: 5px;
-
-        }
-
-        .digital-india-msme-oces-logo {
-
-            width: 650px;
-
-            height: 150px;
-
-            object-fit: contain;
-
-            margin-bottom: -35px;
-
-        }
-
-
-
-        /* ==================================================
-           HEADER
-        ================================================== */
-
-        .institute-header {
-
-            text-align: center;
-
-            position: relative;
-
-            z-index: 2;
-
-            margin-top: 7px;
-
-        }
-
-
-        .logo {
-
-            width: 115px;
-
-            height: 115px;
-
-            object-fit: contain;
-
-            margin-bottom: 2px;
-
-        }
-
-
-        .institute-name {
-
-            font-size: 23px;
-
-            font-weight: bold;
-
-            letter-spacing: 1px;
-
-            margin: 2px 0;
-
-        }
-
-
-        .institute-address {
-
-            font-size: 12px;
-
-            font-weight: bold;
-
-            margin: 2px 0;
-
-        }
-
-
-        .header-line {
-
-            width: 75%;
-
-            border-top: 2px solid #222;
-
-            margin: 7px auto;
-
-        }
-
-
-        /* ==================================================
-           CERTIFICATE TITLE
-        ================================================== */
-
-        .certificate-heading {
-
-            text-align: center;
-
-            position: relative;
-
-            z-index: 2;
-
-        }
-
-
-        .certificate-title {
-
-            font-size: 36px;
-
-            font-weight: bold;
-
-            letter-spacing: 5px;
-
-            margin: 4px 0;
-
-        }
-
-
-        .certificate-subtitle {
-
-            font-size: 12px;
-
-            font-weight: bold;
-
-            letter-spacing: 3px;
-
-        }
-
-
-        /* ==================================================
-           ISO / PHOTO / QR
-        ================================================== */
-
-        .identity-row {
-
-            width: 90%;
-
-            margin: 8px auto;
-
-            display: grid;
-
-            grid-template-columns: 1fr 2fr 1fr;
-
-            align-items: center;
-
-            gap: 15px;
-
-            position: relative;
-
-            z-index: 2;
-
-        }
-
-
-        .identity-box {
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Certificate | Surya Computer Of Education Center
+</title>
+
+<script src="assets/js/data-manager.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
+<style>
+
+/* ==================================================
+   RESET
+================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+
+    margin: 0;
+    padding: 0;
+
+    background: #e7e7e7;
+
+    font-family:
+        "Times New Roman",
+        Georgia,
+        serif;
+}
+
+
+/* ==================================================
+   TWO-PAGE CERTIFICATE
+================================================== */
+
+.certificate-page {
+    page-break-after: always;
+    break-after: page;
+}
+
+.certificate-page:last-of-type {
+    page-break-after: auto;
+    break-after: auto;
+}
+
+.back-page .inner-border {
+    padding: 8mm;
+}
+
+.back-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    margin: 8px 0 4px;
+    position: relative;
+    z-index: 2;
+}
+
+.back-subtitle {
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 2;
+}
+
+.back-student-info {
+    width: 92%;
+    margin: 0 auto 12px;
+    border: 1px solid #555;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.back-info-item {
+    padding: 6px 8px;
+    border-bottom: 1px solid #777;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.back-info-item:nth-child(odd) {
+    border-right: 1px solid #777;
+}
+
+.back-info-label {
+    display: block;
+    font-size: 8px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.subject-table-wrap {
+    width: 96%;
+    margin: 12px auto;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.subject-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+}
+
+.subject-table th,
+.subject-table td {
+    border: 1px solid #444;
+    padding: 5px 4px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.subject-table th {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.subject-table th.subject-name,
+.subject-table td.subject-name {
+    text-align: left;
+    min-width: 115px;
+}
+
+.back-summary {
+    width: 92%;
+    margin: 12px auto;
+    border: 1px solid #555;
+    padding: 8px;
+    position: relative;
+    z-index: 2;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.back-verification {
+    width: 88%;
+    margin: 16px auto 0;
+    padding: 10px;
+    border: 1px dashed #555;
+    text-align: center;
+    font-size: 9px;
+    line-height: 1.5;
+    position: relative;
+    z-index: 2;
+}
+
+.back-footer {
+    width: 88%;
+    margin: 18px auto 0;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+}
+
+.back-footer-item {
+    width: 42%;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.back-footer-line {
+    border-top: 1px solid #222;
+    margin-bottom: 4px;
+}
+
+.subject-empty {
+    padding: 20px;
+    text-align: center;
+    border: 1px dashed #555;
+    font-size: 11px;
+}
+
+@media print {
+    html,
+    body {
+        background: white;
+    }
+
+    .certificate-page {
+        page-break-after: always;
+        break-after: page;
+    }
+
+    .certificate-page:last-of-type {
+        page-break-after: auto;
+        break-after: auto;
+    }
+}
+
+/* ==================================================
+   PRINT CONTROL
+================================================== */
+
+.print-controls {
 
     text-align: center;
+
+    padding: 15px;
+
+}
+
+.print-button {
+
+    padding: 12px 28px;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background: #222;
+
+    color: #fff;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+}
+
+.print-button:hover {
+
+    opacity: 0.85;
+
+}
+
+
+/* ==================================================
+   A4 PAGE
+================================================== */
+
+.certificate-page {
+
+    width: 210mm;
+
+    height: 297mm;
+
+    margin: 0 auto;
+
+    padding: 7mm;
+
+    background: #fff;
+
+    position: relative;
+
+    overflow: hidden;
+
+}
+
+
+/* ==================================================
+   BORDER
+================================================== */
+
+.outer-border {
+
+    width: 100%;
+
+    height: 100%;
+
+    border: 6px double #222;
+
+    padding: 4px;
+
+    position: relative;
+
+}
+
+.inner-border {
+
+    width: 100%;
+
+    height: 100%;
+
+    border: 1.5px solid #555;
+
+    padding: 7mm;
+
+    position: relative;
+
+}
+
+
+/* ==================================================
+   WATERMARK
+================================================== */
+
+.watermark {
+
+    position: absolute;
+
+    top: 50%;
+
+    left: 50%;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(-35deg);
+
+    font-size: 28px;
+
+    font-weight: bold;
+
+    letter-spacing: 3px;
+
+    color: rgba(0, 0, 0, 0.045);
+
+    white-space: nowrap;
+
+    pointer-events: none;
+
+    z-index: 0;
+
+}
+
+
+/* ==================================================
+   REGISTRATION
+================================================== */
+
+.registration-row {
+
     display: flex;
-    flex-direction: column;
+
+    justify-content: space-between;
+
     align-items: center;
 
-        }
+    font-size: 10px;
 
-        .iso-logo {
+    font-weight: bold;
 
-            width: 105px;
+    margin-bottom: 4px;
 
-            height: 75px;
+}
 
-            object-fit: contain;
+.registration-center {
 
-        }
+    text-align: center;
+
+    font-size: 9px;
+
+    margin-bottom: 5px;
+
+}
+
+.certified-line {
+
+    text-align: center;
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    margin-bottom: 5px;
+
+}
 
 
-        .student-photo {
+/* ==================================================
+   DIGITAL INDIA LOGO
+================================================== */
 
-            width: 82px;
+.digital-india-msme-oces-logo {
 
-            height: 100px;
+    width: 100%;
 
-            object-fit: cover;
+    max-width: 520px;
 
-            border: 2px solid #222;
+    height: 75px;
 
-        }
+    object-fit: contain;
 
-        .student-signature {
+    display: block;
+
+    margin: -8px auto -5px;
+
+}
+
+
+/* ==================================================
+   INSTITUTE HEADER
+================================================== */
+
+.institute-header {
+
+    text-align: center;
+
+    position: relative;
+
+    z-index: 2;
+
+    margin-top: 5px;
+
+}
+
+.logo {
+
+    width: 105px;
+
+    height: 105px;
+
+    object-fit: contain;
+
+    margin-bottom: 2px;
+
+}
+
+.institute-name {
+
+    font-size: 23px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+    margin: 2px 0;
+
+}
+
+.institute-address {
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    margin: 2px 0;
+
+}
+
+.header-line {
+
+    width: 75%;
+
+    border-top: 2px solid #222;
+
+    margin: 7px auto;
+
+}
+
+
+/* ==================================================
+   TITLE
+================================================== */
+
+.certificate-heading {
+
+    text-align: center;
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+.certificate-title {
+
+    font-size: 36px;
+
+    font-weight: bold;
+
+    letter-spacing: 5px;
+
+    margin: 4px 0;
+
+}
+
+.certificate-subtitle {
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    letter-spacing: 3px;
+
+}
+
+
+/* ==================================================
+   IDENTITY ROW
+================================================== */
+
+.identity-row {
+
+    width: 90%;
+
+    margin: 8px auto;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr 1fr;
+
+    align-items: center;
+
+    gap: 15px;
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+.identity-box {
+
+    text-align: center;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+}
+
+.iso-logo {
+
+    width: 105px;
+
+    height: 75px;
+
+    object-fit: contain;
+
+}
+
+.student-photo {
+
+    width: 82px;
+
+    height: 100px;
+
+    object-fit: cover;
+
+    border: 2px solid #222;
+
+    background: #fff;
+
+}
+
+.student-signature {
 
     width: 82px;
 
@@ -418,282 +592,268 @@ Professional A4 Certificate - Page 1
 
     background: #fff;
 
-        }
+}
 
+.qr-box {
 
-        .qr-box {
+    width: 82px;
 
-            width: 82px;
+    height: 82px;
 
-            height: 82px;
+    border: 2px solid #222;
 
-            border: 2px solid #222;
+    display: flex;
 
-            display: flex;
+    justify-content: center;
 
-            justify-content: center;
+    align-items: center;
 
-            align-items: center;
+    margin: auto;
 
-            margin: auto;
+    font-family: Arial, sans-serif;
 
-            font-family: Arial, sans-serif;
+    font-size: 9px;
 
-            font-size: 9px;
+    font-weight: bold;
 
-            font-weight: bold;
+}
 
-        }
+.identity-label {
 
+    font-size: 9px;
 
-        .identity-label {
+    font-weight: bold;
 
-            font-size: 9px;
+    margin-top: 3px;
 
-            font-weight: bold;
+}
 
-            margin-top: 3px;
 
-        }
+/* ==================================================
+   CONTENT
+================================================== */
 
+.certificate-content {
 
-        /* ==================================================
-           CONTENT
-        ================================================== */
+    text-align: center;
 
-        .certificate-content {
+    position: relative;
 
-            text-align: center;
+    z-index: 2;
 
-            position: relative;
+    font-size: 14px;
 
-            z-index: 2;
+    line-height: 1.45;
 
-            font-size: 14px;
+}
 
-            line-height: 1.45;
+.certificate-content p {
 
-        }
+    margin: 5px 0;
 
+}
 
-        .certificate-content p {
+.student-name {
 
-            margin: 5px 0;
+    font-size: 27px;
 
-        }
+    font-weight: bold;
 
+    text-transform: uppercase;
 
-        .student-name {
+    border-bottom: 2px solid #222;
 
-            font-size: 27px;
+    display: inline-block;
 
-            font-weight: bold;
+    padding: 2px 35px;
 
-            text-transform: uppercase;
+    margin: 2px 0;
 
-            border-bottom: 2px solid #222;
+}
 
-            display: inline-block;
+.father-name {
 
-            padding: 2px 35px;
+    font-size: 15px;
 
-            margin: 2px 0;
+    font-weight: bold;
 
-        }
+}
 
+.atc {
 
-        .father-name {
+    font-size: 11px;
 
-            font-size: 15px;
+    font-weight: bold;
 
-            font-weight: bold;
+    margin: 5px 0;
 
-        }
+}
 
+.course-name {
 
-        .atc {
+    font-size: 21px;
 
-            font-size: 11px;
+    font-weight: bold;
 
-            font-weight: bold;
+    text-transform: uppercase;
 
-            margin: 5px 0;
+    margin: 4px 0;
 
-        }
+}
 
+.course-duration {
 
-        .course-name {
+    font-size: 12px;
 
-            font-size: 21px;
+    font-weight: bold;
 
-            font-weight: bold;
+}
 
-            text-transform: uppercase;
+.course-period {
 
-            margin: 4px 0;
+    font-size: 12px;
 
-        }
+    font-weight: bold;
 
+}
 
-        .course-duration {
 
-            font-size: 12px;
+/* ==================================================
+   RESULT BOX
+================================================== */
 
-            font-weight: bold;
+.result-box {
 
-        }
+    width: 88%;
 
+    margin: 8px auto;
 
-        .course-period {
+    border-top: 1px solid #333;
 
-            font-size: 12px;
+    border-bottom: 1px solid #333;
 
-            font-weight: bold;
+    padding: 6px;
 
-        }
+    display: flex;
 
+    justify-content: space-around;
 
-        /* ==================================================
-           RESULT BOX
-        ================================================== */
+    font-size: 12px;
 
-        .result-box {
+    font-weight: bold;
 
-            width: 80%;
+}
 
-            margin: 8px auto;
+.result-item {
 
-            border-top: 1px solid #333;
+    min-width: 75px;
 
-            border-bottom: 1px solid #333;
+    text-align: center;
 
-            padding: 6px;
+}
 
-            display: flex;
+.result-label {
 
-            justify-content: space-around;
+    display: block;
 
-            font-size: 12px;
+    font-size: 9px;
 
-            font-weight: bold;
+    text-transform: uppercase;
 
-        }
+    margin-bottom: 2px;
 
+}
 
-        .result-item {
+.result-value {
 
-            min-width: 100px;
+    font-size: 14px;
 
-        }
+}
 
 
-        .result-label {
+/* ==================================================
+   CERTIFICATE DETAILS
+================================================== */
 
-            display: block;
-
-            font-size: 9px;
-
-            text-transform: uppercase;
-
-            margin-bottom: 2px;
-
-        }
-
-
-        .result-value {
-
-            font-size: 14px;
-
-        }
-
-
-        /* ==================================================
-           CERTIFICATE DETAILS
-        ================================================== */
-
-        .certificate-details {
-
-            width: 85%;
-
-            margin: 8px auto;
-
-            display: flex;
-
-            justify-content: space-between;
-
-            border: 1px solid #555;
-
-            padding: 6px 10px;
-
-            font-size: 10px;
-
-            font-weight: bold;
-
-        }
-
-
-        .detail-item {
-
-            text-align: center;
-
-            flex: 1;
-
-        }
-
-
-        .detail-label {
-
-            display: block;
-
-            font-size: 8px;
-
-            margin-bottom: 2px;
-
-        }
-
-
-        .detail-value {
-
-            font-size: 11px;
-
-        }
-
-
-        /* ==================================================
-           VERIFICATION
-        ================================================== */
-
-        .verification {
-
-            text-align: center;
-
-            font-size: 9px;
-
-            margin-top: 6px;
-
-            position: relative;
-
-            z-index: 2;
-
-        }
-
-
-        .verification strong {
-
-            font-size: 10px;
-
-        }
-
-
-        /* ==================================================
-           SIGNATURE
-        ================================================== */
-
-        .signature-section {
+.certificate-details {
 
     width: 85%;
 
-    margin: -2px auto 0;
+    margin: 8px auto;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    border: 1px solid #555;
+
+    padding: 6px 10px;
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+}
+
+.detail-item {
+
+    text-align: center;
+
+    flex: 1;
+
+}
+
+.detail-label {
+
+    display: block;
+
+    font-size: 8px;
+
+    margin-bottom: 2px;
+
+}
+
+.detail-value {
+
+    font-size: 11px;
+
+}
+
+
+/* ==================================================
+   VERIFICATION
+================================================== */
+
+.verification {
+
+    text-align: center;
+
+    font-size: 9px;
+
+    margin-top: 6px;
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+.verification strong {
+
+    font-size: 10px;
+
+}
+
+
+/* ==================================================
+   SIGNATURE SECTION
+================================================== */
+
+.signature-section {
+
+    width: 85%;
+
+    margin: 8px auto 0;
 
     display: flex;
 
@@ -717,7 +877,7 @@ Professional A4 Certificate - Page 1
 
 .signature-space {
 
-    height: 0px;
+    height: 15px;
 
 }
 
@@ -738,145 +898,165 @@ Professional A4 Certificate - Page 1
 }
 
 
-        /* ==================================================
-           CORNERS
-        ================================================== */
+/* ==================================================
+   CORNERS
+================================================== */
 
-        .corner {
+.corner {
 
-            position: absolute;
+    position: absolute;
 
-            width: 28px;
+    width: 28px;
 
-            height: 28px;
+    height: 28px;
 
-            border: 2px solid #222;
+    border: 2px solid #222;
 
-            z-index: 3;
+    z-index: 3;
 
-        }
+}
 
+.corner-tl {
 
-        .corner-tl {
+    top: 8px;
+    left: 8px;
 
-            top: 8px;
-            left: 8px;
+    border-right: none;
+    border-bottom: none;
 
-            border-right: none;
-            border-bottom: none;
+}
 
-        }
+.corner-tr {
 
+    top: 8px;
+    right: 8px;
 
-        .corner-tr {
+    border-left: none;
+    border-bottom: none;
 
-            top: 8px;
-            right: 8px;
+}
 
-            border-left: none;
-            border-bottom: none;
+.corner-bl {
 
-        }
+    bottom: 8px;
+    left: 8px;
 
+    border-right: none;
+    border-top: none;
 
-        .corner-bl {
+}
 
-            bottom: 8px;
-            left: 8px;
+.corner-br {
 
-            border-right: none;
-            border-top: none;
+    bottom: 8px;
+    right: 8px;
 
-        }
+    border-left: none;
+    border-top: none;
 
+}
 
-        .corner-br {
 
-            bottom: 8px;
-            right: 8px;
+/* ==================================================
+   LOADING
+================================================== */
 
-            border-left: none;
-            border-top: none;
+.loading {
 
-        }
+    text-align: center;
 
+    padding: 20px;
 
-        /* ==================================================
-           ERROR
-        ================================================== */
+    font-family: Arial, sans-serif;
 
-        .error-message {
+}
 
-            text-align: center;
 
-            padding: 20px;
+/* ==================================================
+   ERROR
+================================================== */
 
-            font-family: Arial, sans-serif;
+.error-message {
 
-            border: 2px solid #222;
+    text-align: center;
 
-            margin: 20px;
+    padding: 20px;
 
-        }
+    font-family: Arial, sans-serif;
 
+    border: 2px solid #222;
 
-        /* ==================================================
-           PRINT
-        ================================================== */
+    margin: 20px;
 
-        @media print {
+}
 
-            @page {
 
-                size: A4 portrait;
+/* ==================================================
+   PRINT
+================================================== */
 
-                margin: 0;
+@media print {
 
-            }
+    @page {
 
+        size: A4 portrait;
 
-            html,
-            body {
+        margin: 0;
 
-                width: 210mm;
+    }
 
-                height: 297mm;
+    html,
+    body {
 
-                margin: 0;
+        width: 210mm;
 
-                padding: 0;
+        height: 297mm;
 
-                background: #fff;
+        margin: 0;
 
-            }
+        padding: 0;
 
+        background: #fff;
 
-            .print-controls {
+    }
 
-                display: none;
+    .print-controls {
 
-            }
+        display: none;
 
+    }
 
-            .certificate-page {
+    .certificate-page {
 
-                width: 210mm;
+        width: 210mm;
 
-                height: 297mm;
+        height: 297mm;
 
-                margin: 0;
+        margin: 0;
 
-                padding: 7mm;
+        padding: 7mm;
 
-                page-break-after: avoid;
+        page-break-after: avoid;
 
-                break-after: avoid-page;
+        break-after: avoid-page;
 
-            }
+    }
 
-        }
+}
 
-    </style>
+/* FINAL PRINT OVERRIDE */
+@media print {
+    .certificate-page {
+        page-break-after: always !important;
+        break-after: page !important;
+    }
+    .certificate-page:last-of-type {
+        page-break-after: auto !important;
+        break-after: auto !important;
+    }
+}
+
+</style>
 
 </head>
 
@@ -904,7 +1084,7 @@ Professional A4 Certificate - Page 1
 
 
 <!-- ==================================================
-     PAGE 1
+     CERTIFICATE
 ================================================== -->
 
 <div
@@ -912,271 +1092,911 @@ Professional A4 Certificate - Page 1
     class="certificate-page"
 >
 
+<div class="outer-border">
 
-    <div class="outer-border">
+<div class="inner-border">
 
-        <div class="inner-border">
 
+<!-- CORNERS -->
 
-            <!-- CORNERS -->
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
 
-            <div class="corner corner-tl"></div>
-            <div class="corner corner-tr"></div>
-            <div class="corner corner-bl"></div>
-            <div class="corner corner-br"></div>
 
+<!-- WATERMARK -->
 
-            <!-- WATERMARK -->
+<div class="watermark">
 
-            <div class="watermark">
+SURYA COMPUTER OF EDUCATION CENTER
 
-                SURYA COMPUTER OF EDUCATION CENTER
+</div>
 
-            </div>
 
+<!-- ==================================================
+     REGISTRATION
+================================================== -->
 
-            <!-- ==================================================
-                 REGISTRATION HEADER
-            ================================================== -->
+<div class="registration-row">
 
-            <div class="registration-row">
+<div>
 
-                <div>
+Society Reg. No.:
+<span id="societyRegNo">
+__________
+</span>
 
-                    Society Reg. No.:
-                    <span id="societyRegNo">
-                        __________
-                    </span>
+</div>
 
-                </div>
+<div>
 
+MSME Reg. No.:
+<span id="msmeRegNo">
+__________
+</span>
 
-                <div>
+</div>
 
-                    MSME Reg. No.:
-                    <span id="msmeRegNo">
-                        __________
-                    </span>
+</div>
 
-                </div>
 
-            </div>
+<div class="registration-center">
 
+Registered with Societies Reg. Act 21, 1860...
 
-            <div class="registration-center">
+</div>
 
-                Registered with Societies Reg. Act 21, 1860...
 
-            </div>
+<div class="certified-line">
 
+An ISO 9001:2015 Certified Organization
 
-            <div class="certified-line">
+</div>
 
-                An ISO 9001:2015 Certified Organization
 
-            </div>
+<img
+    src="assets/images/digital-india-msme-oces.png"
+    alt="Digital India MSME Oces Logo"
+    class="digital-india-msme-oces-logo"
+>
 
 
-            <div class="branding-line">
-                <img
-                    src="assets/images/digital-india-msme-oces.png"
-                    alt="Digital India MSME Oces Logo"
-                    class="digital-india-msme-oces-logo"
-                >
+<!-- ==================================================
+     INSTITUTE HEADER
+================================================== -->
 
-                
+<div class="institute-header">
 
-            </div>
+<img
+    src="assets/images/logo.png"
+    alt="Institute Logo"
+    class="logo"
+>
 
 
-            <!-- ==================================================
-                 INSTITUTE HEADER
-            ================================================== -->
+<div class="institute-name">
 
-            <div class="institute-header">
+SURYA COMPUTER OF EDUCATION CENTER
 
+</div>
 
-                <img
-                    src="assets/images/logo.png"
-                    alt="Institute Logo"
-                    class="logo"
-                >
 
+<div class="institute-address">
 
-                <div class="institute-name">
+Kamalpur, Chandauli, Uttar Pradesh
 
-                    SURYA COMPUTER OF EDUCATION CENTER
+</div>
 
-                </div>
 
+<div class="header-line"></div>
 
-                <div class="institute-address">
+</div>
 
-                    Kamalpur, Chandauli, Uttar Pradesh
 
-                </div>
+<!-- ==================================================
+     TITLE
+================================================== -->
 
+<div class="certificate-heading">
 
-                <div class="header-line"></div>
+<div class="certificate-title">
 
-            </div>
+CERTIFICATE
 
+</div>
 
-            <!-- ==================================================
-                 TITLE
-            ================================================== -->
+<div class="certificate-subtitle">
 
-            <div class="certificate-heading">
+OF COURSE COMPLETION
 
-                <div class="certificate-title">
+</div>
 
-                    CERTIFICATE
+</div>
 
-                </div>
 
+<!-- ==================================================
+     PHOTO / ISO / QR
+================================================== -->
 
-                <div class="certificate-subtitle">
+<div class="identity-row">
 
-                    OF COURSE COMPLETION
 
-                </div>
+<!-- ISO -->
 
-            </div>
+<div class="identity-box">
 
+<img
+    src="assets/images/iso-logo.png"
+    alt="ISO Logo"
+    class="iso-logo"
+>
 
-            <!-- ==================================================
-                 PHOTO / ISO / QR
-            ================================================== -->
+<div class="identity-label">
 
-            <div class="identity-row">
+ISO 9001:2015
 
-                 <div class="identity-box">
+</div>
 
-                    <img
-                        src="assets/images/iso-logo.png"
-                        alt="ISO Logo"
-                        class="iso-logo"
-                    >
+</div>
 
-                    <div class="identity-label">
 
-                        ISO 9001:2015
+<!-- STUDENT -->
 
-                    </div>
+<div class="identity-box">
 
-                </div>
+<img
+    id="studentPhoto"
+    src="assets/images/student-placeholder.svg"
+    alt="Student Photo"
+    class="student-photo"
+>
 
+<img
+    id="studentSignature"
+    src="assets/images/signature-placeholder.svg"
+    alt="Student Signature"
+    class="student-signature"
+>
 
-                <div class="identity-box">
+<div class="identity-label">
 
-    <img
-        id="studentPhoto"
-        src="assets/images/student-placeholder.svg"
-        alt="Student Photo"
-        class="student-photo"
-    >
+STUDENT
 
-    <img
-        id="studentSignature"
-        src="assets/images/signature-placeholder.svg"
-        alt="Student Signature"
-        class="student-signature"
-    >
+</div>
 
-    <div class="identity-label">
-        STUDENT
-    </div>
+</div>
 
-                </div>
 
+<!-- QR -->
 
-                <div class="identity-box">
+<div class="identity-box">
 
-                    <div
-                        id="qrCode"
-                        class="qr-box"
-                    >
+<div
+    id="qrCode"
+    class="qr-box"
+>
+</div>
 
+<div class="identity-label">
 
-                    </div>
+VERIFY
 
-                    <div class="identity-label">
+</div>
 
-                        VERIFY
+</div>
 
-                    </div>
 
-                </div>
+</div>
 
 
-            </div>
+<!-- ==================================================
+     DYNAMIC CONTENT
+================================================== -->
 
+<div
+    id="certificateContent"
+    class="certificate-content"
+>
 
-            <!-- ==================================================
-                 DYNAMIC CONTENT
-            ================================================== -->
+<div class="loading">
 
-            <div
-                id="certificateContent"
-                class="certificate-content"
-            >
+Loading Certificate...
 
-                Loading Certificate...
+</div>
 
-            </div>
+</div>
 
 
-            <!-- ==================================================
-                 SIGNATURES
-            ================================================== -->
+<!-- ==================================================
+     SIGNATURES
+================================================== -->
 
-            <div class="signature-section">
+<div class="signature-section">
 
+<div class="signature">
 
-                <div class="signature">
+<div class="signature-space"></div>
 
-                    <div class="signature-space"></div>
+<div class="signature-line"></div>
 
-                    <div class="signature-line"></div>
+<div class="signature-title">
 
-                    <div class="signature-title">
+Controller of Examination
 
-                        Controller of Examination
+</div>
 
-                    </div>
+</div>
 
-                </div>
 
+<div class="signature">
 
-                <div class="signature">
+<div class="signature-space"></div>
 
-                    <div class="signature-space"></div>
+<div class="signature-line"></div>
 
-                    <div class="signature-line"></div>
+<div class="signature-title">
 
-                    <div class="signature-title">
+Center Director
 
-                        Center Director
+</div>
 
-                    </div>
+</div>
 
-                </div>
+</div>
 
 
-            </div>
+</div>
 
+</div>
 
-        </div>
+</div>
 
-    </div>
 
+
+<!-- ==================================================
+     CERTIFICATE BACK PAGE
+================================================== -->
+
+<div
+    id="certificateBackPage"
+    class="certificate-page back-page"
+>
+
+<div class="outer-border">
+
+<div class="inner-border">
+
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<div class="watermark">
+SURYA COMPUTER OF EDUCATION CENTER
+</div>
+
+<div class="institute-header">
+
+<img
+    src="assets/images/logo.png"
+    alt="Institute Logo"
+    class="logo"
+>
+
+<div class="institute-name">
+SURYA COMPUTER OF EDUCATION CENTER
+</div>
+
+<div class="institute-address">
+Kamalpur, Chandauli, Uttar Pradesh
+</div>
+
+<div class="header-line"></div>
+
+</div>
+
+<div class="back-title">
+ACADEMIC RECORD
+</div>
+
+<div class="back-subtitle">
+SUBJECT-WISE MARKS &amp; VERIFICATION DETAILS
+</div>
+
+<div id="backStudentInfo" class="back-student-info">
+
+<div class="back-info-item">
+<span class="back-info-label">Mother Name</span>
+<span id="backMotherName">—</span>
+</div>
+
+<div class="back-info-item">
+<span class="back-info-label">Certificate ID</span>
+<span id="backCertificateId">—</span>
+</div>
+
+<div class="back-info-item">
+<span class="back-info-label">Student ID</span>
+<span id="backStudentId">—</span>
+</div>
+
+<div class="back-info-item">
+<span class="back-info-label">Course</span>
+<span id="backCourse">—</span>
+</div>
+
+</div>
+
+<div class="subject-table-wrap">
+
+<table class="subject-table">
+<thead>
+<tr>
+<th rowspan="2">S.No.</th>
+<th rowspan="2" class="subject-name">Subject</th>
+<th colspan="2">Theory</th>
+<th colspan="2">Practical</th>
+<th colspan="2">Total</th>
+<th rowspan="2">%</th>
+<th rowspan="2">Grade</th>
+<th rowspan="2">Result</th>
+</tr>
+<tr>
+<th>Max</th>
+<th>Obt.</th>
+<th>Max</th>
+<th>Obt.</th>
+<th>Max</th>
+<th>Obt.</th>
+</tr>
+</thead>
+<tbody id="subjectMarksBody">
+<tr>
+<td colspan="11" class="subject-empty">Loading subject marks...</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+<div id="backSummary" class="back-summary">
+Loading result summary...
+</div>
+
+<div class="back-verification">
+
+<strong>Certificate Verification</strong>
+<br>
+This certificate can be verified online using the Certificate ID.
+<br>
+<strong>SURYA COMPUTER OF EDUCATION CENTER</strong>
+<br>
+Certificate ID: <strong id="backVerificationCertificateId">—</strong>
+
+</div>
+
+<div class="back-footer">
+
+<div class="back-footer-item">
+<div class="back-footer-line"></div>
+Controller of Examination
+</div>
+
+<div class="back-footer-item">
+<div class="back-footer-line"></div>
+Center Director
+</div>
+
+</div>
+
+</div>
+</div>
 </div>
 
 
 <script>
 
 /* ==================================================
-   CERTIFICATE LOADER
+   DATABASE API
+================================================== */
+
+const SURYA_DATABASE_API =
+"https://script.google.com/macros/s/AKfycbxmKAb9FbNVEEsir5P2wck6Im_Wwm_fPqL0jBMIksLUSd6Dkd8w074STmqESIVBGaCw7A/exec";
+
+let currentStudent = null;
+let currentCertificate = null;
+
+
+/* ==================================================
+   HTML ESCAPE
+================================================== */
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* ==================================================
+   GOOGLE DRIVE FILE ID
+   Supports:
+
+   /file/d/FILE_ID/view
+   ?id=FILE_ID
+   /open?id=FILE_ID
+================================================== */
+
+function extractDriveFileId(url) {
+
+    if (!url) {
+
+        return "";
+
+    }
+
+    const value =
+        String(url).trim();
+
+
+    let match =
+        value.match(
+            /\/file\/d\/([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) {
+
+        return match[1];
+
+    }
+
+
+    match =
+        value.match(
+            /[?&]id=([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) {
+
+        return match[1];
+
+    }
+
+
+    match =
+        value.match(
+            /\/open\?id=([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) {
+
+        return match[1];
+
+    }
+
+
+    return "";
+
+}
+
+
+/* ==================================================
+   LOAD DRIVE DOCUMENT
+================================================== */
+
+async function loadStudentDocument(
+    fileUrl,
+    imageElement,
+    action
+) {
+
+    if (!fileUrl || !imageElement) {
+
+        return;
+
+    }
+
+
+    const fileId =
+        extractDriveFileId(
+            fileUrl
+        );
+
+
+    if (!fileId) {
+
+        console.warn(
+            "INVALID DRIVE URL:",
+            fileUrl
+        );
+
+        return;
+
+    }
+
+
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+
+    if (!adminToken) {
+
+        console.warn(
+            "ADMIN TOKEN NOT FOUND"
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                SURYA_DATABASE_API +
+                "?action=" +
+                encodeURIComponent(action) +
+                "&id=" +
+                encodeURIComponent(fileId) +
+                "&token=" +
+                encodeURIComponent(adminToken)
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            result.success &&
+            result.data
+        ) {
+
+            imageElement.src =
+                "data:" +
+                result.mimeType +
+                ";base64," +
+                result.data;
+
+
+            console.log(
+                action.toUpperCase() +
+                " LOADED SUCCESSFULLY"
+            );
+
+        }
+
+        else {
+
+            console.error(
+                action.toUpperCase() +
+                " LOAD FAILED:",
+                result.message
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            action.toUpperCase() +
+            " LOAD ERROR:",
+            error
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   LOAD STUDENT
+================================================== */
+
+async function loadStudentDocuments(
+    studentId
+) {
+
+    if (!studentId) {
+
+        console.error(
+            "STUDENT ID MISSING"
+        );
+
+        return;
+
+    }
+
+
+    const studentPhoto =
+        document.getElementById(
+            "studentPhoto"
+        );
+
+
+    const studentSignature =
+        document.getElementById(
+            "studentSignature"
+        );
+
+
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+
+    if (!adminToken) {
+
+        console.warn(
+            "ADMIN TOKEN NOT FOUND."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                SURYA_DATABASE_API +
+                "?action=student" +
+                "&id=" +
+                encodeURIComponent(
+                    studentId
+                ) +
+                "&token=" +
+                encodeURIComponent(
+                    adminToken
+                )
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success ||
+            !result.student
+        ) {
+
+            console.error(
+                "STUDENT RECORD LOAD FAILED:",
+                result.message
+            );
+
+            return;
+
+        }
+
+
+        const student =
+            result.student;
+
+        currentStudent = student;
+
+
+        console.log(
+            "STUDENT LOADED:",
+            studentId
+        );
+
+
+        /* ==================================================
+           PHOTO
+        ================================================== */
+
+        if (student.Photo) {
+
+            await loadStudentDocument(
+
+                student.Photo,
+
+                studentPhoto,
+
+                "studentPhoto"
+
+            );
+
+        }
+
+
+        /* ==================================================
+           SIGNATURE
+        ================================================== */
+
+        if (student.Signature) {
+
+            await loadStudentDocument(
+
+                student.Signature,
+
+                studentSignature,
+
+                "studentSignature"
+
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "STUDENT LOAD ERROR:",
+            error
+        );
+
+    }
+
+}
+
+
+
+/* ==================================================
+   LOAD RESULT SUBJECTS FOR BACK PAGE
+================================================== */
+
+async function loadResultSubjects(
+    resultId,
+    certificate
+) {
+
+    const body =
+        document.getElementById(
+            "subjectMarksBody"
+        );
+
+    const summary =
+        document.getElementById(
+            "backSummary"
+        );
+
+    if (!body || !summary) {
+        return;
+    }
+
+    if (!resultId) {
+        body.innerHTML = `
+            <tr>
+                <td colspan="11" class="subject-empty">
+                    Subject marks are not linked to this certificate.
+                </td>
+            </tr>
+        `;
+        summary.textContent =
+            "No Result ID is linked with this certificate.";
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API +
+                "?action=resultSubjects&id=" +
+                encodeURIComponent(resultId)
+            );
+
+        const result =
+            await response.json();
+
+        if (!result.success) {
+            throw new Error(
+                result.message ||
+                "Unable to load subject marks."
+            );
+        }
+
+        const subjects =
+            Array.isArray(result.subjects)
+                ? result.subjects
+                : [];
+
+        if (!subjects.length) {
+            body.innerHTML = `
+                <tr>
+                    <td colspan="11" class="subject-empty">
+                        No subject marks found for this result.
+                    </td>
+                </tr>
+            `;
+        } else {
+            body.innerHTML = subjects
+                .map(function(subject, index) {
+
+                    return `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td class="subject-name">
+                                ${escapeHTML(subject["Subject Name"] || "—")}
+                            </td>
+                            <td>${escapeHTML(subject["Max Theory Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Theory Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Max Practical Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Practical Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Total Max Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Obtained Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Percentage"] ?? "—")}</td>
+                            <td>${escapeHTML(subject["Grade"] || "—")}</td>
+                            <td>${escapeHTML(subject["Result"] || "—")}</td>
+                        </tr>
+                    `;
+                })
+                .join("");
+        }
+
+        const motherName =
+            currentStudent &&
+            currentStudent["Mother Name"]
+                ? currentStudent["Mother Name"]
+                : "—";
+
+        document.getElementById("backMotherName").textContent =
+            motherName;
+
+        document.getElementById("backCertificateId").textContent =
+            certificate["Certificate ID"] || "—";
+
+        document.getElementById("backStudentId").textContent =
+            certificate["Student ID"] || "—";
+
+        document.getElementById("backCourse").textContent =
+            certificate["Course"] || "—";
+
+        document.getElementById("backVerificationCertificateId").textContent =
+            certificate["Certificate ID"] || "—";
+
+        summary.innerHTML =
+            "Overall Result: <strong>" +
+            escapeHTML(certificate["Result"] || "—") +
+            "</strong> &nbsp; | &nbsp; Percentage: <strong>" +
+            escapeHTML(certificate["Percentage"] ?? "—") +
+            "%</strong> &nbsp; | &nbsp; Grade: <strong>" +
+            escapeHTML(certificate["Grade"] || "—") +
+            "</strong>";
+
+    } catch (error) {
+
+        console.error(
+            "RESULT SUBJECT LOAD ERROR:",
+            error
+        );
+
+        body.innerHTML = `
+            <tr>
+                <td colspan="11" class="subject-empty">
+                    ⚠️ Subject marks could not be loaded.
+                </td>
+            </tr>
+        `;
+
+        summary.textContent =
+            "Result summary could not be loaded.";
+    }
+}
+
+/* ==================================================
+   LOAD CERTIFICATE
 ================================================== */
 
 async function loadCertificate() {
@@ -1215,664 +2035,476 @@ async function loadCertificate() {
     }
 
 
-    /* ==================================================
-   LOAD CERTIFICATE FROM GOOGLE DATABASE
-================================================== */
-
-const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbxWG_ick4oYevNkOACXY-A-DurFLbXyDjurvNyOaORXJ1mpx8Bs41xvdJbd867Hcy3PDg/exec";
+    try {
 
 
-try {
+        /* ==================================================
+           GET CERTIFICATE
+        ================================================== */
 
-    const response =
-        await fetch(
-            SURYA_DATABASE_API +
-            "?action=certificate" +
-            "&id=" +
-            encodeURIComponent(
-                certificateId
-            )
-        );
+        const response =
+            await fetch(
 
+                SURYA_DATABASE_API +
+                "?action=certificate" +
+                "&id=" +
+                encodeURIComponent(
+                    certificateId
+                )
 
-    const result =
-        await response.json();
-
-
-    if (
-        !result.success ||
-        !result.certificate
-    ) {
-
-        content.innerHTML = `
-
-            <div class="error-message">
-
-                ❌ Certificate not found.
-
-                <br><br>
-
-                Certificate ID:
-
-                <strong>
-                    ${certificateId}
-                </strong>
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    const certificate =
-        result.certificate;
-
-
-    /* ==================================================
-       LOAD STUDENT DOCUMENTS
-    ================================================== */
-
-    const studentPhoto =
-        document.getElementById(
-            "studentPhoto"
-        );
-
-
-    const studentSignature =
-        document.getElementById(
-            "studentSignature"
-        );
-
-
-    const adminToken =
-        sessionStorage.getItem(
-            "SURYA_ADMIN_TOKEN"
-        );
-
-
-    await loadStudentDocuments(
-        certificate.studentId
-    );
-
-
-    /* ==================================================
-       GET STUDENT RECORD
-    ================================================== */
-
-    async function loadStudentDocuments(
-        studentId
-    ) {
-
-        if (!adminToken) {
-
-            console.error(
-                "ADMIN TOKEN NOT FOUND"
             );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success ||
+            !result.certificate
+        ) {
+
+            content.innerHTML = `
+
+                <div class="error-message">
+
+                    ❌ Certificate not found.
+
+                    <br><br>
+
+                    Certificate ID:
+
+                    <strong>
+                        ${escapeHTML(certificateId)}
+                    </strong>
+
+                </div>
+
+            `;
 
             return;
 
         }
 
 
-        try {
+        const certificate =
+            result.certificate;
 
-            const studentResponse =
-                await fetch(
-                    SURYA_DATABASE_API +
-                    "?action=application" +
-                    "&id=" +
-                    encodeURIComponent(
-                        studentId
-                    ) +
-                    "&token=" +
-                    encodeURIComponent(
-                        adminToken
-                    )
-                );
+        currentCertificate = certificate;
 
 
-            const studentResult =
-                await studentResponse.json();
+        /* ==================================================
+           EXACT SHEET HEADERS
+        ================================================== */
 
+        const certificateStudentId =
+            certificate["Student ID"] || "";
 
-            if (
-                !studentResult.success ||
-                !studentResult.application
-            ) {
 
-                console.error(
-                    "STUDENT RECORD LOAD FAILED:",
-                    studentResult.message
-                );
+        const certificateIdValue =
+            certificate["Certificate ID"] ||
+            certificateId;
 
-                return;
 
-            }
+        const studentName =
+            certificate["Student Name"] ||
+            "—";
 
 
-            const student =
-                studentResult.application;
+        const fatherName =
+            certificate["Father Name"] ||
+            "—";
 
 
-            /* =========================================
-               PHOTO
-            ========================================= */
+        const course =
+            certificate["Course"] ||
+            "—";
 
-            if (
-                studentPhoto &&
-                student.photoUrl
-            ) {
 
-                const photoFileId =
-                    extractDriveFileId(
-                        student.photoUrl
-                    );
+        const totalMarks =
+            certificate["Total Marks"] ??
+            "—";
 
 
-                if (photoFileId) {
+        const obtainedMarks =
+            certificate["Obtained Marks"] ??
+            "—";
 
-                    const photoResponse =
-                        await fetch(
-                            SURYA_DATABASE_API +
-                            "?action=studentPhoto" +
-                            "&id=" +
-                            encodeURIComponent(
-                                photoFileId
-                            ) +
-                            "&token=" +
-                            encodeURIComponent(
-                                adminToken
-                            )
-                        );
 
+        const percentage =
+            certificate["Percentage"] ??
+            "—";
 
-                    const photoResult =
-                        await photoResponse.json();
 
+        const grade =
+            certificate["Grade"] ||
+            "—";
 
-                    if (
-                        photoResult.success &&
-                        photoResult.data
-                    ) {
 
-                        studentPhoto.src =
-                            "data:" +
-                            photoResult.mimeType +
-                            ";base64," +
-                            photoResult.data;
+        const finalResult =
+            certificate["Result"] ||
+            "—";
 
-                    }
 
-                }
+        const status =
+            certificate["Status"] ||
+            "Verified";
 
-            }
 
+        const issueDate =
+            certificate["Issue Date"] ||
+            "—";
 
-            /* =========================================
-               SIGNATURE
-            ========================================= */
 
-            if (
-                studentSignature &&
-                student.signatureUrl
-            ) {
+        const resultId =
+            certificate["Result ID"] ||
+            "";
 
-                const signatureFileId =
-                    extractDriveFileId(
-                        student.signatureUrl
-                    );
 
+        /* ==================================================
+           LOAD STUDENT PHOTO + SIGNATURE
+        ================================================== */
 
-                if (signatureFileId) {
-
-                    const signatureResponse =
-                        await fetch(
-                            SURYA_DATABASE_API +
-                            "?action=studentSignature" +
-                            "&id=" +
-                            encodeURIComponent(
-                                signatureFileId
-                            ) +
-                            "&token=" +
-                            encodeURIComponent(
-                                adminToken
-                            )
-                        );
-
-
-                    const signatureResult =
-                        await signatureResponse.json();
-
-
-                    if (
-                        signatureResult.success &&
-                        signatureResult.data
-                    ) {
-
-                        studentSignature.src =
-                            "data:" +
-                            signatureResult.mimeType +
-                            ";base64," +
-                            signatureResult.data;
-
-                    }
-
-                }
-
-            }
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "STUDENT DOCUMENT LOAD ERROR:",
-                error
-            );
-
-        }
-
-    }
-        } catch (error) {
-
-          console.error(
-              "CERTIFICATE LOAD ERROR:",
-              error
-          );
-
-          content.innerHTML = `
-              <div class="error-message">
-                  ❌ Certificate loading failed.
-                  <br><br>
-                  Please try again.
-              </div>
-          `;
-
-          return;
-
-}
-
-
-    /* ==================================================
-       EXTRACT GOOGLE DRIVE FILE ID
-    ================================================== */
-
-    function extractDriveFileId(
-        url
-    ) {
-
-        if (!url) {
-
-            return "";
-
-        }
-
-
-        const match =
-            String(url).match(
-                /[?&]id=([^&]+)/i
-            );
-
-
-        return match
-            ? match[1]
-            : "";
-
-    }
-
-
-    /* ==================================================
-       RESULT DATA
-    ================================================== */
-
-    const percentage =
-        certificate.percentage ||
-        certificate.marksPercentage ||
-        "—";
- 
-   
-
-
-
-    const grade =
-        certificate.grade ||
-        "—";
-
-
-    const courseDuration =
-        certificate.courseDuration ||
-        "12 MONTH";
-
-
-    const courseStart =
-        certificate.courseStartDate ||
-        certificate.startDate ||
-        "—";
-
-
-    const courseEnd =
-        certificate.courseEndDate ||
-        certificate.endDate ||
-        "—";
-
-
-    const fatherName =
-        certificate.fatherName ||
-        "—";
-
-
-    /* ==================================================
-       COURSE NAME
-    ================================================== */
-
-    const course =
-        certificate.course ||
-        "—";
-
-
-    /* ==================================================
-       DISPLAY
-    ================================================== */
-
-    content.innerHTML = `
-
-        <p>
-
-            This is to certify that
-
-        </p>
-
-
-        <div class="student-name">
-
-            ${certificate.studentName || "—"}
-
-        </div>
-
-
-        <div class="father-name">
-
-            S/o ${fatherName}
-
-        </div>
-
-
-        <div class="atc">
-
-            ATC: SURYA COMPUTER OF EDUCATION CENTER
-
-            <br>
-
-            KAMALPUR | CHANDAULI
-
-        </div>
-
-
-        <p>
-
-            has passed the prescribed examination
-
-            with a
-
-            <strong>
-
-                Grade ${grade}
-
-            </strong>
-
-            (
-
-            <strong>
-
-                ${percentage}% Marks
-
-            </strong>
-
-            )
-
-        </p>
-
-
-        <p>
-
-            has been awarded the
-
-        </p>
-
-
-        <div class="course-name">
-
-            ${course}
-
-        </div>
-
-
-        <div class="course-duration">
-
-            (COURSE DURATION: ${courseDuration})
-
-        </div>
-
-
-        <div class="course-period">
-
-            (COURSE PERIOD:
-
-            ${courseStart}
-
-            TO
-
-            ${courseEnd}
-
-            )
-
-        </div>
-
-
-        <div class="result-box">
-
-
-            <div class="result-item">
-
-                <span class="result-label">
-
-                    Percentage
-
-                </span>
-
-                <span class="result-value">
-
-                    ${percentage}%
-
-                </span>
-
-            </div>
-
-
-            <div class="result-item">
-
-                <span class="result-label">
-
-                    Grade
-
-                </span>
-
-                <span class="result-value">
-
-                    ${grade}
-
-                </span>
-
-            </div>
-
-
-                        <div class="result-item">
-
-                <span class="result-label">
-
-                    Total Marks
-
-                </span>
-
-                <span class="result-value">
-
-                    ${certificate.totalMarks || "—"}
-
-                </span>
-
-            </div>
-
-
-            <div class="result-item">
-
-                <span class="result-label">
-
-                    Obtained Marks
-
-                </span>
-
-                <span class="result-value">
-
-                    ${certificate.obtainedMarks || "—"}
-
-                </span>
-
-            </div>
-
-
-            <div class="result-item">
-
-                <span class="result-label">
-
-                    Result
-
-                </span>
-
-                <span class="result-value">
-
-                    ${certificate.result || "—"}
-
-                </span>
-
-            </div>
-
-
-            <div class="result-item">
-
-                <span class="result-label">
-
-                    Status
-
-                </span>
-
-                <span class="result-value">
-
-                    ${certificate.status || "Verified"}
-
-                </span>
-
-            </div>
-
-
-        </div>
-
-
-        <div class="certificate-details">
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-
-                    Certificate No.
-
-                </span>
-
-                <span class="detail-value">
-
-                    ${certificate.certificateId}
-
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-
-                    Date of Issue
-
-                </span>
-
-                <span class="detail-value">
-
-                    ${certificate.issueDate || "—"}
-
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <div class="verification">
-
-            Online Certificate Verification available on:
-
-            <br>
-
-            <strong>
-
-                SURYA COMPUTER OF EDUCATION CENTER
-
-            </strong>
-
-            <br>
-
-            Certificate ID:
-
-            <strong>
-
-                ${certificate.certificateId}
-
-            </strong>
-
-        </div>
-
-    `;
-
-    /* ==================================================
-       GENERATE DYNAMIC QR CODE
-    ================================================== */
-
-    const qrContainer =
-        document.getElementById("qrCode");
-
-    if (qrContainer) {
-
-        qrContainer.innerHTML = "";
-
-        const verificationUrl =
-            "https://devendra369369.github.io/surya-computer-website/certificate.html?id=" +
-            encodeURIComponent(certificate.certificateId);
-
-        new QRCode(
-            qrContainer,
-            {
-                text: verificationUrl,
-                width: 74,
-                height: 74,
-                correctLevel: QRCode.CorrectLevel.H
-            }
+        await loadStudentDocuments(
+            certificateStudentId
         );
 
+
+        /* ==================================================
+           BACK PAGE IDENTITY
+        ================================================== */
+
+        const backMotherName =
+            currentStudent &&
+            currentStudent["Mother Name"]
+                ? currentStudent["Mother Name"]
+                : "—";
+
+        document.getElementById("backMotherName").textContent =
+            backMotherName;
+
+        document.getElementById("backCertificateId").textContent =
+            certificateIdValue;
+
+        document.getElementById("backStudentId").textContent =
+            certificateStudentId || "—";
+
+        document.getElementById("backCourse").textContent =
+            course;
+
+        document.getElementById("backVerificationCertificateId").textContent =
+            certificateIdValue;
+
+        await loadResultSubjects(
+            resultId,
+            certificate
+        );
+
+
+        /* ==================================================
+           CERTIFICATE CONTENT
+        ================================================== */
+
+        content.innerHTML = `
+
+            <p>
+
+                This is to certify that
+
+            </p>
+
+
+            <div class="student-name">
+
+                ${escapeHTML(studentName)}
+
+            </div>
+
+
+            <div class="father-name">
+
+                S/o ${escapeHTML(fatherName)}
+
+            </div>
+
+
+            <div class="atc">
+
+                ATC: SURYA COMPUTER OF EDUCATION CENTER
+
+                <br>
+
+                KAMALPUR | CHANDAULI
+
+            </div>
+
+
+            <p>
+
+                has passed the prescribed examination
+
+                with a
+
+                <strong>
+                    Grade ${escapeHTML(grade)}
+                </strong>
+
+                (
+
+                <strong>
+                    ${escapeHTML(percentage)}% Marks
+                </strong>
+
+                )
+
+            </p>
+
+
+            <p>
+
+                has been awarded the
+
+            </p>
+
+
+            <div class="course-name">
+
+                ${escapeHTML(course)}
+
+            </div>
+
+
+            <div class="course-duration">
+
+                (COURSE DURATION: 12 MONTH)
+
+            </div>
+
+
+            <div class="course-period">
+
+                (COURSE PERIOD: — TO —)
+
+            </div>
+
+
+            <div class="result-box">
+
+
+                <div class="result-item">
+
+                    <span class="result-label">
+                        Percentage
+                    </span>
+
+                    <span class="result-value">
+                        ${escapeHTML(percentage)}%
+                    </span>
+
+                </div>
+
+
+                <div class="result-item">
+
+                    <span class="result-label">
+                        Grade
+                    </span>
+
+                    <span class="result-value">
+                        ${escapeHTML(grade)}
+                    </span>
+
+                </div>
+
+
+                <div class="result-item">
+
+                    <span class="result-label">
+                        Total Marks
+                    </span>
+
+                    <span class="result-value">
+                        ${escapeHTML(totalMarks)}
+                    </span>
+
+                </div>
+
+
+                <div class="result-item">
+
+                    <span class="result-label">
+                        Obtained Marks
+                    </span>
+
+                    <span class="result-value">
+                        ${escapeHTML(obtainedMarks)}
+                    </span>
+
+                </div>
+
+
+                <div class="result-item">
+
+                    <span class="result-label">
+                        Result
+                    </span>
+
+                    <span class="result-value">
+                        ${escapeHTML(finalResult)}
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="certificate-details">
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Certificate No.
+                    </span>
+
+                    <span class="detail-value">
+                        ${escapeHTML(certificateIdValue)}
+                    </span>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Date of Issue
+                    </span>
+
+                    <span class="detail-value">
+                        ${escapeHTML(issueDate)}
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Status
+                    </span>
+
+                    <span class="detail-value">
+                        ${escapeHTML(status)}
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="verification">
+
+                Online Certificate Verification available on:
+
+                <br>
+
+                <strong>
+                    SURYA COMPUTER OF EDUCATION CENTER
+                </strong>
+
+                <br>
+
+                Certificate ID:
+
+                <strong>
+                    ${escapeHTML(certificateIdValue)}
+                </strong>
+
+            </div>
+
+        `;
+
+
+        /* ==================================================
+           QR CODE
+        ================================================== */
+
+        const qrContainer =
+            document.getElementById(
+                "qrCode"
+            );
+
+
+        if (
+            qrContainer &&
+            typeof QRCode !== "undefined"
+        ) {
+
+            qrContainer.innerHTML = "";
+
+
+            const verificationUrl =
+                "https://devendra369369.github.io/" +
+                "surya-computer-website/" +
+                "certificate.html?id=" +
+                encodeURIComponent(
+                    certificateIdValue
+                );
+
+
+            new QRCode(
+
+                qrContainer,
+
+                {
+
+                    text:
+                        verificationUrl,
+
+                    width:
+                        74,
+
+                    height:
+                        74,
+
+                    correctLevel:
+                        QRCode.CorrectLevel.H
+
+                }
+
+            );
+
+        }
+
+
     }
 
+    catch (error) {
+
+        console.error(
+            "CERTIFICATE LOAD ERROR:",
+            error
+        );
+
+
+        content.innerHTML = `
+
+            <div class="error-message">
+
+                ❌ Certificate loading failed.
+
+                <br><br>
+
+                Please try again.
+
+            </div>
+
+        `;
+
+    }
 
 }
 
@@ -1882,16 +2514,18 @@ try {
 ================================================== */
 
 document.addEventListener(
+
     "DOMContentLoaded",
+
     function() {
 
         loadCertificate();
 
     }
+
 );
 
 </script>
-
 
 </body>
 
