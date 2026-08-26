@@ -1,0 +1,12 @@
+/* SURYA CIMP shared UI layer - safe, additive styles */
+:root { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
+[data-theme="dark"] body { background:#111827 !important; color:#f3f4f6 !important; }
+[data-theme="dark"] .header, [data-theme="dark"] .top-bar, [data-theme="dark"] footer, [data-theme="dark"] .footer { background:#0b1220 !important; color:#f3f4f6 !important; }
+[data-theme="dark"] .admin-card, [data-theme="dark"] .stat-card, [data-theme="dark"] .certificate-card, [data-theme="dark"] .application-card, [data-theme="dark"] #passwordPanel { background:#1f2937 !important; color:#f3f4f6 !important; }
+[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background:#111827 !important; color:#f9fafb !important; border-color:#4b5563 !important; }
+[data-theme="dark"] a { color:#93c5fd; }
+[data-theme="dark"] .admission-filter-btn { background:#1f2937; color:#f3f4f6; border-color:#4b5563; }
+.cimp-theme-toggle { position:fixed; right:14px; bottom:14px; z-index:9999; width:40px; height:40px; border:0; border-radius:50%; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.2); }
+body, input, select, textarea, button { -webkit-tap-highlight-color: transparent; }
+input, select, textarea { text-align:center; }

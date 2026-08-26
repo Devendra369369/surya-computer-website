@@ -2,7 +2,7 @@
    SURYA COMPUTER OF EDUCATION CENTER
    ADMIN AUTHENTICATION & SECURITY
    File    : Auth.gs
-   Version : v2.0.0
+   Version : v3.0.0
 
    Security:
    - SHA-256 password hash
@@ -13,6 +13,10 @@
    - Per-session token
    - Logout/revocation
    - Password change invalidates sessions
+   - Email alerts for login/logout/security events
+   - New-browser/device detection
+   - OTP password recovery
+   - Recovery OTP hashing + expiry + attempt limits
 ================================================== */
 
 "use strict";
@@ -25,6 +29,9 @@
 const ADMIN_SESSION_SECONDS = 6 * 60 * 60;       // 6 hours
 const ADMIN_LOCK_SECONDS = 12 * 60 * 60;          // 12 hours
 const ADMIN_MAX_FAILED_ATTEMPTS = 5;
+const ADMIN_OTP_EXPIRY_SECONDS = 10 * 60;
+const ADMIN_MAX_OTP_ATTEMPTS = 5;
+const ADMIN_DEVICE_MAX_RECORDS = 25;
 
 const ADMIN_ALERT_EMAILS = [
     "aeronhadalyaan@gmail.com",
@@ -45,6 +52,19 @@ const PROP_LOCK_UNTIL = "SURYA_ADMIN_LOCK_UNTIL";
 const PROP_SESSION_PREFIX = "SURYA_ADMIN_SESSION_";
 
 const PROP_SECURITY_VERSION = "SURYA_ADMIN_SECURITY_VERSION";
+const PROP_RECOVERY_EMAIL = "SURYA_ADMIN_RECOVERY_EMAIL";
+const PROP_OTP_HASH = "SURYA_ADMIN_OTP_HASH";
+const PROP_OTP_EXPIRES = "SURYA_ADMIN_OTP_EXPIRES";
+const PROP_OTP_ATTEMPTS = "SURYA_ADMIN_OTP_ATTEMPTS";
+const PROP_OTP_USERNAME = "SURYA_ADMIN_OTP_USERNAME";
+const PROP_DEVICE_PREFIX = "SURYA_ADMIN_DEVICE_";
+
+// Separate emergency-lock credential. Only the SHA-256 hash is stored.
+const EMERGENCY_LOCK_PASSWORD_HASH = "b65841b8268dbb217903df1125abb6cd7c377c94679305cb6f597fedf918ea5c";
+const PROP_EMERGENCY_ATTEMPTS = "SURYA_EMERGENCY_LOCK_ATTEMPTS";
+const PROP_EMERGENCY_WINDOW = "SURYA_EMERGENCY_LOCK_WINDOW";
+const EMERGENCY_MAX_ATTEMPTS = 5;
+const EMERGENCY_WINDOW_MS = 15 * 60 * 1000;
 
 
 /* ==================================================
@@ -80,67 +100,6 @@ function hashPassword(password) {
 }
 
 
-/* ==================================================
-   SECURITY INITIALIZATION
-================================================== */
-
-/*
-   IMPORTANT:
-
-   Run this function ONCE from Apps Script editor.
-
-   Before running:
-   - change the username if required
-   - change the temporary password
-
-   After successful setup:
-   DELETE THIS FUNCTION from Auth.gs.
-
-   Do NOT leave the temporary password in source code.
-*/
-
-function setupAdminSecurity() {
-
-    const username = "admin";
-    const password = "ADMIN123";
-
-    if (
-        !username ||
-        !password ||
-        password.length < 8
-    ) {
-
-        throw new Error(
-            "Username/password invalid. Password must be at least 8 characters."
-        );
-
-    }
-
-    const props =
-        PropertiesService.getScriptProperties();
-
-    props.setProperties({
-
-        [PROP_USERNAME]:
-            String(username).trim(),
-
-        [PROP_PASSWORD_HASH]:
-            hashPassword(password),
-
-        [PROP_FAILED_ATTEMPTS]:
-            "0",
-
-        [PROP_LOCK_UNTIL]:
-            "0",
-
-        [PROP_SECURITY_VERSION]:
-            "2.0.0"
-
-    }, false);
-
-    return "Admin security initialized successfully.";
-}
-
 
 /* ==================================================
    CHECK SECURITY INITIALIZATION
@@ -172,7 +131,9 @@ function isAdminSecurityInitialized() {
    ADMIN LOGIN
 ================================================== */
 
-function adminLogin(username, password) {
+function adminLogin(username, password, clientInfo) {
+
+    clientInfo = clientInfo || {};
 
     username =
         String(username || "").trim();
@@ -355,6 +316,31 @@ function adminLogin(username, password) {
 
 
         /* =========================================
+           NEW DEVICE LOCATION GATE
+        ========================================= */
+
+        const deviceId = String(clientInfo.deviceId || "").trim().slice(0, 120);
+        const deviceKey = deviceId
+            ? PROP_DEVICE_PREFIX + hashPassword(deviceId).slice(0, 32)
+            : "";
+        const knownDevice = !!(deviceKey && props.getProperty(deviceKey));
+        const latitude = clientInfo.latitude;
+        const longitude = clientInfo.longitude;
+        const hasLocation =
+            latitude !== null && latitude !== undefined &&
+            longitude !== null && longitude !== undefined &&
+            latitude !== "" && longitude !== "" &&
+            isFinite(Number(latitude)) && isFinite(Number(longitude));
+
+        if (!knownDevice && !hasLocation) {
+            return jsonResponse({
+                success: false,
+                locationRequired: true,
+                message: "New browser/device detected. Location permission is required for Admin login."
+            });
+        }
+
+        /* =========================================
            SUCCESSFUL LOGIN
         ========================================= */
 
@@ -409,6 +395,36 @@ function adminLogin(username, password) {
             )
 
         );
+
+        if (deviceId) {
+            const deviceData = {
+                deviceId: deviceId,
+                browser: String(clientInfo.browser || "Unknown").slice(0, 120),
+                platform: String(clientInfo.platform || "Unknown").slice(0, 120),
+                userAgent: String(clientInfo.userAgent || "Unknown").slice(0, 500),
+                language: String(clientInfo.language || "Unknown").slice(0, 80),
+                timezone: String(clientInfo.timezone || "Unknown").slice(0, 100),
+                screen: String(clientInfo.screen || "Unknown").slice(0, 80),
+                latitude: hasLocation ? String(Number(latitude).toFixed(4)) : "Unavailable",
+                longitude: hasLocation ? String(Number(longitude).toFixed(4)) : "Unavailable",
+                lastSeen: new Date().toISOString()
+            };
+            props.setProperty(deviceKey, JSON.stringify(deviceData));
+
+            if (!knownDevice) {
+                sendAdminSecurityAlert(
+                    "NEW ADMIN BROWSER / DEVICE LOGIN",
+                    "A new browser/device successfully logged into the SURYA Admin Panel.\n\n" +
+                    "Browser: " + deviceData.browser + "\n" +
+                    "Platform: " + deviceData.platform + "\n" +
+                    "Time: " + new Date().toString() + "\n" +
+                    "Timezone: " + deviceData.timezone + "\n" +
+                    "Screen: " + deviceData.screen + "\n" +
+                    "Approx. Location: " + deviceData.latitude + ", " + deviceData.longitude + "\n\n" +
+                    "User-Agent:\n" + deviceData.userAgent
+                );
+            }
+        }
 
 
         return jsonResponse({
@@ -768,6 +784,321 @@ function sendAdminSecurityAlert(
 
     }
 
+}
+
+
+
+/* ==================================================
+   CONFIGURE RECOVERY EMAIL
+================================================== */
+
+function setupAdminRecoveryEmail() {
+
+    const recoveryEmail = "sadhuji9616@gmail.com";
+
+    if (
+        !recoveryEmail ||
+        recoveryEmail.indexOf("@") < 1
+    ) {
+        throw new Error("Invalid admin recovery email configuration.");
+    }
+
+    PropertiesService
+        .getScriptProperties()
+        .setProperty(
+            PROP_RECOVERY_EMAIL,
+            recoveryEmail.trim()
+        );
+
+    return "Admin recovery email configured successfully.";
+}
+
+
+/* ==================================================
+   PASSWORD RECOVERY - REQUEST OTP
+================================================== */
+
+function requestAdminPasswordReset(username, recoveryEmail) {
+
+    username = String(username || "").trim();
+    recoveryEmail = String(recoveryEmail || "").trim().toLowerCase();
+
+    const props = PropertiesService.getScriptProperties();
+    const storedUsername = props.getProperty(PROP_USERNAME) || "";
+    const storedRecoveryEmail =
+        String(props.getProperty(PROP_RECOVERY_EMAIL) || "")
+            .trim()
+            .toLowerCase();
+
+    /* Always return a generic response to avoid account enumeration. */
+    const generic = jsonResponse({
+        success: true,
+        message: "If the supplied details are valid, a verification OTP has been sent to the registered recovery email."
+    });
+
+    if (
+        !username ||
+        !recoveryEmail ||
+        username !== storedUsername ||
+        !storedRecoveryEmail ||
+        recoveryEmail !== storedRecoveryEmail
+    ) {
+        return generic;
+    }
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = Date.now() + ADMIN_OTP_EXPIRY_SECONDS * 1000;
+
+    props.setProperties({
+        [PROP_OTP_HASH]: hashPassword(otp),
+        [PROP_OTP_EXPIRES]: String(expiresAt),
+        [PROP_OTP_ATTEMPTS]: "0",
+        [PROP_OTP_USERNAME]: username
+    }, false);
+
+    try {
+        MailApp.sendEmail({
+            to: storedRecoveryEmail,
+            subject: "SURYA ADMIN: Password Reset OTP",
+            body:
+                "Your SURYA Computer admin password reset OTP is: " + otp +
+                "\n\nThis OTP expires in 10 minutes and can be used only a limited number of times." +
+                "\n\nIf you did not request this, ignore this email and review your admin security alerts."
+        });
+    } catch (error) {
+        props.deleteProperty(PROP_OTP_HASH);
+        props.deleteProperty(PROP_OTP_EXPIRES);
+        props.deleteProperty(PROP_OTP_ATTEMPTS);
+        props.deleteProperty(PROP_OTP_USERNAME);
+        console.error("ADMIN OTP EMAIL ERROR:", error);
+    }
+
+    return generic;
+}
+
+
+/* ==================================================
+   PASSWORD RECOVERY - RESET WITH OTP
+================================================== */
+
+function resetAdminPasswordWithOtp(username, otp, newPassword) {
+
+    username = String(username || "").trim();
+    otp = String(otp || "").trim();
+    newPassword = String(newPassword || "");
+
+    const props = PropertiesService.getScriptProperties();
+    const storedUsername = props.getProperty(PROP_USERNAME) || "";
+
+    if (!username || username !== storedUsername) {
+        return jsonResponse({ success: false, message: "Invalid password reset request." });
+    }
+
+    if (newPassword.length < 10) {
+        return jsonResponse({ success: false, message: "New password must contain at least 10 characters." });
+    }
+
+    const expiresAt = Number(props.getProperty(PROP_OTP_EXPIRES) || "0");
+    const attempts = Number(props.getProperty(PROP_OTP_ATTEMPTS) || "0");
+    const storedOtpHash = props.getProperty(PROP_OTP_HASH) || "";
+
+    if (!storedOtpHash || !expiresAt || expiresAt <= Date.now()) {
+        return jsonResponse({ success: false, message: "OTP expired. Request a new OTP." });
+    }
+
+    if (attempts >= ADMIN_MAX_OTP_ATTEMPTS) {
+        return jsonResponse({ success: false, message: "Too many OTP attempts. Request a new OTP." });
+    }
+
+    props.setProperty(PROP_OTP_ATTEMPTS, String(attempts + 1));
+
+    if (hashPassword(otp) !== storedOtpHash) {
+        return jsonResponse({
+            success: false,
+            message: "Invalid OTP.",
+            remainingAttempts: Math.max(0, ADMIN_MAX_OTP_ATTEMPTS - attempts - 1)
+        });
+    }
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+
+    try {
+        props.setProperty(PROP_PASSWORD_HASH, hashPassword(newPassword));
+        revokeAllAdminSessions();
+
+        props.deleteProperty(PROP_OTP_HASH);
+        props.deleteProperty(PROP_OTP_EXPIRES);
+        props.deleteProperty(PROP_OTP_ATTEMPTS);
+        props.deleteProperty(PROP_OTP_USERNAME);
+
+        sendAdminSecurityAlert(
+            "ADMIN PASSWORD RESET",
+            "The admin password was reset successfully using the registered recovery OTP."
+        );
+
+        return jsonResponse({
+            success: true,
+            message: "Admin password reset successfully. Please login again."
+        });
+    }
+    finally {
+        lock.releaseLock();
+    }
+}
+
+
+/* ==================================================
+   CLIENT SECURITY EVENT / DEVICE ALERT
+================================================== */
+
+function recordAdminSecurityEvent(token, eventType, clientInfo) {
+
+    if (!verifyAdminSession(token)) {
+        return jsonResponse({ success: false, authenticated: false, message: "Unauthorized." });
+    }
+
+    eventType = String(eventType || "SECURITY EVENT").trim().toUpperCase();
+    clientInfo = clientInfo || {};
+
+    const props = PropertiesService.getScriptProperties();
+    const deviceId = String(clientInfo.deviceId || "unknown").trim().slice(0, 120);
+    const deviceKey = PROP_DEVICE_PREFIX + hashPassword(deviceId).slice(0, 32);
+    const existing = props.getProperty(deviceKey);
+    const isNewDevice = !existing;
+
+    const data = {
+        deviceId: deviceId,
+        browser: String(clientInfo.browser || "Unknown").slice(0, 120),
+        platform: String(clientInfo.platform || "Unknown").slice(0, 120),
+        userAgent: String(clientInfo.userAgent || "Unknown").slice(0, 500),
+        language: String(clientInfo.language || "Unknown").slice(0, 80),
+        timezone: String(clientInfo.timezone || "Unknown").slice(0, 100),
+        screen: String(clientInfo.screen || "Unknown").slice(0, 80),
+        latitude: clientInfo.latitude === null || clientInfo.latitude === undefined ? "Unavailable" : String(clientInfo.latitude),
+        longitude: clientInfo.longitude === null || clientInfo.longitude === undefined ? "Unavailable" : String(clientInfo.longitude),
+        lastSeen: new Date().toISOString()
+    };
+
+    props.setProperty(deviceKey, JSON.stringify(data));
+
+    const subject =
+        eventType === "LOGIN" && isNewDevice
+            ? "NEW ADMIN BROWSER / DEVICE LOGIN"
+            : "ADMIN " + eventType;
+
+    let body =
+        "SURYA Computer admin security event\n\n" +
+        "Event: " + eventType + "\n" +
+        "New Browser/Device: " + (isNewDevice ? "YES" : "NO") + "\n" +
+        "Time: " + new Date().toString() + "\n" +
+        "Browser: " + data.browser + "\n" +
+        "Platform: " + data.platform + "\n" +
+        "Language: " + data.language + "\n" +
+        "Timezone: " + data.timezone + "\n" +
+        "Screen: " + data.screen + "\n" +
+        "Approx browser location: " +
+        (data.latitude === "Unavailable" ? "Not provided" : data.latitude + ", " + data.longitude) +
+        "\n\nUser-Agent:\n" + data.userAgent;
+
+    sendAdminSecurityAlert(subject, body);
+
+    return jsonResponse({ success: true, newDevice: isNewDevice });
+}
+
+
+/* ==================================================
+   EMERGENCY ADMIN LOCK - SEPARATE PASSWORD
+================================================== */
+
+function emergencyLockAdmin(password) {
+    const props = PropertiesService.getScriptProperties();
+    const now = Date.now();
+    const windowStart = Number(props.getProperty(PROP_EMERGENCY_WINDOW) || "0");
+    let attempts = Number(props.getProperty(PROP_EMERGENCY_ATTEMPTS) || "0");
+
+    if (!windowStart || now - windowStart > EMERGENCY_WINDOW_MS) {
+        attempts = 0;
+        props.setProperty(PROP_EMERGENCY_WINDOW, String(now));
+        props.setProperty(PROP_EMERGENCY_ATTEMPTS, "0");
+    }
+
+    if (attempts >= EMERGENCY_MAX_ATTEMPTS) {
+        return jsonResponse({success:false,message:"Too many emergency password attempts. Try again later."});
+    }
+
+    const suppliedHash = hashPassword(password);
+    if (suppliedHash !== EMERGENCY_LOCK_PASSWORD_HASH) {
+        attempts += 1;
+        props.setProperty(PROP_EMERGENCY_ATTEMPTS, String(attempts));
+        return jsonResponse({success:false,message:"Invalid emergency password."});
+    }
+
+    props.deleteProperty(PROP_EMERGENCY_ATTEMPTS);
+    props.deleteProperty(PROP_EMERGENCY_WINDOW);
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+        const until = now + (24 * 60 * 60 * 1000);
+        props.setProperty(PROP_LOCK_UNTIL, String(until));
+        props.setProperty(PROP_FAILED_ATTEMPTS, "0");
+        revokeAllAdminSessions();
+        sendAdminSecurityAlert(
+            "EMERGENCY ADMIN LOCK ACTIVATED",
+            "The separate emergency lock password was accepted.\n\n" +
+            "All Admin sessions were revoked and new Admin login is blocked for 24 hours.\n" +
+            "Public website, student portal, mock tests, admissions and other public services remain active.\n\n" +
+            "Lock until: " + new Date(until).toString()
+        );
+        return jsonResponse({success:true,locked:true,lockUntil:until,message:"Admin login locked for 24 hours. Public services remain active."});
+    } finally {
+        lock.releaseLock();
+    }
+}
+
+
+/* ==================================================
+   EMERGENCY ADMIN LOCK - ADMIN SESSION
+================================================== */
+
+function lockAdminFor24Hours(token) {
+
+    if (!verifyAdminSession(token)) {
+        return jsonResponse({
+            success: false,
+            authenticated: false,
+            message: "Unauthorized."
+        });
+    }
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+
+    try {
+        const props = PropertiesService.getScriptProperties();
+        const until = Date.now() + (24 * 60 * 60 * 1000);
+        props.setProperty(PROP_LOCK_UNTIL, String(until));
+        props.setProperty(PROP_FAILED_ATTEMPTS, "0");
+        revokeAllAdminSessions();
+
+        sendAdminSecurityAlert(
+            "ADMIN ACCESS LOCKED FOR 24 HOURS",
+            "Emergency admin lock was activated.\n\n" +
+            "Admin login is blocked for 24 hours.\n" +
+            "Public website, student portal, mock tests and admission system remain available.\n\n" +
+            "Lock until: " + new Date(until).toString()
+        );
+
+        return jsonResponse({
+            success: true,
+            locked: true,
+            lockUntil: until,
+            message: "Admin login locked for 24 hours. Public services remain active."
+        });
+    } finally {
+        lock.releaseLock();
+    }
 }
 
 

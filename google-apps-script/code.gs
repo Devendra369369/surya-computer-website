@@ -312,7 +312,8 @@ if (
 
     return adminLogin(
         data.username,
-        data.password
+        data.password,
+        data.clientInfo || {}
     );
 
 }
@@ -327,6 +328,20 @@ if (
 ) {
 
     return adminLogout(
+        data.token
+    );
+
+}
+
+/* =========================================
+   EMERGENCY 24-HOUR ADMIN LOCK
+========================================= */
+
+if (
+    action === "lockAdminFor24Hours"
+) {
+
+    return lockAdminFor24Hours(
         data.token
     );
 
@@ -352,6 +367,72 @@ if (
     );
 
 }
+/* =========================================
+   ADMIN PASSWORD RECOVERY - REQUEST OTP
+========================================= */
+
+if (action === "requestAdminPasswordReset") {
+
+    return requestAdminPasswordReset(
+        data.username,
+        data.recoveryEmail
+    );
+
+}
+
+/* =========================================
+   ADMIN PASSWORD RECOVERY - RESET
+========================================= */
+
+if (action === "resetAdminPasswordWithOtp") {
+
+    return resetAdminPasswordWithOtp(
+        data.username,
+        data.otp,
+        data.newPassword
+    );
+
+}
+
+/* =========================================
+   ADMIN SECURITY EVENT / ALERT
+========================================= */
+
+if (action === "recordAdminSecurityEvent") {
+
+    return recordAdminSecurityEvent(
+        data.token,
+        data.eventType,
+        data.clientInfo
+    );
+
+}
+
+        /* =========================================
+           PUBLIC: EMERGENCY ADMIN LOCK
+        ========================================= */
+        if (action === "emergencyLockAdmin") {
+            return emergencyLockAdmin(data.password);
+        }
+
+        /* =========================================
+           PUBLIC: STUDENT AUTHENTICATION
+        ========================================= */
+        if (action === "studentLogin") return jsonResponse(studentLogin_(data.studentId, data.password));
+        if (action === "studentRequestReset") return jsonResponse(studentRequestReset_(data.studentId, data.email));
+        if (action === "studentResetPassword") return jsonResponse(studentResetPassword_(data.studentId, data.email, data.otp, data.newPassword));
+        if (action === "studentAdminSetPassword") {
+            if (!verifyAdminSession(String(data.token || ""))) return jsonResponse({success:false,authenticated:false,message:"Unauthorized. Admin login required."});
+            return jsonResponse(studentAdminSetPassword_(data.token, data.studentId, data.newPassword));
+        }
+
+        /* =========================================
+           PUBLIC: CONTACT MESSAGE
+        ========================================= */
+        if (action === "submitContactMessage") {
+            return submitContactMessage_(data);
+        }
+
         /* =========================================
            PUBLIC: SUBMIT ADMISSION
         ========================================= */
@@ -376,6 +457,34 @@ if (
                 data.token || ""
             ).trim();
 
+        /* =========================================
+           STUDENT SESSION ROUTES
+        ========================================= */
+        if (action === "studentLogout") return jsonResponse(studentLogout_(token));
+        if (action === "studentMe") return jsonResponse(studentMe_(token));
+        if (action === "studentChangePassword") return jsonResponse(studentChangePassword_(token, data.currentPassword, data.newPassword));
+
+        if (["publishedMockTests","publishedMockQuestions","submitMockTest","mockStudentHistory","liveClasses"].includes(action)) {
+            if (!verifyStudentSession(token)) return jsonResponse({success:false,authenticated:false,message:"Student login required."});
+            let out;
+            if (action === "publishedMockTests") out = apiPublishedMockTests_(token);
+            else if (action === "publishedMockQuestions") out = apiPublishedMockQuestions_(token, data.testId);
+            else if (action === "submitMockTest") out = apiSubmitMockTest_(token, data.testId, data.answers);
+            else if (action === "mockStudentHistory") out = apiMockStudentHistory_(token);
+            else out = liveList_(token);
+            return jsonResponse(out);
+        }
+
+        /* =========================================
+           ADMIN MOCK TEST / LIVE CLASS ROUTES
+        ========================================= */
+        if (["mockTests","saveMockTest","setMockTestStatus","mockQuestions","saveMockQuestion","mockAttempts","liveAdminList","liveSave","liveDelete"].includes(action)) {
+            if (!verifyAdminSession(token)) return jsonResponse({success:false,authenticated:false,message:"Unauthorized. Admin login required."});
+            if (action === "liveAdminList") return jsonResponse(liveAdminList_(token));
+            if (action === "liveSave") return jsonResponse(liveSave_(token, data.class || {}));
+            if (action === "liveDelete") return jsonResponse(liveDelete_(token, data.classId));
+            return jsonResponse(routeMockAction_(data));
+        }
 
         if (
             !verifyAdminSession(
@@ -908,4 +1017,26 @@ function testHealthCheck() {
 
     });
 
+}
+
+/* ==================================================
+   PUBLIC CONTACT MESSAGE
+================================================== */
+function submitContactMessage_(data) {
+    const name = String(data.name || "").trim().slice(0, 100);
+    const email = String(data.email || "").trim().slice(0, 160);
+    const message = String(data.message || "").trim().slice(0, 2000);
+    if (!name || !email || !message) return jsonResponse({success:false,message:"Name, email and message are required."});
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return jsonResponse({success:false,message:"Please enter a valid email address."});
+    MailApp.sendEmail({
+        to: "sunilkumar5757@gmail.com",
+        replyTo: email,
+        subject: "SURYA Website Contact — " + name,
+        htmlBody: "<p><b>Name:</b> " + escapeHtml_(name) + "</p><p><b>Email:</b> " + escapeHtml_(email) + "</p><p><b>Message:</b><br>" + escapeHtml_(message).replace(/\n/g,"<br>") + "</p>"
+    });
+    return jsonResponse({success:true,message:"Message sent successfully."});
+}
+
+function escapeHtml_(value) {
+    return String(value || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;");
 }

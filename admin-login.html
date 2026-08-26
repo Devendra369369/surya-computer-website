@@ -93,6 +93,39 @@ Created : 09-08-2026
 
         <div id="adminLoginMessage"></div>
 
+        <button
+            type="button"
+            onclick="openForgotPassword()"
+            style="margin-top:12px;background:none;border:0;text-decoration:underline;cursor:pointer;"
+        >
+            Forgot Admin Password?
+        </button>
+
+    </div>
+
+    <div
+        id="forgotPasswordPanel"
+        style="display:none;max-width:500px;margin:20px auto;padding:22px;background:#fff;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.12);"
+    >
+        <h3>🔑 Recover Admin Password</h3>
+        <p>OTP will be sent only to the registered admin recovery Gmail.</p>
+
+        <form id="forgotPasswordForm">
+            <input type="text" id="resetUsername" placeholder="Admin Username" required style="width:100%;padding:12px;margin:7px 0;box-sizing:border-box;">
+            <input type="email" id="resetRecoveryEmail" placeholder="Registered Recovery Gmail" required style="width:100%;padding:12px;margin:7px 0;box-sizing:border-box;">
+            <button type="submit" style="padding:12px 18px;">Send OTP</button>
+        </form>
+
+        <div id="forgotMessage" style="margin-top:10px;"></div>
+
+        <div id="otpResetArea" style="display:none;margin-top:15px;">
+            <input type="text" id="resetOtp" inputmode="numeric" maxlength="6" placeholder="6-digit OTP" style="width:100%;padding:12px;margin:7px 0;box-sizing:border-box;">
+            <input type="password" id="resetNewPassword" minlength="10" placeholder="New password (10+ characters)" style="width:100%;padding:12px;margin:7px 0;box-sizing:border-box;">
+            <input type="password" id="resetConfirmPassword" minlength="10" placeholder="Confirm new password" style="width:100%;padding:12px;margin:7px 0;box-sizing:border-box;">
+            <button type="button" onclick="resetAdminPassword()" style="padding:12px 18px;">Reset Password</button>
+        </div>
+
+        <button type="button" onclick="closeForgotPassword()" style="margin-top:10px;">Close</button>
     </div>
 
 </section>
@@ -124,131 +157,239 @@ Created : 09-08-2026
 <script>
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbxWG_ick4oYevNkOACXY-A-DurFLbXyDjurvNyOaORXJ1mpx8Bs41xvdJbd867Hcy3PDg/exec";
+    "https://script.google.com/macros/s/AKfycbxmKAb9FbNVEEsir5P2wck6Im_Wwm_fPqL0jBMIksLUSd6Dkd8w074STmqESIVBGaCw7A/exec";
 
+const adminLoginForm = document.getElementById("adminLoginForm");
+const adminLoginMessage = document.getElementById("adminLoginMessage");
 
-const adminLoginForm =
-    document.getElementById("adminLoginForm");
+function getDeviceId() {
+    const key = "SURYA_ADMIN_DEVICE_ID";
+    let id = localStorage.getItem(key);
+    if (!id) {
+        id = (crypto.randomUUID ? crypto.randomUUID() :
+            "dev-" + Date.now() + "-" + Math.random().toString(36).slice(2));
+        localStorage.setItem(key, id);
+    }
+    return id;
+}
 
-const adminLoginMessage =
-    document.getElementById("adminLoginMessage");
+function getBrowserName() {
+    const ua = navigator.userAgent;
+    if (/Edg\//i.test(ua)) return "Microsoft Edge";
+    if (/OPR\//i.test(ua)) return "Opera";
+    if (/Chrome\//i.test(ua) && !/Edg\//i.test(ua)) return "Google Chrome";
+    if (/Firefox\//i.test(ua)) return "Mozilla Firefox";
+    if (/Safari\//i.test(ua) && !/Chrome\//i.test(ua)) return "Safari";
+    return "Unknown Browser";
+}
 
+async function getClientSecurityInfo() {
+    const info = {
+        deviceId: getDeviceId(),
+        browser: getBrowserName(),
+        platform: navigator.platform || "Unknown",
+        userAgent: navigator.userAgent || "Unknown",
+        language: navigator.language || "Unknown",
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Unknown",
+        screen: (screen.width || 0) + "x" + (screen.height || 0),
+        latitude: null,
+        longitude: null
+    };
 
-adminLoginForm.addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-
-        const username =
-            document
-                .getElementById("adminUsername")
-                .value
-                .trim();
-
-
-        const password =
-            document
-                .getElementById("adminPassword")
-                .value
-                .trim();
-
-
-        adminLoginMessage.innerHTML =
-            "⏳ Authenticating...";
-
-
+    if (navigator.geolocation) {
         try {
-
-            const response =
-                await fetch(
-                    SURYA_DATABASE_API,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "text/plain;charset=utf-8"
-                        },
-
-                        body:
-                            JSON.stringify({
-
-                                action:
-                                    "adminLogin",
-
-                                username:
-                                    username,
-
-                                password:
-                                    password
-
-                            })
-                    }
-                );
-
-
-            const result =
-                await response.json();
-
-
-            if (
-                result.success &&
-                result.token
-            ) {
-
-                sessionStorage.setItem(
-                    "SURYA_ADMIN_TOKEN",
-                    result.token
-                );
-
-
-                sessionStorage.setItem(
-                    "SURYA_ADMIN_AUTH",
-                    "true"
-                );
-
-
-                window.location.href =
-                    "admin.html";
-
-
-            } else {
-
-                adminLoginMessage.innerHTML = `
-                    <div class="login-error">
-                        ❌ ${result.message || "Invalid login"}
-                    </div>
-                `;
-
-            }
-
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: false,
+                    timeout: 2500,
+                    maximumAge: 10 * 60 * 1000
+                });
+            });
+            info.latitude = Number(position.coords.latitude.toFixed(4));
+            info.longitude = Number(position.coords.longitude.toFixed(4));
+        } catch (_) {
+            /* Caller decides whether location is mandatory. */
         }
-
-        catch (error) {
-
-            console.error(
-                "ADMIN LOGIN ERROR:",
-                error
-            );
-
-
-            adminLoginMessage.innerHTML = `
-                <div class="login-error">
-                    ❌ Server connection failed.
-                    <br>
-                    <small>
-                        Please try again.
-                    </small>
-                </div>
-            `;
-
-        }
-
     }
 
-);
+    return info;
+}
+
+async function recordSecurityEvent(token, eventType) {
+    try {
+        const clientInfo = await getClientSecurityInfo();
+        await fetch(SURYA_DATABASE_API, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+                action: "recordAdminSecurityEvent",
+                token: token,
+                eventType: eventType,
+                clientInfo: clientInfo
+            })
+        });
+    } catch (error) {
+        console.warn("ADMIN SECURITY EVENT ERROR:", error);
+    }
+}
+
+adminLoginForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const username = document.getElementById("adminUsername").value.trim();
+    const password = document.getElementById("adminPassword").value;
+
+    adminLoginMessage.innerHTML = "⏳ Authenticating...";
+
+    try {
+        let clientInfo = await getClientSecurityInfo();
+
+        let response = await fetch(SURYA_DATABASE_API, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+                action: "adminLogin",
+                username: username,
+                password: password,
+                clientInfo: clientInfo
+            })
+        });
+
+        let result = await response.json();
+
+        if (result.locationRequired) {
+            adminLoginMessage.innerHTML = "📍 This is a new browser/device. Location permission is required to continue.";
+            if (!navigator.geolocation) {
+                adminLoginMessage.innerHTML += "<br>❌ This browser does not provide location access.";
+                return;
+            }
+
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 0
+                    });
+                });
+                clientInfo.latitude = Number(position.coords.latitude.toFixed(4));
+                clientInfo.longitude = Number(position.coords.longitude.toFixed(4));
+            } catch (locationError) {
+                adminLoginMessage.innerHTML = "❌ Location permission is required for a new browser/device. Please allow Location and try again.";
+                return;
+            }
+
+            adminLoginMessage.innerHTML = "📍 Location received. Completing secure login...";
+            response = await fetch(SURYA_DATABASE_API, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "adminLogin",
+                    username: username,
+                    password: password,
+                    clientInfo: clientInfo
+                })
+            });
+            result = await response.json();
+        }
+
+        if (result.success && result.token) {
+            sessionStorage.setItem("SURYA_ADMIN_TOKEN", result.token);
+            sessionStorage.setItem("SURYA_ADMIN_AUTH", "true");
+            window.location.href = "admin.html";
+        } else {
+            adminLoginMessage.innerHTML = `
+                <div class="login-error">
+                    ❌ ${result.message || "Invalid login"}
+                </div>`;
+        }
+    } catch (error) {
+        console.error("ADMIN LOGIN ERROR:", error);
+        adminLoginMessage.innerHTML = `
+            <div class="login-error">
+                ❌ Server connection failed.<br>
+                <small>Please try again.</small>
+            </div>`;
+    }
+});
+
+function openForgotPassword() {
+    document.getElementById("forgotPasswordPanel").style.display = "block";
+}
+
+function closeForgotPassword() {
+    document.getElementById("forgotPasswordPanel").style.display = "none";
+}
+
+document.getElementById("forgotPasswordForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const message = document.getElementById("forgotMessage");
+    message.textContent = "⏳ Sending OTP...";
+
+    try {
+        const response = await fetch(SURYA_DATABASE_API, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+                action: "requestAdminPasswordReset",
+                username: document.getElementById("resetUsername").value.trim(),
+                recoveryEmail: document.getElementById("resetRecoveryEmail").value.trim()
+            })
+        });
+
+        const result = await response.json();
+        message.textContent = result.message || "If the details are valid, an OTP has been sent.";
+
+        if (result.success) {
+            document.getElementById("otpResetArea").style.display = "block";
+        }
+    } catch (error) {
+        message.textContent = "❌ Unable to contact the recovery service.";
+    }
+});
+
+async function resetAdminPassword() {
+    const username = document.getElementById("resetUsername").value.trim();
+    const otp = document.getElementById("resetOtp").value.trim();
+    const newPassword = document.getElementById("resetNewPassword").value;
+    const confirm = document.getElementById("resetConfirmPassword").value;
+    const message = document.getElementById("forgotMessage");
+
+    if (newPassword !== confirm) {
+        message.textContent = "❌ Passwords do not match.";
+        return;
+    }
+
+    if (newPassword.length < 10) {
+        message.textContent = "❌ New password must contain at least 10 characters.";
+        return;
+    }
+
+    message.textContent = "⏳ Resetting password...";
+
+    try {
+        const response = await fetch(SURYA_DATABASE_API, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+                action: "resetAdminPasswordWithOtp",
+                username: username,
+                otp: otp,
+                newPassword: newPassword
+            })
+        });
+
+        const result = await response.json();
+        message.textContent = result.message || "Password reset completed.";
+
+        if (result.success) {
+            setTimeout(() => window.location.reload(), 1500);
+        }
+    } catch (error) {
+        message.textContent = "❌ Password reset service failed.";
+    }
+}
 
 </script>
 

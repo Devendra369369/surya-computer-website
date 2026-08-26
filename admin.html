@@ -2,7 +2,7 @@
 ==================================================
 Project : SURYA COMPUTER OF EDUCATION CENTER
 File    : admin.html
-Version : v1.1.0
+Version : v1.2.0
 Author  : Devendra Kumar
 Guide   : AERON
 
@@ -40,6 +40,7 @@ Security:
         href="assets/css/responsive.css"
     >
 
+    <script src="assets/js/admin-guard.js"></script>
 </head>
 
 
@@ -332,8 +333,7 @@ Security:
             >
                 Change Password
             </button>
-
-        </div>
+</div>
 
 
         <!-- ==================================================
@@ -518,7 +518,7 @@ Security:
 ================================================== */
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbxWG_ick4oYevNkOACXY-A-DurFLbXyDjurvNyOaORXJ1mpx8Bs41xvdJbd867Hcy3PDg/exec";
+    "https://script.google.com/macros/s/AKfycbxmKAb9FbNVEEsir5P2wck6Im_Wwm_fPqL0jBMIksLUSd6Dkd8w074STmqESIVBGaCw7A/exec";
 
 
 /* ==================================================
@@ -781,6 +781,7 @@ document
     );
 
 
+
 /* ==================================================
    SERVER-SIDE LOGOUT
 ================================================== */
@@ -797,28 +798,46 @@ async function adminLogout() {
 
         if (token) {
 
+            /* Send security alert before the session token is revoked. */
+            let clientInfo = {
+                deviceId: localStorage.getItem("SURYA_ADMIN_DEVICE_ID") || "unknown",
+                browser: navigator.userAgent || "Unknown",
+                platform: navigator.platform || "Unknown",
+                userAgent: navigator.userAgent || "Unknown",
+                language: navigator.language || "Unknown",
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Unknown",
+                screen: (screen.width || 0) + "x" + (screen.height || 0),
+                latitude: null,
+                longitude: null
+            };
+
             await fetch(
                 SURYA_DATABASE_API,
                 {
-                    method:
-                        "POST",
-
+                    method: "POST",
                     headers: {
-                        "Content-Type":
-                            "text/plain;charset=utf-8"
+                        "Content-Type": "text/plain;charset=utf-8"
                     },
+                    body: JSON.stringify({
+                        action: "recordAdminSecurityEvent",
+                        token: token,
+                        eventType: "LOGOUT",
+                        clientInfo: clientInfo
+                    })
+                }
+            );
 
-                    body:
-                        JSON.stringify({
-
-                            action:
-                                "adminLogout",
-
-                            token:
-                                token
-
-                        })
-
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    },
+                    body: JSON.stringify({
+                        action: "adminLogout",
+                        token: token
+                    })
                 }
             );
 

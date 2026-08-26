@@ -840,6 +840,44 @@ function updateResult(
 
 
 /* ==================================================
+   PUBLISH RESULT
+================================================== */
+
+function publishResult(resultId) {
+
+    resultId = String(resultId || "").trim();
+
+    if (!resultId) {
+        return jsonResponse({
+            success: false,
+            message: "Result ID is required."
+        });
+    }
+
+    const sheet = getSheet(SURYA_RESULTS_SHEET);
+    const values = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < values.length; i++) {
+        if (String(values[i][0] || "").trim().toUpperCase() === resultId.toUpperCase()) {
+            sheet.getRange(i + 1, 12).setValue("Published");
+
+            return jsonResponse({
+                success: true,
+                message: "Result published successfully.",
+                resultId: resultId,
+                status: "Published"
+            });
+        }
+    }
+
+    return jsonResponse({
+        success: false,
+        message: "Result not found."
+    });
+}
+
+
+/* ==================================================
    DISABLE RESULT
 ================================================== */
 
