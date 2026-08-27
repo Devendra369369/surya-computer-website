@@ -1,5 +1,13 @@
 /* ==================================================
    SURYA COMPUTER OF EDUCATION CENTER
+   Product : CIMP — Computer Institute Management Platform
+   Organization : SURYA COMPUTER OF EDUCATION CENTER
+   Developer : Devendra Kumar
+   Technical Advisor : AERON
+   ================================================== */
+
+/* ==================================================
+   SURYA COMPUTER OF EDUCATION CENTER
    File: StudentAuth.gs
    Version: v1.0.0
    Purpose: Secure Student Login / Password Reset
@@ -111,6 +119,10 @@ function studentRequestReset_(studentId,email){
   const s=studentAuthStudent_(studentId);const registered=String(s.Email||s.email||"").trim().toLowerCase();
   const supplied=String(email||"").trim().toLowerCase();
   if(!registered||!supplied||registered!==supplied)throw new Error("Student ID and registered email do not match.");
+  const key="SURYA_STUDENT_OTP_"+Utilities.base64EncodeWebSafe(String(studentId).trim().toUpperCase()+"|"+registered).slice(0,40);
+  const cache=CacheService.getScriptCache();
+  if(cache.get(key))throw new Error("Please wait 60 seconds before requesting another OTP.");
+  cache.put(key,"1",60);
   const otp=String(Math.floor(100000+Math.random()*900000));
   const salt=studentAuthRandom_(24);
   studentAuthSaveRow_({studentId:String(s["Student ID"]||studentId).trim(),email:registered,otpHash:studentAuthHash_(otp,salt),salt:salt,otpExpires:new Date(Date.now()+STUDENT_OTP_SECONDS*1000),otpAttempts:0,status:"Active"});

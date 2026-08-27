@@ -159,6 +159,8 @@ ADMISSION FORM
     id="admissionForm"
 >
 
+    <!-- Anti-bot honeypot: real users never see or fill this field. -->
+    <input type="text" id="website" name="website" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">
 
     <!-- STUDENT NAME -->
 
@@ -505,7 +507,7 @@ FOOTER
 ================================================== */
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbxmKAb9FbNVEEsir5P2wck6Im_Wwm_fPqL0jBMIksLUSd6Dkd8w074STmqESIVBGaCw7A/exec";
+    "https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
 
 
 /* ==================================================
@@ -726,6 +728,7 @@ aadhaarInput.addEventListener(
 ================================================== */
 
 let admissionSubmitting = false;
+const admissionFormStartedAt = Date.now();
 
 const submitAdmissionBtn =
     document.getElementById("submitAdmissionBtn");
@@ -941,6 +944,10 @@ if (
 const apiData = {
 
     action: "submitAdmission",
+
+    // Server-side anti-abuse metadata. The backend never trusts these as authentication.
+    website: document.getElementById("website")?.value || "",
+    formStartedAt: admissionFormStartedAt,
 
     studentName:
         studentName,

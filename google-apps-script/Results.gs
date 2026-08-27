@@ -1,5 +1,13 @@
 /* ==================================================
    SURYA COMPUTER OF EDUCATION CENTER
+   Product : CIMP — Computer Institute Management Platform
+   Organization : SURYA COMPUTER OF EDUCATION CENTER
+   Developer : Devendra Kumar
+   Technical Advisor : AERON
+   ================================================== */
+
+/* ==================================================
+   SURYA COMPUTER OF EDUCATION CENTER
    File    : Results.gs
    Version : v2.0.0
    Purpose : Multiple Exam Result Management

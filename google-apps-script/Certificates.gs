@@ -1,5 +1,13 @@
 /* ==================================================
    SURYA COMPUTER OF EDUCATION CENTER
+   Product : CIMP — Computer Institute Management Platform
+   Organization : SURYA COMPUTER OF EDUCATION CENTER
+   Developer : Devendra Kumar
+   Technical Advisor : AERON
+   ================================================== */
+
+/* ==================================================
+   SURYA COMPUTER OF EDUCATION CENTER
    File    : Certificates.gs
    Version : v1.1.0
    Purpose : Certificate Database Management
@@ -231,6 +239,42 @@ function getCertificate(
 
     });
 
+}
+
+
+/* ==================================================
+   PUBLIC: SUBJECT MARKS FOR CERTIFICATE PRINT
+   Only returns subjects for an existing Result ID.
+================================================== */
+function getCertificateSubjectsPublic(resultId) {
+    resultId = String(resultId || "").trim();
+    if (!resultId) return jsonResponse({success:true, subjects:[]});
+
+    const certSheet = getSheet(SURYA_CERTIFICATES_SHEET);
+    const certValues = certSheet.getDataRange().getValues();
+    if (certValues.length < 2) return jsonResponse({success:true, subjects:[]});
+
+    const certHeaders = certValues[0].map(x => String(x).trim());
+    const resultIdCol = certHeaders.indexOf("Result ID");
+    const certIdCol = certHeaders.indexOf("Certificate ID");
+    let linked = false;
+    for (let i = 1; i < certValues.length; i++) {
+        const rid = resultIdCol >= 0 ? String(certValues[i][resultIdCol] || "").trim() : "";
+        if (rid.toUpperCase() === resultId.toUpperCase()) { linked = true; break; }
+    }
+    if (!linked) return jsonResponse({success:false,message:"Result is not linked to a certificate."});
+
+    const sh = getSheet("Result Subjects");
+    const values = sh.getDataRange().getValues();
+    if (values.length < 2) return jsonResponse({success:true, subjects:[]});
+    const headers = values[0].map(x => String(x).trim());
+    const subjects = [];
+    for (let i = 1; i < values.length; i++) {
+        if (String(values[i][0] || "").trim().toUpperCase() !== resultId.toUpperCase()) continue;
+        const row = {}; headers.forEach((h,j) => { if (h) row[h] = values[i][j]; });
+        if (!row.Status || String(row.Status).toLowerCase() !== "disabled") subjects.push(row);
+    }
+    return jsonResponse({success:true,subjects:subjects});
 }
 
 

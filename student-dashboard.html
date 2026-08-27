@@ -23,6 +23,8 @@ Created : 08-08-2026
     <script src="assets/js/student-signature.js"></script>
     <script src="assets/js/student-marcsheet.js"></script>
 
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
 </head>
 
 <body>
@@ -222,10 +224,11 @@ STUDENT DASHBOARD
 
 
     <!-- MOCK TEST -->
-    <div class="dashboard-card">
-        <h3>📝 Mock Test</h3>
-        <p>Published mock tests attempt करें और अपना history देखें.</p>
-        <a href="mock-test.html" class="dashboard-btn">Open Mock Tests</a>
+    <div class="dashboard-card" style="border:2px solid rgba(23,105,170,.25);box-shadow:0 10px 28px rgba(23,105,170,.12);">
+        <h3>📝 Mock Test Center</h3>
+        <p>Published online tests दें, instant score देखें और attempt history रखें.</p>
+        <p><strong id="mockCount">Loading available tests...</strong></p>
+        <a href="mock-test.html" class="dashboard-btn">🚀 Open Mock Test Center</a>
     </div>
 
     <!-- LIVE CLASSES -->
@@ -287,7 +290,7 @@ DASHBOARD SCRIPT
 ==================================================-->
 
 <script>
-const STUDENT_API="https://script.google.com/macros/s/AKfycbxmKAb9FbNVEEsir5P2wck6Im_Wwm_fPqL0jBMIksLUSd6Dkd8w074STmqESIVBGaCw7A/exec";
+const STUDENT_API="https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
 const STUDENT_TOKEN=sessionStorage.getItem("SURYA_STUDENT_TOKEN");
 async function studentApi(body){const r=await fetch(STUDENT_API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...body,token:STUDENT_TOKEN})});const d=await r.json();if(!d.success)throw new Error(d.message||"Request failed");return d;}
 async function loadStudentDashboard(){
@@ -300,6 +303,11 @@ async function loadStudentDashboard(){
   document.getElementById("dashboardCourse").textContent=s.Course||"N/A";
   document.getElementById("dashboardMobile").textContent=s.Mobile||"N/A";
   document.getElementById("dashboardStatus").textContent=s.Status||"N/A";
+  try {
+   const mt=await studentApi({action:"publishedMockTests"});
+   const count=(mt.tests||[]).length;
+   document.getElementById("mockCount").textContent=count ? (count+" published test"+(count===1?"":"s")+" available") : "No published tests right now";
+  } catch(e) { document.getElementById("mockCount").textContent="Mock test center available"; }
   if(s.Photo)document.getElementById("dashboardStudentPhoto").src=s.Photo;
   if(s.Signature)document.getElementById("studentSignature").src=s.Signature;
  }catch(e){sessionStorage.clear();alert("❌ "+e.message);location.href="student-login.html";}
@@ -309,5 +317,6 @@ async function logoutStudent(){try{await studentApi({action:"studentLogout"});}c
 loadStudentDashboard();
 </script>
 
+    <script src="assets/js/project-ui.js"></script>
 </body>
 </html>

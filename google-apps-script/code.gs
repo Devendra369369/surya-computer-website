@@ -1,5 +1,13 @@
 /* ==================================================
    SURYA COMPUTER OF EDUCATION CENTER
+   Product : CIMP — Computer Institute Management Platform
+   Organization : SURYA COMPUTER OF EDUCATION CENTER
+   Developer : Devendra Kumar
+   Technical Advisor : AERON
+   ================================================== */
+
+/* ==================================================
+   SURYA COMPUTER OF EDUCATION CENTER
    CENTRAL DATABASE API
    File    : Code.gs
    Version : v1.1.0
@@ -51,6 +59,19 @@ function doGet(e) {
 
 
     /* =========================================
+       PUBLIC: CERTIFICATE SUBJECT MARKS
+       Used by the two-page certificate print view.
+       The resultId is linked to the certificate before data is returned.
+    ========================================= */
+
+    if (action === "certificateSubjects") {
+
+        return getCertificateSubjectsPublic(e.parameter.resultId || "");
+
+    }
+
+
+    /* =========================================
        PUBLIC: HEALTH CHECK
     ========================================= */
 
@@ -77,18 +98,6 @@ function doGet(e) {
     /* =========================================
        ADMIN AUTHENTICATION
     ========================================= */
-
-    if (action === "adminLogin") {
-
-        return adminLogin(
-
-            e.parameter.username,
-
-            e.parameter.password
-
-        );
-
-    }
 
 
     if (action === "adminLogout") {
@@ -278,6 +287,14 @@ function doPost(e) {
         const rawData =
             e.postData.contents;
 
+        // Hard payload guard: prevents oversized/bot requests from exhausting Apps Script memory.
+        if (String(rawData || "").length > 7000000) {
+            return jsonResponse({
+                success: false,
+                message: "Request is too large. Please reduce uploaded image/document sizes and try again."
+            });
+        }
+
 
         if (!rawData) {
 
@@ -434,18 +451,24 @@ if (action === "recordAdminSecurityEvent") {
         }
 
         /* =========================================
+           PUBLIC: PUBLIC MEDIA GALLERY
+        ========================================= */
+        if (action === "publicMedia") {
+            return jsonResponse(mediaListPublic_());
+        }
+        /* =========================================
+           PUBLIC: NOTICES
+        ========================================= */
+        if (action === "publicNotices") {
+            return jsonResponse(publicNotices_());
+        }
+
+        /* =========================================
            PUBLIC: SUBMIT ADMISSION
         ========================================= */
 
-        if (
-            action ===
-            "submitAdmission"
-        ) {
-
-            return submitAdmission(
-                data
-            );
-
+        if (action === "submitAdmission") {
+            return submitAdmission(data);
         }
 
         /* =========================================
@@ -456,6 +479,20 @@ if (action === "recordAdminSecurityEvent") {
             String(
                 data.token || ""
             ).trim();
+
+        /* =========================================
+           ADMIN: PUBLIC MEDIA
+        ========================================= */
+        if (action === "mediaList") return jsonResponse(mediaListAdmin_(token));
+        if (action === "mediaUpload") return jsonResponse(mediaUpload_(token, data));
+        if (action === "mediaDelete") return jsonResponse(mediaDelete_(token, data.mediaId));
+        if (action === "noticeList") return jsonResponse(adminNotices_(token));
+        if (action === "noticeSave") return jsonResponse(saveNotice_(token, data.notice || {}));
+        if (action === "noticeDelete") return jsonResponse(deleteNotice_(token, data.noticeId));
+        if (action === "setupSheets") {
+            if (!verifyAdminSession(token)) return jsonResponse({success:false,authenticated:false,message:"Unauthorized. Admin login required."});
+            return jsonResponse(setupSuryaSheets());
+        }
 
         /* =========================================
            STUDENT SESSION ROUTES
@@ -508,6 +545,26 @@ if (action === "recordAdminSecurityEvent") {
 /* =========================================
    UPDATE APPLICATION
 ========================================= */
+
+/* =========================================
+   UPDATE STUDENT DETAILS
+========================================= */
+
+if (
+    action ===
+    "updateStudent"
+) {
+
+    return updateStudent(
+        data.studentId,
+        data.name,
+        data.fatherName,
+        data.course,
+        data.mobile,
+        data.status
+    );
+
+}
 
 if (
     action ===
@@ -1024,10 +1081,21 @@ function testHealthCheck() {
 ================================================== */
 function submitContactMessage_(data) {
     const name = String(data.name || "").trim().slice(0, 100);
-    const email = String(data.email || "").trim().slice(0, 160);
+    const email = String(data.email || "").trim().slice(0, 160).toLowerCase();
     const message = String(data.message || "").trim().slice(0, 2000);
     if (!name || !email || !message) return jsonResponse({success:false,message:"Name, email and message are required."});
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return jsonResponse({success:false,message:"Please enter a valid email address."});
+    if (message.length < 3) return jsonResponse({success:false,message:"Please enter a meaningful message."});
+    const contactSheet = getOrCreateContactMessagesSheet_();
+    const contactId = "MSG-" + Utilities.getUuid().replace(/-/g, "").slice(0, 12).toUpperCase();
+
+    const cache=CacheService.getScriptCache();
+    const emailKey="SURYA_CONTACT_"+Utilities.base64EncodeWebSafe(email).slice(0,60);
+    if(cache.get(emailKey)) return jsonResponse({success:false,message:"Please wait 60 seconds before sending another message."});
+    if(cache.get("SURYA_CONTACT_GLOBAL")) return jsonResponse({success:false,message:"Contact service is busy. Please try again shortly."});
+    cache.put(emailKey,"1",60); cache.put("SURYA_CONTACT_GLOBAL","1",3);
+    contactSheet.appendRow([contactId, name, email, message, "New", new Date(), ""]);
+
     MailApp.sendEmail({
         to: "sunilkumar5757@gmail.com",
         replyTo: email,
@@ -1039,4 +1107,15 @@ function submitContactMessage_(data) {
 
 function escapeHtml_(value) {
     return String(value || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;");
+}
+
+function getOrCreateContactMessagesSheet_() {
+    const ss = getSuryaSpreadsheet();
+    let sh = ss.getSheetByName("ContactMessages");
+    if (!sh) {
+        sh = ss.insertSheet("ContactMessages");
+        sh.getRange(1,1,1,7).setValues([["Message ID","Name","Email","Message","Status","Created At","Handled At"]]);
+        sh.setFrozenRows(1);
+    }
+    return sh;
 }

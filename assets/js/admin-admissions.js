@@ -5,7 +5,7 @@
 let currentApplication = null;
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbxmKAb9FbNVEEsir5P2wck6Im_Wwm_fPqL0jBMIksLUSd6Dkd8w074STmqESIVBGaCw7A/exec";
+    "https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
 
   /* ==================================================
    INDIAN DATE / TIME FORMAT

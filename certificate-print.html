@@ -64,6 +64,7 @@ body {
 ================================================== */
 
 .certificate-page {
+    box-sizing: border-box;
     page-break-after: always;
     break-after: page;
 }
@@ -1032,6 +1033,12 @@ body {
 
         height: 297mm;
 
+        min-height: 297mm;
+
+        box-sizing: border-box;
+
+        overflow: hidden;
+
         margin: 0;
 
         padding: 7mm;
@@ -1057,6 +1064,8 @@ body {
 }
 
 </style>
+
+    <link rel="stylesheet" href="assets/css/project-ui.css">
 
 </head>
 
@@ -1502,7 +1511,7 @@ Center Director
 ================================================== */
 
 const SURYA_DATABASE_API =
-"https://script.google.com/macros/s/AKfycbxmKAb9FbNVEEsir5P2wck6Im_Wwm_fPqL0jBMIksLUSd6Dkd8w074STmqESIVBGaCw7A/exec";
+"https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
 
 let currentStudent = null;
 let currentCertificate = null;
@@ -1893,7 +1902,7 @@ async function loadResultSubjects(
         const response =
             await fetch(
                 SURYA_DATABASE_API +
-                "?action=resultSubjects&id=" +
+                "?action=certificateSubjects&resultId=" +
                 encodeURIComponent(resultId)
             );
 
@@ -2527,6 +2536,7 @@ document.addEventListener(
 
 </script>
 
+    <script src="assets/js/project-ui.js"></script>
 </body>
 
 </html>

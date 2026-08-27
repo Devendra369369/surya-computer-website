@@ -1,5 +1,13 @@
 /* ==================================================
    SURYA COMPUTER OF EDUCATION CENTER
+   Product : CIMP — Computer Institute Management Platform
+   Organization : SURYA COMPUTER OF EDUCATION CENTER
+   Developer : Devendra Kumar
+   Technical Advisor : AERON
+   ================================================== */
+
+/* ==================================================
+   SURYA COMPUTER OF EDUCATION CENTER
    File    : Admissions.gs
    Version : v1.0.0
    Purpose : Admission Database Management
@@ -19,19 +27,63 @@ const SURYA_ADMISSIONS_SHEET =
 function submitAdmission(data) {
 
     if (!data) {
-
-        throw new Error(
-            "Admission data is missing."
-        );
-
+        throw new Error("Admission data is missing.");
     }
 
+    // Anti-bot / abuse controls. Apps Script does not expose the visitor IP,
+    // so the strongest practical protection here is payload limits, a honeypot,
+    // a minimum form-fill time, per-identity throttling and an atomic lock.
+    if (String(data.website || "").trim() !== "") {
+        return jsonResponse({success:false,message:"Invalid submission."});
+    }
 
-        
-    const sheet =
-    getSheet(
-        SURYA_ADMISSIONS_SHEET
-    );
+    const startedAt = Number(data.formStartedAt || 0);
+    if (startedAt && Date.now() - startedAt < 2500) {
+        return jsonResponse({success:false,message:"Please take a moment to complete the application before submitting."});
+    }
+
+    const mobile = String(data.mobile || "").replace(/\D/g, "");
+    const email = String(data.email || "").trim().toLowerCase();
+    if (!/^[6-9]\d{9}$/.test(mobile)) {
+        return jsonResponse({success:false,message:"Please enter a valid 10-digit mobile number."});
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return jsonResponse({success:false,message:"Please enter a valid email address."});
+    }
+
+    function bytes_(value) {
+        const v = String(value || "").replace(/^data:[^;]+;base64,/, "").replace(/\s/g, "");
+        if (!v) return 0;
+        return Math.floor(v.length * 3 / 4) - (v.endsWith("==") ? 2 : v.endsWith("=") ? 1 : 0);
+    }
+    if (bytes_(data.photo) > 1500000 || bytes_(data.signature) > 600000 || bytes_(data.marcsheet) > 2500000) {
+        return jsonResponse({success:false,message:"Photo/signature/marksheet file is too large. Please compress the file and try again."});
+    }
+    const ad = data.aadhaarData || {};
+    if (bytes_(ad.frontData) > 2500000 || bytes_(ad.backData) > 2500000) {
+        return jsonResponse({success:false,message:"Aadhaar image/PDF is too large. Please use a smaller file."});
+    }
+
+    const cache = CacheService.getScriptCache();
+    const identityKey = "SURYA_ADMISSION_" + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, mobile + "|" + email)).slice(0,32);
+    if (cache.get(identityKey)) {
+        return jsonResponse({success:false,message:"Please wait a few seconds before submitting another application."});
+    }
+    // Very short global burst guard. It stops rapid automated floods without
+    // locking out normal users for minutes.
+    if (cache.get("SURYA_ADMISSION_BURST")) {
+        return jsonResponse({success:false,message:"The admission service is busy. Please wait a few seconds and try again."});
+    }
+    cache.put(identityKey, "1", 25);
+    cache.put("SURYA_ADMISSION_BURST", "1", 3);
+
+    const lock = LockService.getScriptLock();
+    if (!lock.tryLock(8000)) {
+        return jsonResponse({success:false,message:"The admission service is busy. Please try again shortly."});
+    }
+
+    try {
+        const sheet = getSheet(SURYA_ADMISSIONS_SHEET);
 
 
 /* =========================================
@@ -200,24 +252,16 @@ if (lastRow > 1) {
     sheet.appendRow(row);
 
 
-    return jsonResponse({
-
-        success: true,
-
-        message:
-            "Admission submitted successfully.",
-
-        applicationId:
-            applicationId,
-
-        status:
-            "Pending",
-
-        documents:
-            documents
-
-    });
-
+        return jsonResponse({
+            success: true,
+            message: "Admission submitted successfully.",
+            applicationId: applicationId,
+            status: "Pending",
+            documents: documents
+        });
+    } finally {
+        lock.releaseLock();
+    }
 }
 
 
@@ -705,6 +749,17 @@ function approveApplication(
         application
 
     );
+
+    // Create the StudentAuth record immediately. The password remains unset
+    // until Admin sets it or the student uses Forgot Password with the
+    // registered email address.
+    if (typeof studentAuthSaveRow_ === "function") {
+        studentAuthSaveRow_({
+            studentId: studentId,
+            email: String(application.Email || "").trim().toLowerCase(),
+            status: "Active"
+        });
+    }
 
 
     /* =========================================

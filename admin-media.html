@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Public Gallery Manager | SURYA</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+<link rel="stylesheet" href="assets/css/project-ui.css">
+<style>
+.wrap{max-width:1050px;margin:25px auto;padding:16px}.card{background:#fff;padding:22px;border-radius:16px;margin:15px 0;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid input,.grid textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid #ddd;border-radius:10px}.grid textarea{min-height:90px}.full{grid-column:1/-1}.btn{padding:11px 17px;border:0;border-radius:9px;cursor:pointer}.primary{background:#1769aa;color:#fff}.danger{background:#9b1c1c;color:#fff}.muted{color:#666;font-size:13px}.preview{max-width:220px;max-height:130px;display:none;margin-top:10px;border-radius:10px;object-fit:cover}.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}.item{border:1px solid #e4e4e4;border-radius:14px;overflow:hidden;background:#fff}.item img{width:100%;height:150px;object-fit:cover;display:block}.item-body{padding:12px}.item-body button{margin-top:8px}@media(max-width:650px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<div class="top-bar">📞 7084275870 | ✉️ sunilkumar5757@gmail.com</div>
+<header class="header"><img src="assets/images/logo.png" class="logo" alt="Logo"><div class="title"><h1>SURYA COMPUTER OF EDUCATION CENTER</h1><p>Public Gallery Manager</p></div></header>
+<nav class="navbar"><a href="admin.html">Admin Dashboard</a><a href="gallery.html">View Gallery</a><a href="admin-login.html" onclick="sessionStorage.clear()">Logout</a></nav>
+<main class="wrap">
+<section class="card">
+<h2>🖼️ Upload Public Image</h2>
+<p class="muted">Admin panel से upload की गई image Google Drive में सुरक्षित रहेगी और public Gallery में अपने-आप दिखाई देगी. JPG/PNG/WebP, अधिकतम 2 MB.</p>
+<div class="grid">
+<input id="title" class="full" maxlength="100" placeholder="Image title, e.g. Computer Lab">
+<select id="category" class="full"><option>Institute</option><option>Promotional Banner</option><option>Computer Setup</option><option>Practical Training</option><option>Cloud & Cybersecurity</option><option>Events</option><option>Other</option></select>
+<input id="file" class="full" type="file" accept="image/jpeg,image/png,image/webp">
+</div>
+<img id="preview" class="preview" alt="Preview">
+<br><button id="uploadBtn" class="btn primary" type="button" onclick="uploadImage()">⬆️ Upload Image</button>
+<div id="msg" role="status" style="margin-top:12px"></div>
+</section>
+<section class="card"><h2>📸 Published Images</h2><div id="items" class="items">Loading...</div></section>
+</main>
+<script>
+const API="https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+const TOKEN=sessionStorage.getItem('SURYA_ADMIN_TOKEN');
+if(sessionStorage.getItem('SURYA_ADMIN_AUTH')!=='true'||!TOKEN)location.replace('admin-login.html');
+const fileEl=document.getElementById('file'),preview=document.getElementById('preview');
+fileEl.addEventListener('change',()=>{const f=fileEl.files[0];if(!f){preview.style.display='none';return;}if(f.size>2*1024*1024){fileEl.value='';preview.style.display='none';msg.textContent='❌ Image must be 2 MB or smaller.';return;}preview.src=URL.createObjectURL(f);preview.style.display='block';});
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function readBase64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file);});}
+async function api(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...body,token:TOKEN})});const d=await r.json();if(!d.success)throw new Error(d.message||'Request failed');return d;}
+async function uploadImage(){const f=fileEl.files[0],t=title.value.trim();if(!f||!t){msg.textContent='❌ Title और image दोनों जरूरी हैं.';return;}if(f.size>2*1024*1024){msg.textContent='❌ Image must be 2 MB or smaller.';return;}uploadBtn.disabled=true;msg.textContent='⏳ Uploading...';try{await api({action:'mediaUpload',title:t,category:category.value,image:await readBase64(f),mimeType:f.type});msg.textContent='✅ Image uploaded and published.';title.value='';category.value='Institute';fileEl.value='';preview.style.display='none';load();}catch(e){msg.textContent='❌ '+e.message;}finally{uploadBtn.disabled=false;}}
+async function del(id){if(!confirm('इस image को public gallery से हटाना है?'))return;try{await api({action:'mediaDelete',mediaId:id});load();}catch(e){msg.textContent='❌ '+e.message;}}
+async function load(){try{const d=await api({action:'mediaList'});const a=d.media||[];items.innerHTML=a.length?a.map(x=>`<article class="item"><img src="${esc(x.url)}" alt="${esc(x.title)}" loading="lazy"><div class="item-body"><b>${esc(x.title)}</b><div class="muted">${esc(x.category||'Institute')} • ${esc(x.mimeType||'image')}</div><button class="btn danger" onclick="del('${esc(x.id)}')">🗑️ Delete</button></div></article>`).join(''):'<p>No uploaded images yet.</p>';}catch(e){items.textContent='❌ '+e.message;}}
+load();
+</script>
+    <script src="assets/js/project-ui.js"></script>
+</body>
+</html>

@@ -87,252 +87,44 @@ Created : 09-08-2026
 
 
 <!-- NOTICE MANAGEMENT -->
-
-<section class="admin-notices">
-
-    <div class="admin-header">
-
-        <h2>
-            📢 Notice Management
-        </h2>
-
-        <p>
-            Manage institute announcements
-        </p>
-
-    </div>
-
-
-    <!-- ADD NOTICE -->
-
-    <div class="notice-form-card">
-
-        <h3>
-            ➕ Add New Notice
-        </h3>
-
-        <input
-            type="text"
-            id="noticeTitle"
-            placeholder="Notice Title"
-        >
-
-        <textarea
-            id="noticeMessage"
-            rows="4"
-            placeholder="Write notice details..."
-        ></textarea>
-
-        <button
-            type="button"
-            onclick="addNotice()"
-        >
-            ➕ Add Notice
-        </button>
-
-    </div>
-
-
-    <!-- NOTICE LIST -->
-
-    <div class="notice-list">
-
-        <h3>
-            📋 Published Notices
-        </h3>
-
-
-        <!-- NOTICE 1 -->
-
-        <div class="admin-notice-card">
-
-            <div>
-
-                <h4>
-                    📢 ADCA Admission Open 2026
-                </h4>
-
-                <p>
-                    ADCA new batch admission is now open.
-                </p>
-
-                <small>
-                    09 August 2026
-                </small>
-
-            </div>
-
-            <div class="notice-actions">
-
-                <button
-                    type="button"
-                    onclick="editNotice()"
-                >
-                    ✏️ Edit
-                </button>
-
-                <button
-                    type="button"
-                    onclick="deleteNotice(this)"
-                >
-                    🗑️ Delete
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- NOTICE 2 -->
-
-        <div class="admin-notice-card">
-
-            <div>
-
-                <h4>
-                    📢 CCC New Batch Starting Soon
-                </h4>
-
-                <p>
-                    Contact office for new batch details.
-                </p>
-
-                <small>
-                    09 August 2026
-                </small>
-
-            </div>
-
-            <div class="notice-actions">
-
-                <button
-                    type="button"
-                    onclick="editNotice()"
-                >
-                    ✏️ Edit
-                </button>
-
-                <button
-                    type="button"
-                    onclick="deleteNotice(this)"
-                >
-                    🗑️ Delete
-                </button>
-
-            </div>
-
-        </div>
-
-
-    </div>
-
+<section class="notice-admin-wrap">
+  <div class="notice-admin-head"><div><span class="eyebrow">CONTENT CONTROL</span><h2>📢 Notice Management</h2><p>Public notice board ko yahin se publish, edit aur remove karein.</p></div></div>
+  <div class="notice-admin-grid">
+    <form id="noticeForm" class="notice-editor" onsubmit="saveNotice(event)">
+      <input type="hidden" id="noticeId">
+      <label>Notice Title<input id="noticeTitle" maxlength="120" required placeholder="e.g. ADCA Admission Open"></label>
+      <label>Category<select id="noticeCategory"><option>General</option><option>Admission</option><option>Exam</option><option>Class</option><option>Result</option><option>Important</option></select></label>
+      <label>Priority<select id="noticePriority"><option>Normal</option><option>High</option></select></label>
+      <label>Status<select id="noticeStatus"><option>Published</option><option>Draft</option></select></label>
+      <label class="full">Message<textarea id="noticeMessage" maxlength="4000" rows="7" required placeholder="Write the notice details..."></textarea></label>
+      <div class="notice-editor-actions full"><button class="notice-primary" type="submit" id="noticeSaveBtn">Publish Notice</button><button type="button" onclick="resetForm()">Clear</button></div>
+      <div id="noticeMsg" class="full" role="status"></div>
+    </form>
+    <div class="notice-list-card"><div class="list-head"><h3>Published / Draft Notices</h3><button type="button" onclick="loadNotices()">↻ Refresh</button></div><div id="noticeList">Loading...</div></div>
+  </div>
 </section>
 
-
-<!-- FOOTER -->
-
-<footer class="footer">
-
-    <div class="footer-content">
-
-        <h2>
-            SURYA COMPUTER OF EDUCATION CENTER
-        </h2>
-
-        <p>
-            Kamalpur, Chandauli, Uttar Pradesh
-        </p>
-
-        <p>
-            📞 7084275870
-        </p>
-
-        <p>
-            © 2026 SURYA COMPUTER OF EDUCATION CENTER
-        </p>
-
-    </div>
-
-</footer>
-
+<style>
+.notice-admin-wrap{max-width:1180px;margin:28px auto;padding:0 16px 50px}.notice-admin-head{padding:24px;border-radius:20px;background:linear-gradient(135deg,#0d47a1,#1976d2);color:#fff;box-shadow:0 14px 35px rgba(13,71,161,.22)}.notice-admin-head h2{margin:7px 0}.eyebrow{font-size:11px;letter-spacing:2px;opacity:.8}.notice-admin-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px;margin-top:20px}.notice-editor,.notice-list-card{background:#fff;border-radius:18px;padding:20px;box-shadow:0 8px 28px rgba(0,0,0,.08)}.notice-editor{display:grid;grid-template-columns:1fr 1fr;gap:13px}.notice-editor label{font-weight:700;font-size:13px;color:#334155}.notice-editor input,.notice-editor select,.notice-editor textarea{display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:12px;border:1px solid #d8dee8;border-radius:11px;background:#fff;color:#111827;text-align:left}.notice-editor .full{grid-column:1/-1}.notice-editor-actions{display:flex;gap:10px}.notice-editor-actions button,.list-head button{border:0;border-radius:10px;padding:11px 15px;cursor:pointer}.notice-primary{background:#1565c0;color:#fff}.list-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.notice-row{padding:15px;border:1px solid #e5e7eb;border-radius:14px;margin-top:12px}.notice-row-top{display:flex;justify-content:space-between;gap:10px}.notice-pill{display:inline-block;font-size:11px;padding:4px 8px;border-radius:999px;background:#e8f1ff;color:#0d47a1}.notice-row p{white-space:pre-wrap;line-height:1.55}.notice-row-actions{display:flex;gap:8px}.notice-row-actions button{border:0;border-radius:8px;padding:8px 11px;cursor:pointer}.edit-notice{background:#eef6ff}.delete-notice{background:#fff0f0;color:#a11}
+@media(max-width:800px){.notice-admin-grid{grid-template-columns:1fr}.notice-editor{grid-template-columns:1fr}.notice-editor .full{grid-column:auto}}
+[data-theme="dark"] .notice-editor,[data-theme="dark"] .notice-list-card,[data-theme="dark"] .notice-row{background:#172033!important;color:#f8fafc;border-color:#334155}.notice-editor input,.notice-editor select,.notice-editor textarea{color:#f8fafc}.notice-editor label{color:#dbeafe}
+</style>
 
 <script>
-
-function addNotice() {
-
-    const title =
-        document
-        .getElementById("noticeTitle")
-        .value
-        .trim();
-
-    const message =
-        document
-        .getElementById("noticeMessage")
-        .value
-        .trim();
-
-
-    if (title === "" || message === "") {
-
-        alert(
-            "⚠️ Please enter Notice Title and Notice Details."
-        );
-
-        return;
-
-    }
-
-
-    alert(
-        "✅ Notice Added Successfully!\n\n" +
-        title
-    );
-
-
-    document
-    .getElementById("noticeTitle")
-    .value = "";
-
-    document
-    .getElementById("noticeMessage")
-    .value = "";
-
-}
-
-
-function editNotice() {
-
-    alert(
-        "✏️ Notice Edit Module\n\n" +
-        "Editing functionality will be connected later."
-    );
-
-}
-
-
-function deleteNotice(button) {
-
-    const confirmDelete =
-        confirm(
-            "Are you sure you want to delete this notice?"
-        );
-
-
-    if (confirmDelete) {
-
-        button
-        .closest(".admin-notice-card")
-        .remove();
-
-    }
-
-}
-
+const NOTICE_API="https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+const NOTICE_TOKEN=sessionStorage.getItem('SURYA_ADMIN_TOKEN');
+if(sessionStorage.getItem('SURYA_ADMIN_AUTH')!=='true'||!NOTICE_TOKEN)location.replace('admin-login.html');
+const nEsc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+async function nApi(body){const r=await fetch(NOTICE_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...body,token:NOTICE_TOKEN})});const d=await r.json();if(!d.success)throw new Error(d.message||'Request failed');return d;}
+async function loadNotices(){try{const d=await nApi({action:'noticeList'});const a=d.notices||[];document.getElementById('noticeList').innerHTML=a.length?a.map(n=>`<article class="notice-row"><div class="notice-row-top"><div><span class="notice-pill">${nEsc(n.category)} • ${nEsc(n.priority)}</span><h4>${nEsc(n.title)}</h4></div><small>${nEsc(n.status)}</small></div><p>${nEsc(n.message)}</p><div class="notice-row-actions"><button class="edit-notice" onclick='editNotice(${JSON.stringify(n)})'>✏️ Edit</button><button class="delete-notice" onclick="deleteNotice('${nEsc(n.id)}')">🗑️ Delete</button></div></article>`).join(''):'<p>No notices yet.</p>';}catch(e){document.getElementById('noticeList').textContent='❌ '+e.message;}}
+function editNotice(n){noticeId.value=n.id;noticeTitle.value=n.title;noticeCategory.value=n.category;noticePriority.value=n.priority;noticeStatus.value=n.status;noticeMessage.value=n.message;noticeSaveBtn.textContent='Update Notice';window.scrollTo({top:0,behavior:'smooth'});}
+function resetForm(){noticeId.value='';noticeTitle.value='';noticeMessage.value='';noticeCategory.value='General';noticePriority.value='Normal';noticeStatus.value='Published';noticeSaveBtn.textContent='Publish Notice';noticeMsg.textContent='';}
+async function saveNotice(e){e.preventDefault();noticeSaveBtn.disabled=true;noticeMsg.textContent='⏳ Saving...';try{await nApi({action:'noticeSave',notice:{id:noticeId.value,title:noticeTitle.value,message:noticeMessage.value,category:noticeCategory.value,priority:noticePriority.value,status:noticeStatus.value}});noticeMsg.textContent='✅ Notice saved.';resetForm();loadNotices();}catch(err){noticeMsg.textContent='❌ '+err.message;}finally{noticeSaveBtn.disabled=false;}}
+async function deleteNotice(id){if(!confirm('Delete this notice?'))return;try{await nApi({action:'noticeDelete',noticeId:id});loadNotices();}catch(e){noticeMsg.textContent='❌ '+e.message;}}
+loadNotices();
 </script>
 
-
-    <script src="assets/js/project-ui.js"></script>
+<script src="assets/js/project-ui.js"></script>
 
 </body>
 </html>

@@ -1,5 +1,13 @@
 /* ==================================================
    SURYA COMPUTER OF EDUCATION CENTER
+   Product : CIMP — Computer Institute Management Platform
+   Organization : SURYA COMPUTER OF EDUCATION CENTER
+   Developer : Devendra Kumar
+   Technical Advisor : AERON
+   ================================================== */
+
+/* ==================================================
+   SURYA COMPUTER OF EDUCATION CENTER
    ADMIN AUTHENTICATION & SECURITY
    File    : Auth.gs
    Version : v3.0.0
@@ -126,6 +134,32 @@ function isAdminSecurityInitialized() {
     );
 }
 
+
+/* ==================================================
+   ONE-TIME ADMIN SECURITY INITIALIZER
+   Run once in Apps Script editor on a fresh deployment.
+   It generates a random temporary password and logs it once.
+   Change the password immediately after first login.
+================================================== */
+function initializeAdminSecurity() {
+    const props = PropertiesService.getScriptProperties();
+    if (props.getProperty(PROP_USERNAME) && props.getProperty(PROP_PASSWORD_HASH)) {
+        return "Admin security is already initialized.";
+    }
+    const username = "admin";
+    const temporaryPassword = "SURYA-" + Utilities.getUuid().replace(/-/g, "").slice(0, 14) + "!";
+    props.setProperties({
+        [PROP_USERNAME]: username,
+        [PROP_PASSWORD_HASH]: hashPassword(temporaryPassword),
+        [PROP_FAILED_ATTEMPTS]: "0",
+        [PROP_LOCK_UNTIL]: "0",
+        [PROP_SECURITY_VERSION]: "3.1.0",
+        [PROP_RECOVERY_EMAIL]: "sadhuji9616@gmail.com"
+    }, false);
+    console.log("SURYA temporary admin username: " + username);
+    console.log("SURYA temporary admin password (store securely, then change it): " + temporaryPassword);
+    return "Admin initialized. The temporary credentials are available in the Apps Script execution log. Change the password immediately.";
+}
 
 /* ==================================================
    ADMIN LOGIN

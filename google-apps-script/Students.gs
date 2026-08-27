@@ -1,3 +1,11 @@
+/* ==================================================
+   SURYA COMPUTER OF EDUCATION CENTER
+   Product : CIMP — Computer Institute Management Platform
+   Organization : SURYA COMPUTER OF EDUCATION CENTER
+   Developer : Devendra Kumar
+   Technical Advisor : AERON
+   ================================================== */
+
  /* ==================================================
     SURYA COMPUTER OF EDUCATION CENTER
     File    : Students.gs
@@ -427,9 +435,7 @@ function generateStudentId(course) {
 
          new Date(),
 
-         "Active",
-
-         ""
+         "Active"
 
      ]);
 
@@ -669,6 +675,76 @@ function generateStudentId(course) {
 
      });
 
+ }
+
+
+ /* ==================================================
+    UPDATE STUDENT DETAILS
+    Admin-only route. Updates only editable fields.
+ ================================================== */
+
+ function updateStudent(
+     studentId,
+     name,
+     fatherName,
+     course,
+     mobile,
+     status
+ ) {
+
+     studentId = String(studentId || "").trim();
+     name = String(name || "").trim();
+     fatherName = String(fatherName || "").trim();
+     course = String(course || "").trim();
+     mobile = String(mobile || "").trim();
+     status = String(status || "").trim();
+
+     if (!studentId) {
+         return jsonResponse({success:false, message:"Student ID is required."});
+     }
+
+     if (!name) {
+         return jsonResponse({success:false, message:"Student name is required."});
+     }
+
+     const sheet = getSheet(SURYA_STUDENTS_SHEET);
+     const values = sheet.getDataRange().getValues();
+
+     if (values.length < 2) {
+         return jsonResponse({success:false, message:"No students found."});
+     }
+
+     const headers = values[0].map(function(h) { return String(h || "").trim(); });
+     const headerIndex = {};
+     headers.forEach(function(h, i) { if (h) headerIndex[h.toLowerCase()] = i + 1; });
+
+     const rowNumber = values.findIndex(function(row, i) {
+         return i > 0 && String(row[0] || "").trim().toUpperCase() === studentId.toUpperCase();
+     });
+
+     if (rowNumber < 1) {
+         return jsonResponse({success:false, message:"Student not found."});
+     }
+
+     const updates = {
+         "student name": name,
+         "name": name,
+         "father name": fatherName,
+         "course": course,
+         "mobile": mobile,
+         "status": status || "Active"
+     };
+
+     Object.keys(updates).forEach(function(key) {
+         const col = headerIndex[key];
+         if (col) sheet.getRange(rowNumber + 1, col).setValue(updates[key]);
+     });
+
+     return jsonResponse({
+         success: true,
+         message: "Student details updated successfully.",
+         studentId: studentId
+     });
  }
 
 

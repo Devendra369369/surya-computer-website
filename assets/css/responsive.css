@@ -63,3 +63,20 @@ Guide   : AERON
 }
 
 }
+
+@media (max-width: 500px) {
+
+    .hero-logo {
+        position: absolute;
+        top: 10px;
+        left: 48% !important;
+        transform: translateX(-50%) !important;
+
+        width: 90px !important;
+        height: auto !important;
+        object-fit: contain !important;
+        border-radius: 0 !important;
+        z-index: 5;
+    }
+
+}
