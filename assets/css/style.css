@@ -1295,9 +1295,7 @@ ADMIN PANEL
    SURYA COMPUTER OF EDUCATION CENTER
 ================================================== */
 
-html {
-    color-scheme: light dark;
-}
+html { color-scheme: light; }
 
 
 /* ==================================================
@@ -1678,4 +1676,66 @@ select:focus {
     border-left: none;
     border-top: none;
 
+}
+
+/* ==================================================
+   FINAL 26-08-2026 HOME / GALLERY / DARK-MODE POLISH
+================================================== */
+.home-photo-feature{padding:24px 8% 8px;background:#fff}
+.home-photo-wrap{max-width:1180px;margin:0 auto}
+.home-photo-stage{position:relative;max-width:680px;margin:0;overflow:hidden;border-radius:20px;box-shadow:0 14px 35px rgba(0,0,0,.14);background:#eef3f8}
+.home-photo-stage img{display:block;width:100%;aspect-ratio:16/8.7;object-fit:cover;transition:opacity .35s ease}
+.home-photo-dots{position:absolute;left:16px;bottom:14px;display:flex;gap:7px;padding:6px 9px;border-radius:999px;background:rgba(0,0,0,.35);backdrop-filter:blur(6px)}
+.home-photo-dots button{width:9px;height:9px;border:0;border-radius:50%;padding:0;background:rgba(255,255,255,.55);cursor:pointer}.home-photo-dots button.active{background:#fff;transform:scale(1.25)}
+.director-image{position:relative}.director-image .director-logo-overlay{position:absolute;right:12px;top:12px;width:68px!important;height:68px!important;object-fit:contain;border-radius:0!important;box-shadow:none!important;background:rgba(255,255,255,.88);padding:4px;box-sizing:border-box}
+.gallery-page{max-width:1180px;margin:30px auto;padding:0 16px 50px}.gallery-intro{color:#64748b}.gallery-category{margin-top:26px;padding:18px;background:#fff;border:1px solid #e6ebf2;border-radius:18px;box-shadow:0 7px 24px rgba(0,0,0,.05)}.gallery-category h3{margin:0 0 14px;color:#0d47a1}.gallery-category .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}.gallery-category .gallery-grid img{width:100%;height:210px;object-fit:cover;border-radius:13px;cursor:zoom-in;box-shadow:0 4px 16px rgba(0,0,0,.10)}
+.gallery-lightbox{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.86);display:flex;align-items:center;justify-content:center;padding:20px}.gallery-lightbox img{max-width:94vw;max-height:90vh;object-fit:contain;border-radius:12px}.gallery-lightbox button{position:absolute;top:16px;right:18px;width:42px;height:42px;border:0;border-radius:50%;font-size:28px;cursor:pointer}
+.modern-notice{padding:14px 16px;border:1px solid #e2e8f0;border-radius:14px;background:#fff;margin:9px 0}.notice-badge{font-size:10px;font-weight:800;letter-spacing:1px;padding:4px 7px;border-radius:999px;background:#e8f1ff;color:#0d47a1}.modern-notice h3{margin:8px 0 5px}.modern-notice p{margin:0;white-space:pre-wrap;line-height:1.6}
+[data-theme="dark"] body{background:#0b1220!important;color:#f8fafc!important}.home-photo-feature,[data-theme="dark"] .about,[data-theme="dark"] .courses,[data-theme="dark"] .gallery-preview,[data-theme="dark"] .contact,[data-theme="dark"] .notice{background:#0f172a!important;color:#f8fafc!important}[data-theme="dark"] .about-text,[data-theme="dark"] .course-card,[data-theme="dark"] .why-card,[data-theme="dark"] .quick-card,[data-theme="dark"] .contact-info,[data-theme="dark"] .contact-form,[data-theme="dark"] .modern-notice,[data-theme="dark"] .gallery-category{background:#172033!important;color:#f8fafc!important;border-color:#334155!important}[data-theme="dark"] .about p,[data-theme="dark"] .course-card p,[data-theme="dark"] .director-content p,[data-theme="dark"] .contact-info p,[data-theme="dark"] .modern-notice p{color:#cbd5e1!important}[data-theme="dark"] .title p{color:#cbd5e1!important}[data-theme="dark"] .gallery-category h3{color:#93c5fd!important}
+@media(max-width:800px){.home-photo-feature{padding:16px}.home-photo-stage{max-width:none}.home-photo-stage img{aspect-ratio:16/10}.director-image .director-logo-overlay{width:56px!important;height:56px!important}}
+/* =========================================
+   HERO PHOTO + INSTITUTE LOGO OVERLAY
+========================================= */
+
+.hero-right {
+    position: relative;
+}
+
+.hero-right > img:first-child {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.hero-logo-overlay {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+
+    width: 90px;
+    height: 90px;
+
+    object-fit: contain;
+
+    z-index: 5;
+
+    /* logo ke aas-paas white background hatane ke liye */
+    background: transparent;
+
+    /* halka professional shadow */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+}
+.hero-right {
+    position: relative;
+}
+
+.hero-logo {
+    position: absolute;
+    top: 15px;
+    left: 155px;
+    width: 130px !important;
+    height: auto !important;
+    object-fit: contain !important;
+    border-radius: 0 !important;
+    z-index: 5;
 }

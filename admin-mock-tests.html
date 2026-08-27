@@ -19,6 +19,8 @@
 #message{font-weight:700;margin:12px 0}
 </style>
     <script src="assets/js/admin-guard.js"></script>
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
 </head>
 <body>
 <div class="top-bar">📞 7084275870 | ✉️ sunilkumar5757@gmail.com</div>
@@ -71,7 +73,7 @@
 </main>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbxmKAb9FbNVEEsir5P2wck6Im_Wwm_fPqL0jBMIksLUSd6Dkd8w074STmqESIVBGaCw7A/exec";
+const API="https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
 const TOKEN=sessionStorage.getItem("SURYA_ADMIN_TOKEN");
 const AUTH=sessionStorage.getItem("SURYA_ADMIN_AUTH");
 if(AUTH!=="true" || !TOKEN) location.replace("admin-login.html");
@@ -165,5 +167,6 @@ async function loadAttempts(){
 }
 loadTests();
 </script>
+    <script src="assets/js/project-ui.js"></script>
 </body>
 </html>

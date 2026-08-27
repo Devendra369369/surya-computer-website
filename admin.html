@@ -41,6 +41,8 @@ Security:
     >
 
     <script src="assets/js/admin-guard.js"></script>
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
 </head>
 
 
@@ -252,6 +254,16 @@ Security:
 
 
         <!-- ==================================================
+             MOCK TESTS
+        ================================================== -->
+        <div class="admin-card">
+            <div class="admin-icon">📝</div>
+            <h3>Mock Tests</h3>
+            <p>Create tests, manage questions, publish tests and review attempts.</p>
+            <a href="admin-mock-tests.html" class="admin-btn">Manage Mock Tests</a>
+        </div>
+
+        <!-- ==================================================
              NOTICES
         ================================================== -->
 
@@ -304,6 +316,18 @@ Security:
                 Manage Courses
             </a>
 
+        </div>
+
+
+        <!-- ==================================================
+             PUBLIC GALLERY / MEDIA
+        ================================================== -->
+
+        <div class="admin-card">
+            <div class="admin-icon">🖼️</div>
+            <h3>Public Gallery</h3>
+            <p>Public website की photos upload, publish और delete करें.</p>
+            <a href="admin-media.html" class="admin-btn">Manage Photos</a>
         </div>
 
 
@@ -518,7 +542,7 @@ Security:
 ================================================== */
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbxmKAb9FbNVEEsir5P2wck6Im_Wwm_fPqL0jBMIksLUSd6Dkd8w074STmqESIVBGaCw7A/exec";
+    "https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
 
 
 /* ==================================================
@@ -873,6 +897,7 @@ async function adminLogout() {
 </script>
 
 
+    <script src="assets/js/project-ui.js"></script>
 </body>
 
 </html>

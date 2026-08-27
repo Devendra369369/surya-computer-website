@@ -75,20 +75,38 @@ Created : 06-08-2026
       <div class="hero-buttons">
         <a href="admission.html" class="btn">Admission Open</a>
         <a href="courses.html" class="btn btn-outline">View Courses</a>
+        <a href="student-login.html?next=mock-test" class="btn btn-outline">📝 Mock Test</a>
     </div>
 
     </div>
 
-    <div class="hero-right">
+        <div class="hero-right">
 
     <img src="assets/images/hero.jpg" alt="Institute">
 
-    </div>
+    <img
+        src="assets/images/logo2.png"
+        alt="Institute Logo"
+        class="hero-logo"
+    >
+
+        </div>
+
 
     </div>
 
     </section>
     
+
+    <!-- MAIN INSTITUTE PHOTO CAROUSEL -->
+    <section class="home-photo-feature" aria-label="SURYA Institute highlights">
+      <div class="home-photo-wrap">
+        <div class="home-photo-stage">
+          <img id="homeFeatureImage" src="assets/images/imejeg2/IMG-20260822-WA0000.jpg" alt="SURYA Computer of Education Center" loading="eager">
+          <div class="home-photo-dots" id="homePhotoDots" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
 
     <!-- About -->
     
@@ -191,7 +209,7 @@ NOTICE BOARD
 
     <h2>Latest Notices</h2>
 
-    <div class="notice-box">
+    <div class="notice-box" id="homeNoticeBox">
         <marquee direction="up" scrollamount="2" height="180">
 
             📢 ADCA Admission Open 2026<br><br>
@@ -303,7 +321,7 @@ DIRECTOR MESSAGE SECTION
 <section class="director">
 
     <div class="director-image">
-        <img src="assets/images/director.jpg" alt="Director">
+        <img src="assets/images/director.jpg" alt="Director"><img src="assets/images/logo.png" alt="SURYA logo" class="director-logo-overlay">
     </div>
 
     <div class="director-content">
@@ -328,12 +346,11 @@ GALLERY PREVIEW SECTION
 
     <h2>Gallery</h2>
 
-    <div class="gallery-grid">
-
-        <img src="assets/images/gallery1.jpg" alt="Gallery Image 1">
-        <img src="assets/images/gallery2.jpg" alt="Gallery Image 2">
-        <img src="assets/images/gallery3.jpg" alt="Gallery Image 3">
-
+    <div class="gallery-grid" id="homeGallery">
+        <img src="assets/images/gallery1.jpg" alt="SURYA Institute" loading="lazy">
+        <img src="assets/images/gallery2.jpg" alt="SURYA Institute" loading="lazy">
+        <img src="assets/images/gallery3.jpg" alt="SURYA Institute" loading="lazy">
+        <img src="assets/images/gallery4.jpg" alt="SURYA Institute" loading="lazy">
     </div>
 
     <a href="gallery.html" class="btn">View Full Gallery</a>
@@ -418,7 +435,33 @@ FOOTER SECTION
 
     <script src="assets/js/main.js"></script>
 
-    <script src="assets/js/project-ui.js"></script>
+    <script>
+const HOME_MEDIA_API="https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+function homeEsc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+async function loadHomeMedia(){try{const r=await fetch(HOME_MEDIA_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'publicMedia'})});const d=await r.json();const a=(d.media||[]).slice(0,6);if(a.length)homeGallery.innerHTML=a.map(x=>`<img src="${homeEsc(x.url)}" alt="${homeEsc(x.title)}" loading="lazy">`).join('');}catch(e){}}
+loadHomeMedia();
+</script>
+<script src="assets/js/project-ui.js"></script>
 
+<script>
+(function(){
+  const imgs=[
+    ['assets/images/imejeg2/IMG-20260822-WA0000.jpg','Computer Education & Courses'],
+    ['assets/images/imejeg2/IMG-20260822-WA0001.jpg','Computer Education & Courses'],
+    ['assets/images/imejeg2/IMG-20260822-WA0002.jpg','Modern Computer Setup'],
+    ['assets/images/imejeg2/IMG-20260822-WA0003.jpg','Practical Training'],
+    ['assets/images/imejeg2/IMG-20260822-WA0006.jpg','Cloud & Cybersecurity']
+  ];
+  const img=document.getElementById('homeFeatureImage'),dots=document.getElementById('homePhotoDots'); if(!img||!dots)return;
+  imgs.forEach((x,i)=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-label','Show '+x[1]);b.onclick=()=>show(i);dots.appendChild(b);});
+  let index=0;
+  function show(i){index=i;img.src=imgs[i][0];img.alt=imgs[i][1];dots.querySelectorAll('button').forEach((b,j)=>b.classList.toggle('active',j===i));}
+  show(0); setInterval(()=>show((index+1)%imgs.length),4500);
+})();
+</script>
+
+<script>
+(async function(){try{const r=await fetch('https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'publicNotices'})});const d=await r.json();if(!d.success||!d.notices?.length)return;const e=document.getElementById('homeNoticeBox');if(!e)return;e.innerHTML=d.notices.slice(0,5).map(n=>`<article class="modern-notice"><span class="notice-badge">${n.priority==='High'?'IMPORTANT':'NOTICE'}</span><h3>${String(n.title).replace(/[&<>]/g,'')}</h3><p>${String(n.message).replace(/[&<>]/g,'')}</p></article>`).join('');}catch(e){}})();
+</script>
 </body>
 </html>
