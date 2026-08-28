@@ -120,6 +120,13 @@ function showMessage(
 
 async function loadCertificates() {
 
+    if (!SURYA_ADMIN_TOKEN) {
+        showMessage(
+            "❌ Admin session expired. Please login again."
+        );
+        return;
+    }
+
     showMessage(
         "⏳ Loading certificates..."
     );

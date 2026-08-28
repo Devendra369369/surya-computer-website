@@ -383,6 +383,13 @@ function showMessage(
 
 async function loadCertificates() {
 
+    if (!SURYA_ADMIN_TOKEN) {
+        showMessage(
+            "❌ Admin session expired. Please login again."
+        );
+        return;
+    }
+
     showMessage(
         "⏳ Loading certificates..."
     );
@@ -398,29 +405,23 @@ async function loadCertificates() {
     try {
 
         const response =
-    await fetch(
-        SURYA_DATABASE_API,
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type":
-                    "text/plain;charset=utf-8"
-            },
-
-            body:
-                JSON.stringify({
-
-                    action:
-                        "certificates",
-
-                    token:
-                        SURYA_ADMIN_TOKEN
-
-                })
-
-        }
-    );
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+                    body:
+                        JSON.stringify({
+                            action:
+                                "certificates",
+                            token:
+                                SURYA_ADMIN_TOKEN
+                        })
+                }
+            );
 
 
         if (!response.ok) {
@@ -499,7 +500,11 @@ async function loadCertificates() {
 
 
         showMessage(
-            "❌ Unable to connect to certificate database.",
+            "❌ Certificate database error: " +
+            (
+                error.message ||
+                String(error)
+            ),
             "error"
         );
 
