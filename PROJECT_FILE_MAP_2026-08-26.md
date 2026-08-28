@@ -93,3 +93,5 @@
 | `student-dashboard.html` | Student portal dashboard. |
 | `student-login.html` | Student login and password recovery. |
 | `terms.html` | Website page; see page title/content for public/admin/student role. |
+
+- `admin-contact-messages.html` | Admin contact message inbox and backend email reply UI.

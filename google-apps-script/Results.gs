@@ -486,34 +486,26 @@ function createResult(
 
     let grade;
 
-    if (percentage >= 80) {
-
+    if (percentage >= 90) {
+        grade = "A+";
+    }
+    else if (percentage >= 80) {
         grade = "A";
-
     }
-
+    else if (percentage >= 70) {
+        grade = "B+";
+    }
     else if (percentage >= 60) {
-
         grade = "B";
-
     }
-
     else if (percentage >= 50) {
-
         grade = "C";
-
     }
-
     else if (percentage >= 33) {
-
         grade = "D";
-
     }
-
     else {
-
         grade = "F";
-
     }
 
 
@@ -702,34 +694,26 @@ function updateResult(
 
     let grade;
 
-    if (percentage >= 80) {
-
+    if (percentage >= 90) {
+        grade = "A+";
+    }
+    else if (percentage >= 80) {
         grade = "A";
-
     }
-
+    else if (percentage >= 70) {
+        grade = "B+";
+    }
     else if (percentage >= 60) {
-
         grade = "B";
-
     }
-
     else if (percentage >= 50) {
-
         grade = "C";
-
     }
-
     else if (percentage >= 33) {
-
         grade = "D";
-
     }
-
     else {
-
         grade = "F";
-
     }
 
 
@@ -1076,3 +1060,69 @@ function enableResult(
 console.log(
     "SURYA RESULTS MANAGER v2.0.0 READY!"
 );
+
+
+/* ==================================================
+   PUBLIC PUBLISHED RESULTS
+================================================== */
+function getPublishedResultsByStudent(studentId) {
+    studentId = String(studentId || "").trim();
+    if (!studentId) return jsonResponse({success:true,results:[]});
+
+    const sheet = getSheet(SURYA_RESULTS_SHEET);
+    const values = sheet.getDataRange().getValues();
+    if (values.length < 2) return jsonResponse({success:true,results:[]});
+
+    const headers = values[0].map(function(x){return String(x || "").trim();});
+    const results = [];
+
+    for (let i = 1; i < values.length; i++) {
+        const status = String(values[i][11] || "").trim().toLowerCase();
+        const sid = String(values[i][1] || "").trim().toUpperCase();
+
+        if (sid !== studentId.toUpperCase()) continue;
+        if (status !== "published") continue;
+
+        const record = {};
+        headers.forEach(function(h,j){if(h) record[h] = values[i][j];});
+        results.push(record);
+    }
+
+    return jsonResponse({success:true,results:results});
+}
+
+function getPublishedResultSubjects(resultId) {
+    resultId = String(resultId || "").trim();
+    if (!resultId) return jsonResponse({success:true,subjects:[]});
+
+    const resultSheet = getSheet(SURYA_RESULTS_SHEET);
+    const resultValues = resultSheet.getDataRange().getValues();
+
+    let published = false;
+    for (let i = 1; i < resultValues.length; i++) {
+        if (String(resultValues[i][0] || "").trim().toUpperCase() === resultId.toUpperCase()) {
+            published = String(resultValues[i][11] || "").trim().toLowerCase() === "published";
+            break;
+        }
+    }
+
+    if (!published) return jsonResponse({success:false,message:"Result is not published."});
+
+    const sh = getSheet("Result Subjects");
+    const values = sh.getDataRange().getValues();
+    if (values.length < 2) return jsonResponse({success:true,subjects:[]});
+
+    const headers = values[0].map(function(x){return String(x || "").trim();});
+    const subjects = [];
+
+    for (let i = 1; i < values.length; i++) {
+        if (String(values[i][0] || "").trim().toUpperCase() !== resultId.toUpperCase()) continue;
+        if (String(values[i][13] || "Active").trim().toLowerCase() === "inactive") continue;
+
+        const record = {};
+        headers.forEach(function(h,j){if(h) record[h] = values[i][j];});
+        subjects.push(record);
+    }
+
+    return jsonResponse({success:true,subjects:subjects});
+}

@@ -195,6 +195,13 @@ function getCertificate(
                 .toUpperCase()
         ) {
 
+            if (String(row[11] || "Active").trim().toLowerCase() === "inactive") {
+                return jsonResponse({
+                    success: false,
+                    message: "Certificate is inactive."
+                });
+            }
+
             const certificate =
                 {};
 
@@ -272,7 +279,10 @@ function getCertificateSubjectsPublic(resultId) {
     for (let i = 1; i < values.length; i++) {
         if (String(values[i][0] || "").trim().toUpperCase() !== resultId.toUpperCase()) continue;
         const row = {}; headers.forEach((h,j) => { if (h) row[h] = values[i][j]; });
-        if (!row.Status || String(row.Status).toLowerCase() !== "disabled") subjects.push(row);
+        if (String(row.Status || "Active").toLowerCase() !== "inactive" &&
+            String(row.Status || "Active").toLowerCase() !== "disabled") {
+            subjects.push(row);
+        }
     }
     return jsonResponse({success:true,subjects:subjects});
 }
@@ -448,6 +458,7 @@ function createCertificateFromResult(
 
     if (
         resultStatus &&
+        resultStatus !== "PUBLISHED" &&
         resultStatus !== "ACTIVE"
     ) {
 
@@ -456,7 +467,7 @@ function createCertificateFromResult(
             success: false,
 
             message:
-                "Certificate cannot be generated for an inactive result."
+                "Certificate can be generated only after the result is published."
 
         });
 

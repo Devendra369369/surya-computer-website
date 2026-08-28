@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Contact Messages | Surya Computer Of Education Center</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+<link rel="stylesheet" href="assets/css/project-ui.css">
+<link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<script src="assets/js/admin-guard.js"></script>
+<style>
+.contact-admin-wrap{max-width:1050px;margin:auto;padding:18px}
+.message-card{background:var(--cimp-panel,#fff);color:var(--cimp-text,#172033);border:1px solid #dbe2ea;border-radius:14px;padding:16px;margin:14px 0;box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.message-meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.message-body{white-space:pre-wrap;margin:12px 0;padding:12px;border-radius:9px;background:rgba(127,127,127,.08)}
+.reply-box{width:100%;box-sizing:border-box;min-height:100px;padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:inherit;color:inherit}
+.contact-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.contact-actions button{padding:10px 14px;border:0;border-radius:8px;cursor:pointer}
+.badge{display:inline-block;padding:4px 9px;border-radius:999px;background:rgba(25,135,84,.15)}
+@media(max-width:600px){.contact-admin-wrap{padding:10px}.message-card{padding:12px}}
+</style>
+</head>
+<body>
+<div class="top-bar">📞 7084275870 | ✉️ sunilkumar5757@gmail.com</div>
+<header class="header"><img src="assets/images/logo.png" class="logo" alt="Logo"><div class="title"><h1>SURYA COMPUTER OF EDUCATION CENTER</h1><p>Admin Contact Messages</p></div></header>
+<nav class="navbar"><a href="admin.html">Admin Dashboard</a><a href="admin-admissions.html">Admissions</a><a href="admin-students.html">Students</a><a href="admin-results.html">Results</a><a href="admin-certificates.html">Certificates</a></nav>
+
+<main class="contact-admin-wrap">
+<div class="admin-header"><h2>✉️ Contact Messages</h2><p>Visitor messages पढ़ें और backend से सीधे email reply भेजें.</p></div>
+<div class="contact-actions"><button type="button" onclick="loadMessages()">🔄 Refresh</button></div>
+<div id="messageStatus"></div>
+<div id="messages">Loading...</div>
+</main>
+
+<script>
+"use strict";
+const API="https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
+const TOKEN=sessionStorage.getItem("SURYA_ADMIN_TOKEN");
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+async function api(body){
+ const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...body,token:TOKEN})});
+ const d=await r.json();if(!d.success)throw new Error(d.message||"Request failed");return d;
+}
+async function loadMessages(){
+ const box=document.getElementById("messages"),status=document.getElementById("messageStatus");
+ box.textContent="⏳ Loading...";
+ try{
+  const d=await api({action:"contactMessages"});
+  const arr=d.messages||[];
+  if(!arr.length){box.innerHTML="<p>📭 No contact messages.</p>";return;}
+  box.innerHTML=arr.map(m=>`
+   <article class="message-card">
+    <div class="message-meta">
+      <strong>👤 ${esc(m.name)}</strong>
+      <span class="badge">${esc(m.status)}</span>
+    </div>
+    <p>✉️ <a href="mailto:${encodeURIComponent(m.email)}">${esc(m.email)}</a></p>
+    <small>🕒 ${esc(m.createdAt)}</small>
+    <div class="message-body">${esc(m.message)}</div>
+    ${m.reply ? `<div class="message-body"><b>↩️ Previous Reply</b><br>${esc(m.reply)}<br><small>${esc(m.repliedAt)}</small></div>` : ""}
+    <textarea class="reply-box" id="reply-${esc(m.messageId)}" placeholder="Type reply...">${esc(m.reply||"")}</textarea>
+    <div class="contact-actions">
+      <button type="button" onclick="sendReply('${encodeURIComponent(m.messageId)}')">📤 Send Reply</button>
+      <button type="button" onclick="deleteMessage('${encodeURIComponent(m.messageId)}')">🗑️ Delete</button>
+    </div>
+   </article>
+  `).join("");
+  status.textContent="";
+ }catch(e){box.textContent="❌ "+e.message;}
+}
+async function sendReply(encodedId){
+ const id=decodeURIComponent(encodedId);
+ const area=document.getElementById("reply-"+id);
+ if(!area||!area.value.trim()){alert("⚠️ Reply लिखें.");return;}
+ if(!confirm("क्या इस visitor को email reply भेजना है?"))return;
+ try{const d=await api({action:"replyContactMessage",messageId:id,reply:area.value.trim()});alert("✅ "+d.message);loadMessages();}
+ catch(e){alert("❌ "+e.message);}
+}
+async function deleteMessage(encodedId){
+ const id=decodeURIComponent(encodedId);
+ if(!confirm("यह message delete करना है?"))return;
+ try{const d=await api({action:"deleteContactMessage",messageId:id});alert("✅ "+d.message);loadMessages();}
+ catch(e){alert("❌ "+e.message);}
+}
+loadMessages();
+</script>
+<script src="assets/js/project-ui.js"></script>
+</body>
+</html>

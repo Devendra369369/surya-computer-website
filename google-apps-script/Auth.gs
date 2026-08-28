@@ -66,6 +66,8 @@ const PROP_OTP_EXPIRES = "SURYA_ADMIN_OTP_EXPIRES";
 const PROP_OTP_ATTEMPTS = "SURYA_ADMIN_OTP_ATTEMPTS";
 const PROP_OTP_USERNAME = "SURYA_ADMIN_OTP_USERNAME";
 const PROP_DEVICE_PREFIX = "SURYA_ADMIN_DEVICE_";
+const PROP_LOGIN_CHALLENGE_PREFIX = "SURYA_ADMIN_LOGIN_CHALLENGE_";
+const ADMIN_LOGIN_CHALLENGE_SECONDS = 120;
 
 // Separate emergency-lock credential. Only the SHA-256 hash is stored.
 const EMERGENCY_LOCK_PASSWORD_HASH = "b65841b8268dbb217903df1125abb6cd7c377c94679305cb6f597fedf918ea5c";
@@ -159,6 +161,13 @@ function initializeAdminSecurity() {
     console.log("SURYA temporary admin username: " + username);
     console.log("SURYA temporary admin password (store securely, then change it): " + temporaryPassword);
     return "Admin initialized. The temporary credentials are available in the Apps Script execution log. Change the password immediately.";
+}
+
+function hasTrustedAdminDevice_() {
+    const props = PropertiesService.getScriptProperties();
+    return Object.keys(props.getProperties()).some(function(key) {
+        return key.indexOf(PROP_DEVICE_PREFIX) === 0;
+    });
 }
 
 /* ==================================================
@@ -366,11 +375,51 @@ function adminLogin(username, password, clientInfo) {
             latitude !== "" && longitude !== "" &&
             isFinite(Number(latitude)) && isFinite(Number(longitude));
 
-        if (!knownDevice && !hasLocation) {
+        /*
+         * NEW BROWSER / DEVICE:
+         * Password is already verified above, but the session is NOT
+         * created yet. A trusted Admin device must approve this login.
+         */
+        if (!knownDevice && hasTrustedAdminDevice_()) {
+            const challengeId = Utilities.getUuid();
+            const challengeNumber = String(Math.floor(10 + Math.random() * 90));
+            const expiresAt = Date.now() + ADMIN_LOGIN_CHALLENGE_SECONDS * 1000;
+
+            props.setProperty(
+                PROP_LOGIN_CHALLENGE_PREFIX + challengeId,
+                JSON.stringify({
+                    challengeId: challengeId,
+                    username: storedUsername,
+                    number: challengeNumber,
+                    status: "pending",
+                    createdAt: Date.now(),
+                    expiresAt: expiresAt,
+                    clientInfo: {
+                        browser: String(clientInfo.browser || "Unknown").slice(0,120),
+                        platform: String(clientInfo.platform || "Unknown").slice(0,120),
+                        userAgent: String(clientInfo.userAgent || "Unknown").slice(0,500),
+                        timezone: String(clientInfo.timezone || "Unknown").slice(0,100)
+                    }
+                })
+            );
+
+            sendAdminSecurityAlert(
+                "ADMIN LOGIN APPROVAL REQUIRED",
+                "A new browser/device entered the correct Admin password and is waiting for approval.\\n\\n" +
+                "Approval number: " + challengeNumber + "\\n" +
+                "Browser: " + String(clientInfo.browser || "Unknown") + "\\n" +
+                "Platform: " + String(clientInfo.platform || "Unknown") + "\\n" +
+                "Time: " + new Date().toString()
+            );
+
             return jsonResponse({
                 success: false,
-                locationRequired: true,
-                message: "New browser/device detected. Location permission is required for Admin login."
+                verificationRequired: true,
+                challengeId: challengeId,
+                challengeNumber: challengeNumber,
+                expiresAt: expiresAt,
+                expiresIn: ADMIN_LOGIN_CHALLENGE_SECONDS,
+                message: "New browser/device detected. Approve this login from an already trusted Admin device."
             });
         }
 
@@ -489,6 +538,240 @@ function adminLogin(username, password, clientInfo) {
 
 }
 
+
+/* ==================================================
+   ADMIN LOGIN APPROVAL — PENDING CHALLENGES
+================================================== */
+
+function getAdminLoginChallenges(token) {
+    if (!verifyAdminSession(token)) {
+        return jsonResponse({
+            success: false,
+            authenticated: false,
+            message: "Unauthorized."
+        });
+    }
+
+    const props = PropertiesService.getScriptProperties();
+    const all = props.getProperties();
+    const now = Date.now();
+    const challenges = [];
+
+    Object.keys(all).forEach(function(key) {
+        if (key.indexOf(PROP_LOGIN_CHALLENGE_PREFIX) !== 0) return;
+
+        try {
+            const c = JSON.parse(all[key]);
+
+            if (!c.expiresAt || Number(c.expiresAt) <= now) {
+                props.deleteProperty(key);
+                return;
+            }
+
+            if (c.status === "pending" && c.username === (props.getProperty(PROP_USERNAME) || "")) {
+                challenges.push({
+                    challengeId: c.challengeId,
+                    number: c.number,
+                    expiresAt: c.expiresAt,
+                    browser: c.clientInfo && c.clientInfo.browser || "Unknown",
+                    platform: c.clientInfo && c.clientInfo.platform || "Unknown",
+                    timezone: c.clientInfo && c.clientInfo.timezone || "Unknown"
+                });
+            }
+        } catch (e) {
+            props.deleteProperty(key);
+        }
+    });
+
+    return jsonResponse({
+        success: true,
+        challenges: challenges
+    });
+}
+
+
+/* ==================================================
+   ADMIN LOGIN APPROVAL — YES / NO
+================================================== */
+
+function respondAdminLoginChallenge(token, challengeId, approve, number) {
+    if (!verifyAdminSession(token)) {
+        return jsonResponse({
+            success: false,
+            authenticated: false,
+            message: "Unauthorized."
+        });
+    }
+
+    challengeId = String(challengeId || "").trim();
+    number = String(number || "").trim();
+
+    if (!challengeId) {
+        return jsonResponse({success:false,message:"Challenge ID is required."});
+    }
+
+    const props = PropertiesService.getScriptProperties();
+    const key = PROP_LOGIN_CHALLENGE_PREFIX + challengeId;
+    const raw = props.getProperty(key);
+
+    if (!raw) return jsonResponse({success:false,message:"Login request expired or was not found."});
+
+    let c;
+    try {
+        c = JSON.parse(raw);
+    } catch (e) {
+        props.deleteProperty(key);
+        return jsonResponse({success:false,message:"Invalid login request."});
+    }
+
+    if (!c.expiresAt || Number(c.expiresAt) <= Date.now()) {
+        props.deleteProperty(key);
+        return jsonResponse({success:false,message:"Login request expired."});
+    }
+
+    if (c.status !== "pending") {
+        return jsonResponse({
+            success: c.status === "approved",
+            status: c.status,
+            message: c.status === "approved" ? "Login already approved." : "Login request was denied."
+        });
+    }
+
+    if (String(approve) !== "true" && String(approve) !== "false") {
+        return jsonResponse({success:false,message:"Invalid approval response."});
+    }
+
+    if (String(approve) === "true" && number !== String(c.number)) {
+        return jsonResponse({success:false,message:"Security number does not match."});
+    }
+
+    c.status = String(approve) === "true" ? "approved" : "denied";
+    c.respondedAt = Date.now();
+    c.respondedBy = (PropertiesService.getScriptProperties().getProperty(PROP_USERNAME) || "admin");
+
+    props.setProperty(key, JSON.stringify(c));
+
+    sendAdminSecurityAlert(
+        c.status === "approved" ? "NEW ADMIN LOGIN APPROVED" : "NEW ADMIN LOGIN DENIED",
+        "A trusted Admin device " + c.status + " a new browser/device login request.\n\n" +
+        "Approval number: " + c.number + "\n" +
+        "Browser: " + (c.clientInfo && c.clientInfo.browser || "Unknown") + "\n" +
+        "Platform: " + (c.clientInfo && c.clientInfo.platform || "Unknown")
+    );
+
+    return jsonResponse({
+        success: true,
+        status: c.status,
+        message: c.status === "approved" ? "New Admin login approved." : "New Admin login denied."
+    });
+}
+
+
+/* ==================================================
+   ADMIN LOGIN APPROVAL — COMPLETE AFTER APPROVAL
+================================================== */
+
+function completeAdminLogin(challengeId, clientInfo) {
+    challengeId = String(challengeId || "").trim();
+    clientInfo = clientInfo || {};
+
+    if (!challengeId) {
+        return jsonResponse({success:false,message:"Challenge ID is required."});
+    }
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+
+    try {
+        const props = PropertiesService.getScriptProperties();
+        const key = PROP_LOGIN_CHALLENGE_PREFIX + challengeId;
+        const raw = props.getProperty(key);
+
+        if (!raw) return jsonResponse({success:false,message:"Login request expired or was not found."});
+
+        let c;
+        try {
+            c = JSON.parse(raw);
+        } catch (e) {
+            props.deleteProperty(key);
+            return jsonResponse({success:false,message:"Invalid login request."});
+        }
+
+        if (!c.expiresAt || Number(c.expiresAt) <= Date.now()) {
+            props.deleteProperty(key);
+            return jsonResponse({success:false,message:"Login request expired."});
+        }
+
+        if (c.status !== "approved") {
+            return jsonResponse({
+                success:false,
+                pending:c.status === "pending",
+                denied:c.status === "denied",
+                message:c.status === "denied" ? "Login was denied on the trusted Admin device." : "Waiting for approval from a trusted Admin device."
+            });
+        }
+
+        const token = Utilities.getUuid();
+        const expiresAt = Date.now() + ADMIN_SESSION_SECONDS * 1000;
+
+        props.setProperty(
+            PROP_SESSION_PREFIX + token,
+            JSON.stringify({
+                username: c.username,
+                createdAt: Date.now(),
+                expiresAt: expiresAt
+            })
+        );
+
+        const deviceId = String(clientInfo.deviceId || "").trim().slice(0,120);
+        if (deviceId) {
+            const deviceKey = PROP_DEVICE_PREFIX + hashPassword(deviceId).slice(0,32);
+            props.setProperty(deviceKey, JSON.stringify({
+                deviceId: deviceId,
+                browser: String(clientInfo.browser || "Unknown").slice(0,120),
+                platform: String(clientInfo.platform || "Unknown").slice(0,120),
+                userAgent: String(clientInfo.userAgent || "Unknown").slice(0,500),
+                language: String(clientInfo.language || "Unknown").slice(0,80),
+                timezone: String(clientInfo.timezone || "Unknown").slice(0,100),
+                screen: String(clientInfo.screen || "Unknown").slice(0,80),
+                latitude: clientInfo.latitude == null ? "Unavailable" : String(clientInfo.latitude),
+                longitude: clientInfo.longitude == null ? "Unavailable" : String(clientInfo.longitude),
+                lastSeen: new Date().toISOString()
+            }));
+        }
+
+        props.deleteProperty(key);
+
+        return jsonResponse({
+            success:true,
+            message:"Admin authentication successful.",
+            token:token,
+            expiresAt:expiresAt,
+            expiresIn:ADMIN_SESSION_SECONDS
+        });
+    } finally {
+        lock.releaseLock();
+    }
+}
+
+
+/* ==================================================
+   CLEAN EXPIRED LOGIN CHALLENGES
+================================================== */
+
+function cleanupAdminLoginChallenges() {
+    const props = PropertiesService.getScriptProperties();
+    const now = Date.now();
+    Object.keys(props.getProperties()).forEach(function(key) {
+        if (key.indexOf(PROP_LOGIN_CHALLENGE_PREFIX) !== 0) return;
+        try {
+            const c = JSON.parse(props.getProperty(key) || "{}");
+            if (!c.expiresAt || Number(c.expiresAt) <= now) props.deleteProperty(key);
+        } catch (e) {
+            props.deleteProperty(key);
+        }
+    });
+}
 
 /* ==================================================
    VERIFY ADMIN SESSION

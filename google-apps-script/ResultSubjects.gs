@@ -79,9 +79,16 @@ function getResultSubjects(resultId) {
             !==
             resultId.toUpperCase()
         ) {
-
             continue;
+        }
 
+        /* Disabled result subjects are never returned to the entry/print UI. */
+        if (
+            String(row[13] || "Active")
+                .trim()
+                .toLowerCase() === "inactive"
+        ) {
+            continue;
         }
 
 

@@ -72,6 +72,26 @@ function doGet(e) {
 
 
     /* =========================================
+       PUBLIC: PUBLISHED STUDENT RESULTS
+    ========================================= */
+
+    if (action === "publicResults") {
+        return getPublishedResultsByStudent(id);
+    }
+
+    if (action === "publicResultSubjects") {
+        return getPublishedResultSubjects(e.parameter.resultId || "");
+    }
+
+    /* =========================================
+       PUBLIC: ACTIVE COURSES
+    ========================================= */
+
+    if (action === "publicCourses") {
+        return getPublicCourses();
+    }
+
+    /* =========================================
        PUBLIC: HEALTH CHECK
     ========================================= */
 
@@ -351,6 +371,29 @@ if (
 }
 
 /* =========================================
+   ADMIN LOGIN — TRUSTED DEVICE APPROVAL
+========================================= */
+if (action === "getAdminLoginChallenges") {
+    return getAdminLoginChallenges(data.token);
+}
+
+if (action === "respondAdminLoginChallenge") {
+    return respondAdminLoginChallenge(
+        data.token,
+        data.challengeId,
+        data.approve,
+        data.number
+    );
+}
+
+if (action === "completeAdminLogin") {
+    return completeAdminLogin(
+        data.challengeId,
+        data.clientInfo || {}
+    );
+}
+
+/* =========================================
    EMERGENCY 24-HOUR ADMIN LOCK
 ========================================= */
 
@@ -489,6 +532,9 @@ if (action === "recordAdminSecurityEvent") {
         if (action === "noticeList") return jsonResponse(adminNotices_(token));
         if (action === "noticeSave") return jsonResponse(saveNotice_(token, data.notice || {}));
         if (action === "noticeDelete") return jsonResponse(deleteNotice_(token, data.noticeId));
+        if (action === "contactMessages") return jsonResponse(adminContactMessages_(token));
+        if (action === "replyContactMessage") return jsonResponse(replyContactMessage_(token, data.messageId, data.reply));
+        if (action === "deleteContactMessage") return jsonResponse(deleteContactMessage_(token, data.messageId));
         if (action === "setupSheets") {
             if (!verifyAdminSession(token)) return jsonResponse({success:false,authenticated:false,message:"Unauthorized. Admin login required."});
             return jsonResponse(setupSuryaSheets());
@@ -854,6 +900,22 @@ if (
 
 
 /* =========================================
+   PUBLISH RESULT
+========================================= */
+
+if (
+    action ===
+    "publishResult"
+) {
+
+    return publishResult(
+        data.resultId
+    );
+
+}
+
+
+/* =========================================
    DISABLE RESULT
 ========================================= */
 
@@ -1112,10 +1174,111 @@ function escapeHtml_(value) {
 function getOrCreateContactMessagesSheet_() {
     const ss = getSuryaSpreadsheet();
     let sh = ss.getSheetByName("ContactMessages");
+    const required = ["Message ID","Name","Email","Message","Status","Created At","Handled At","Reply","Replied At"];
+
     if (!sh) {
         sh = ss.insertSheet("ContactMessages");
-        sh.getRange(1,1,1,7).setValues([["Message ID","Name","Email","Message","Status","Created At","Handled At"]]);
-        sh.setFrozenRows(1);
+        sh.getRange(1,1,1,required.length).setValues([required]);
+    } else {
+        const last = sh.getLastColumn();
+        const current = last > 0 && sh.getLastRow() > 0
+            ? sh.getRange(1,1,1,last).getValues()[0].map(function(x){return String(x || "").trim();})
+            : [];
+        required.forEach(function(h){
+            if (current.indexOf(h) === -1) sh.getRange(1,sh.getLastColumn()+1).setValue(h);
+        });
     }
+    sh.setFrozenRows(1);
     return sh;
+}
+
+function contactRows_() {
+    const sh = getOrCreateContactMessagesSheet_();
+    if (sh.getLastRow() < 2) return [];
+    const headers = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x || "").trim();});
+    return sh.getRange(2,1,sh.getLastRow()-1,sh.getLastColumn()).getValues().map(function(row,i){
+        const o = {_row:i+2};
+        headers.forEach(function(h,j){o[h]=row[j];});
+        return o;
+    });
+}
+
+function adminContactMessages_(token) {
+    if (!verifyAdminSession(String(token || ""))) {
+        return {success:false,authenticated:false,message:"Unauthorized. Admin login required."};
+    }
+    return {
+        success:true,
+        messages:contactRows_().sort(function(a,b){return b._row-a._row;}).map(function(r){
+            return {
+                messageId:String(r["Message ID"] || ""),
+                name:String(r["Name"] || ""),
+                email:String(r["Email"] || ""),
+                message:String(r["Message"] || ""),
+                status:String(r["Status"] || "New"),
+                createdAt:r["Created At"] || "",
+                handledAt:r["Handled At"] || "",
+                reply:String(r["Reply"] || ""),
+                repliedAt:r["Replied At"] || ""
+            };
+        })
+    };
+}
+
+function replyContactMessage_(token,messageId,reply) {
+    if (!verifyAdminSession(String(token || ""))) {
+        return {success:false,authenticated:false,message:"Unauthorized. Admin login required."};
+    }
+
+    messageId = String(messageId || "").trim();
+    reply = String(reply || "").trim().slice(0,4000);
+
+    if (!messageId || !reply) return {success:false,message:"Message ID and reply are required."};
+
+    const sh = getOrCreateContactMessagesSheet_();
+    const rows = contactRows_();
+    const row = rows.find(function(r){return String(r["Message ID"]) === messageId;});
+    if (!row) return {success:false,message:"Contact message not found."};
+
+    const email = String(row["Email"] || "").trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return {success:false,message:"Invalid visitor email address."};
+
+    const now = new Date();
+    const headers = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(function(x){return String(x || "").trim();});
+    const statusCol = headers.indexOf("Status") + 1;
+    const handledCol = headers.indexOf("Handled At") + 1;
+    const replyCol = headers.indexOf("Reply") + 1;
+    const repliedCol = headers.indexOf("Replied At") + 1;
+
+    MailApp.sendEmail({
+        to: email,
+        replyTo: "sunilkumar5757@gmail.com",
+        subject: "SURYA Computer Of Education Center — Reply to your message",
+        htmlBody:
+            "<p>Dear " + escapeHtml_(String(row["Name"] || "Visitor")) + ",</p>" +
+            "<p>Thank you for contacting SURYA COMPUTER OF EDUCATION CENTER.</p>" +
+            "<p><b>Your message:</b><br>" + escapeHtml_(String(row["Message"] || "")).replace(/\n/g,"<br>") + "</p>" +
+            "<hr><p><b>Admin reply:</b><br>" + escapeHtml_(reply).replace(/\n/g,"<br>") + "</p>" +
+            "<p>Regards,<br>SURYA COMPUTER OF EDUCATION CENTER</p>"
+    });
+
+    /* Mark the message handled only after MailApp accepts the reply. */
+    if (statusCol > 0) sh.getRange(row._row,statusCol).setValue("Replied");
+    if (handledCol > 0) sh.getRange(row._row,handledCol).setValue(now);
+    if (replyCol > 0) sh.getRange(row._row,replyCol).setValue(reply);
+    if (repliedCol > 0) sh.getRange(row._row,repliedCol).setValue(now);
+
+    return {success:true,message:"Reply sent successfully.",messageId:messageId};
+}
+
+function deleteContactMessage_(token,messageId) {
+    if (!verifyAdminSession(String(token || ""))) {
+        return {success:false,authenticated:false,message:"Unauthorized. Admin login required."};
+    }
+    messageId = String(messageId || "").trim();
+    const sh = getOrCreateContactMessagesSheet_();
+    const row = contactRows_().find(function(r){return String(r["Message ID"]) === messageId;});
+    if (!row) return {success:false,message:"Contact message not found."};
+    sh.deleteRow(row._row);
+    return {success:true,message:"Contact message deleted."};
 }

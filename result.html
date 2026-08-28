@@ -24,6 +24,7 @@ Created : 08-08-2026
 
     <link rel="stylesheet" href="assets/css/project-ui.css">
 
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
 </head>
 
 <body>
@@ -111,196 +112,127 @@ FOOTER
 
 </footer>
 <script>
+"use strict";
 
-const resultForm =
-    document.querySelector(".result-form");
+const SURYA_RESULT_API =
+    "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
 
-const resultBox =
-    document.getElementById("resultBox");
+const resultForm = document.querySelector(".result-form");
+const resultBox = document.getElementById("resultBox");
 
+function esc(v){
+    return String(v ?? "").replace(/[&<>"']/g,m=>({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+}
 
-/* ==================================================
-   CHECK STUDENT RESULTS
-================================================== */
+async function getPublicResults(studentId){
+    const r = await fetch(
+        SURYA_RESULT_API +
+        "?action=publicResults&id=" +
+        encodeURIComponent(studentId)
+    );
+    const d = await r.json();
+    if(!d.success) throw new Error(d.message || "Result service failed.");
+    return d.results || [];
+}
 
-resultForm.addEventListener(
-    "submit",
-    function(event) {
+async function getPublicSubjects(resultId){
+    const r = await fetch(
+        SURYA_RESULT_API +
+        "?action=publicResultSubjects&resultId=" +
+        encodeURIComponent(resultId)
+    );
+    const d = await r.json();
+    if(!d.success) return [];
+    return d.subjects || [];
+}
 
-        event.preventDefault();
+resultForm.addEventListener("submit", async function(event){
+    event.preventDefault();
 
+    const studentId =
+        document.getElementById("rollNumber").value.trim().toUpperCase();
 
-        const studentId =
-            document
-            .getElementById("rollNumber")
-            .value
-            .trim()
-            .toUpperCase();
+    if(!studentId){
+        resultBox.innerHTML =
+            `<div class="result-card"><h3>Please enter Student ID.</h3></div>`;
+        return;
+    }
 
+    resultBox.innerHTML =
+        `<div class="result-card"><h3>⏳ Loading Result...</h3></div>`;
 
-        if (!studentId) {
+    try{
+        const publishedResults = await getPublicResults(studentId);
 
+        if(!publishedResults.length){
             resultBox.innerHTML = `
                 <div class="result-card">
-
-                    <h3>
-                        Please enter Student ID.
-                    </h3>
-
-                </div>
-            `;
-
+                    <h3>Result Not Found</h3>
+                    <p>Please check your Student ID or make sure your result has been published.</p>
+                </div>`;
             return;
         }
-
-
-        /* ------------------------------------------
-           LOAD RESULTS
-        ------------------------------------------ */
-
-        const results =
-            getSuryaModule("results");
-
-
-        /* ------------------------------------------
-           FIND ALL PUBLISHED RESULTS
-        ------------------------------------------ */
-
-        const publishedResults =
-            results.filter(function(item) {
-
-                return (
-
-                    item.studentId &&
-                    item.studentId
-                        .toUpperCase() ===
-                    studentId
-
-                    &&
-
-                    item.status ===
-                    "Published"
-
-                );
-
-            });
-
-
-        /* ------------------------------------------
-           RESULT NOT FOUND
-        ------------------------------------------ */
-
-        if (
-            publishedResults.length === 0
-        ) {
-
-            resultBox.innerHTML = `
-                <div class="result-card">
-
-                    <h3>
-                        Result Not Found
-                    </h3>
-
-                    <p>
-                        Please check your Student ID
-                        or make sure your result
-                        has been published.
-                    </p>
-
-                </div>
-            `;
-
-            return;
-        }
-
-
-        /* ------------------------------------------
-           DISPLAY ALL PUBLISHED RESULTS
-        ------------------------------------------ */
 
         let resultHTML = `
-
             <div class="result-card">
+                <h2>Student Result</h2>
+                <p><strong>Student Name:</strong> ${esc(publishedResults[0]["Student Name"] || publishedResults[0].studentName)}</p>
+                <p><strong>Student ID:</strong> ${esc(publishedResults[0]["Student ID"] || publishedResults[0].studentId)}</p>
+                <p><strong>Course:</strong> ${esc(publishedResults[0].Course || publishedResults[0].course)}</p>
+            </div>`;
 
-                <h2>
-                    Student Result
-                </h2>
+        for(const result of publishedResults){
+            const resultId = result["Result ID"] || result.resultId || "";
+            const subjects = resultId ? await getPublicSubjects(resultId) : [];
 
-                <p>
-                    <strong>Student Name:</strong>
-                    ${publishedResults[0].studentName}
-                </p>
+            resultHTML += `
+                <div class="result-card">
+                    <h3>📚 ${esc(result.Exam || result.exam)}</h3>
+                    <p><strong>Total Marks:</strong> ${esc(result["Total Marks"] ?? result.totalMarks)}</p>
+                    <p><strong>Obtained Marks:</strong> ${esc(result["Obtained Marks"] ?? result.obtainedMarks)}</p>
+                    <p><strong>Percentage:</strong> ${esc(result.Percentage ?? result.percentage)}%</p>
+                    <p><strong>Grade:</strong> ${esc(result.Grade || result.grade)}</p>
+                    <p><strong>Result:</strong> ${esc(result.Result || result.result)}</p>
+                    <p><strong>Status:</strong> ${esc(result.Status || result.status)}</p>
+                    ${subjects.length ? `
+                        <h4>📖 Subject-wise Marks</h4>
+                        <div style="overflow-x:auto">
+                        <table style="width:100%;border-collapse:collapse">
+                            <thead><tr>
+                                <th style="padding:8px;border:1px solid #ccc">Subject</th>
+                                <th style="padding:8px;border:1px solid #ccc">Theory</th>
+                                <th style="padding:8px;border:1px solid #ccc">Practical</th>
+                                <th style="padding:8px;border:1px solid #ccc">Total</th>
+                                <th style="padding:8px;border:1px solid #ccc">%</th>
+                                <th style="padding:8px;border:1px solid #ccc">Grade</th>
+                                <th style="padding:8px;border:1px solid #ccc">Result</th>
+                            </tr></thead>
+                            <tbody>
+                            ${subjects.map(sub=>`
+                                <tr>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Subject Name"])}</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Theory Marks"])}/${esc(sub["Max Theory Marks"])}</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Practical Marks"])}/${esc(sub["Max Practical Marks"])}</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Obtained Marks"])}/${esc(sub["Total Max Marks"])}</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Percentage"])}%</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Grade"])}</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Result"])}</td>
+                                </tr>`).join("")}
+                            </tbody>
+                        </table>
+                        </div>` : ""}
+                </div>`;
+        }
 
-                <p>
-                    <strong>Student ID:</strong>
-                    ${publishedResults[0].studentId}
-                </p>
-
-                <p>
-                    <strong>Course:</strong>
-                    ${publishedResults[0].course}
-                </p>
-
-            </div>
-
-        `;
-
-
-        publishedResults.forEach(
-            function(result) {
-
-                resultHTML += `
-
-                    <div class="result-card">
-
-                        <h3>
-                            📚 ${result.exam}
-                        </h3>
-
-                        <p>
-                            <strong>Total Marks:</strong>
-                            ${result.totalMarks}
-                        </p>
-
-                        <p>
-                            <strong>Obtained Marks:</strong>
-                            ${result.obtainedMarks}
-                        </p>
-
-                        <p>
-                            <strong>Percentage:</strong>
-                            ${result.percentage}%
-                        </p>
-
-                        <p>
-                            <strong>Grade:</strong>
-                            ${result.grade}
-                        </p>
-
-                        <p>
-                            <strong>Result:</strong>
-                            ${result.result}
-                        </p>
-
-                        <p>
-                            <strong>Status:</strong>
-                            ${result.status}
-                        </p>
-
-                    </div>
-
-                `;
-
-            }
-        );
-
-
+        resultBox.innerHTML = resultHTML;
+    }catch(error){
+        console.error("PUBLIC RESULT ERROR:", error);
         resultBox.innerHTML =
-            resultHTML;
-
+            `<div class="result-card"><h3>❌ ${esc(error.message)}</h3></div>`;
     }
-);
-
+});
 </script>
     <script src="assets/js/project-ui.js"></script>
 

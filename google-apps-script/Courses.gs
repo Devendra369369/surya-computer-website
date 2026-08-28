@@ -471,3 +471,25 @@ function enableCourse(
     });
 
 }
+
+
+/* ==================================================
+   PUBLIC ACTIVE COURSES
+================================================== */
+function getPublicCourses() {
+    const sheet = getSheet(SURYA_COURSES_SHEET);
+    const values = sheet.getDataRange().getValues();
+    if (values.length < 2) return jsonResponse({success:true,courses:[]});
+
+    const headers = values[0].map(function(x){return String(x || "").trim();});
+    const courses = [];
+
+    for (let i = 1; i < values.length; i++) {
+        if (String(values[i][5] || "Active").trim().toLowerCase() !== "active") continue;
+        const record = {};
+        headers.forEach(function(h,j){if(h) record[h] = values[i][j];});
+        courses.push(record);
+    }
+
+    return jsonResponse({success:true,courses:courses});
+}

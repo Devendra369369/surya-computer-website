@@ -21,7 +21,7 @@ const STUDENT_OTP_SECONDS = 10 * 60;
 const STUDENT_MAX_OTP_ATTEMPTS = 5;
 
 function studentAuthEnsureSheet_(){
-  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const ss=getSuryaSpreadsheet();
   let sh=ss.getSheetByName(STUDENT_AUTH_SHEET);
   if(!sh){
     sh=ss.insertSheet(STUDENT_AUTH_SHEET);

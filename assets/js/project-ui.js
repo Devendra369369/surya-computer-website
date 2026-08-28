@@ -164,6 +164,55 @@
         addToggle();
     }
 
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
-    else start();
+
+    /* ==================================================
+       FORM UX
+       Focused field is kept in the visual center so the
+       mobile keyboard does not hide the active control.
+       Enter moves to the next logical field.
+    ================================================== */
+    function setupCenteredFormNavigation() {
+        var controls = Array.prototype.slice.call(
+            document.querySelectorAll(
+                'input:not([type="hidden"]), select, textarea'
+            )
+        );
+
+        controls.forEach(function(control) {
+            control.addEventListener("focus", function() {
+                setTimeout(function() {
+                    try {
+                        control.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center",
+                            inline: "nearest"
+                        });
+                    } catch (_) {}
+                }, 180);
+            });
+
+            control.addEventListener("keydown", function(event) {
+                if (event.key !== "Enter") return;
+                if (control.tagName === "TEXTAREA" && !event.ctrlKey) return;
+
+                event.preventDefault();
+
+                var currentIndex = controls.indexOf(control);
+                for (var i = currentIndex + 1; i < controls.length; i++) {
+                    var next = controls[i];
+                    if (!next.disabled && next.offsetParent !== null) {
+                        next.focus({preventScroll:true});
+                        setTimeout(function(){ try { next.scrollIntoView({behavior:"smooth",block:"center"}); } catch (_) {} }, 80);
+                        break;
+                    }
+                }
+            });
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", setupCenteredFormNavigation);
+    } else {
+        setupCenteredFormNavigation();
+    }
 })();

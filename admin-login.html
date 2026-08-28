@@ -23,6 +23,7 @@ Created : 09-08-2026
 
     <link rel="stylesheet" href="assets/css/project-ui.css">
 
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
 </head>
 
 <body>
@@ -94,6 +95,11 @@ Created : 09-08-2026
 
 
         <div id="adminLoginMessage"></div>
+        <div id="adminLoginVerification" style="display:none;margin-top:15px;padding:15px;border:1px solid #d7dce5;border-radius:12px;text-align:center;">
+            <h3>🔐 New Browser Verification</h3>
+            <p id="adminLoginVerificationText">Waiting for approval from your trusted Admin device...</p>
+            <strong id="adminLoginCountdown"></strong>
+        </div>
 
         <button
             type="button"
@@ -159,7 +165,7 @@ Created : 09-08-2026
 <script>
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+    "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
 
 const adminLoginForm = document.getElementById("adminLoginForm");
 const adminLoginMessage = document.getElementById("adminLoginMessage");
@@ -235,64 +241,96 @@ async function recordSecurityEvent(token, eventType) {
     }
 }
 
+async function completeApprovedAdminLogin(challengeId, clientInfo) {
+    const response = await fetch(SURYA_DATABASE_API, {
+        method: "POST",
+        headers: {"Content-Type":"text/plain;charset=utf-8"},
+        body: JSON.stringify({
+            action:"completeAdminLogin",
+            challengeId:challengeId,
+            clientInfo:clientInfo
+        })
+    });
+    return await response.json();
+}
+
+async function waitForAdminApproval(challengeId, clientInfo, expiresAt) {
+    const panel = document.getElementById("adminLoginVerification");
+    const text = document.getElementById("adminLoginVerificationText");
+    const countdown = document.getElementById("adminLoginCountdown");
+
+    panel.style.display = "block";
+    let finished = false;
+
+    while (!finished && Date.now() < Number(expiresAt)) {
+        try {
+            const result = await completeApprovedAdminLogin(challengeId, clientInfo);
+
+            if (result.success && result.token) {
+                sessionStorage.setItem("SURYA_ADMIN_TOKEN", result.token);
+                sessionStorage.setItem("SURYA_ADMIN_AUTH", "true");
+                window.location.href = "admin.html";
+                return;
+            }
+
+            if (result.denied) {
+                text.textContent = "❌ Login was denied on the trusted Admin device.";
+                return;
+            }
+
+            text.textContent = "⏳ Waiting for YES approval on your trusted Admin device...";
+        } catch (e) {
+            console.warn("ADMIN APPROVAL POLL:", e);
+        }
+
+        const left = Math.max(0, Math.ceil((Number(expiresAt)-Date.now())/1000));
+        countdown.textContent = "Request expires in " + left + " seconds.";
+        await new Promise(resolve => setTimeout(resolve, 2500));
+    }
+
+    text.textContent = "⌛ Verification request expired. Please login again.";
+    countdown.textContent = "";
+}
+
 adminLoginForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
     const username = document.getElementById("adminUsername").value.trim();
     const password = document.getElementById("adminPassword").value;
+    const message = document.getElementById("adminLoginMessage");
+    const verification = document.getElementById("adminLoginVerification");
 
-    adminLoginMessage.innerHTML = "⏳ Authenticating...";
+    message.innerHTML = "⏳ Authenticating...";
+    verification.style.display = "none";
 
     try {
-        let clientInfo = await getClientSecurityInfo();
+        const clientInfo = await getClientSecurityInfo();
 
-        let response = await fetch(SURYA_DATABASE_API, {
+        const response = await fetch(SURYA_DATABASE_API, {
             method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            headers: {"Content-Type":"text/plain;charset=utf-8"},
             body: JSON.stringify({
-                action: "adminLogin",
-                username: username,
-                password: password,
-                clientInfo: clientInfo
+                action:"adminLogin",
+                username:username,
+                password:password,
+                clientInfo:clientInfo
             })
         });
 
-        let result = await response.json();
+        const result = await response.json();
 
-        if (result.locationRequired) {
-            adminLoginMessage.innerHTML = "📍 This is a new browser/device. Location permission is required to continue.";
-            if (!navigator.geolocation) {
-                adminLoginMessage.innerHTML += "<br>❌ This browser does not provide location access.";
-                return;
-            }
+        if (result.verificationRequired && result.challengeId) {
+            message.innerHTML =
+                "🔐 Password correct. <b>Old/trusted Admin device</b> par YES dabaye aur security number <b>" +
+                String(result.challengeNumber || "") +
+                "</b> ko approve kare.";
 
-            try {
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, {
-                        enableHighAccuracy: true,
-                        timeout: 15000,
-                        maximumAge: 0
-                    });
-                });
-                clientInfo.latitude = Number(position.coords.latitude.toFixed(4));
-                clientInfo.longitude = Number(position.coords.longitude.toFixed(4));
-            } catch (locationError) {
-                adminLoginMessage.innerHTML = "❌ Location permission is required for a new browser/device. Please allow Location and try again.";
-                return;
-            }
-
-            adminLoginMessage.innerHTML = "📍 Location received. Completing secure login...";
-            response = await fetch(SURYA_DATABASE_API, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({
-                    action: "adminLogin",
-                    username: username,
-                    password: password,
-                    clientInfo: clientInfo
-                })
-            });
-            result = await response.json();
+            await waitForAdminApproval(
+                result.challengeId,
+                clientInfo,
+                result.expiresAt
+            );
+            return;
         }
 
         if (result.success && result.token) {
@@ -300,18 +338,11 @@ adminLoginForm.addEventListener("submit", async function(event) {
             sessionStorage.setItem("SURYA_ADMIN_AUTH", "true");
             window.location.href = "admin.html";
         } else {
-            adminLoginMessage.innerHTML = `
-                <div class="login-error">
-                    ❌ ${result.message || "Invalid login"}
-                </div>`;
+            message.innerHTML = `<div class="login-error">❌ ${result.message || "Invalid login"}</div>`;
         }
     } catch (error) {
         console.error("ADMIN LOGIN ERROR:", error);
-        adminLoginMessage.innerHTML = `
-            <div class="login-error">
-                ❌ Server connection failed.<br>
-                <small>Please try again.</small>
-            </div>`;
+        message.innerHTML = `<div class="login-error">❌ Server connection failed.<br><small>Please try again.</small></div>`;
     }
 });
 

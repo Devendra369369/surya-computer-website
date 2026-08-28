@@ -3,7 +3,7 @@
 ================================================== */
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+    "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
 
 
 /* ==================================================

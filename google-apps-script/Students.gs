@@ -139,6 +139,8 @@ function generateStudentId(course) {
 
         "CCC": "CCC",
 
+        "सीसीसी": "CCC",
+
         "DCA": "DCA",
 
         "डीसीए": "DCA",
@@ -149,11 +151,19 @@ function generateStudentId(course) {
 
         "TALLY PRIME": "TALLY",
 
+        "टैली प्राइम": "TALLY",
+
         "TALLY": "TALLY",
+
+        "टैली": "TALLY",
 
         "BASIC COMPUTER": "BASIC",
 
-        "BASIC": "BASIC"
+        "बेसिक कंप्यूटर": "BASIC",
+
+        "BASIC": "BASIC",
+
+        "बेसिक": "BASIC"
 
     };
 

@@ -27,7 +27,7 @@ Run `setupSuryaSheets()` once. It creates/checks these **16** tabs.
 `Certificate ID | Student ID | Student Name | Father Name | Course | Total Marks | Obtained Marks | Percentage | Grade | Final Result | Issue Date | Status | Result ID`
 
 9. **MockTests**  
-`Test ID | Title | Course | Duration | Total Marks | Description | Status | Created At | Updated At`
+`Test ID | Title | Course | Subject ID | Subject Name | Duration | Total Marks | Description | Status | Created At | Updated At`
 
 10. **MockQuestions**  
 `Question ID | Test ID | Question | Option A | Option B | Option C | Option D | Correct Answer | Marks | Status | Created At | Updated At`
@@ -48,7 +48,16 @@ Run `setupSuryaSheets()` once. It creates/checks these **16** tabs.
 `Media ID | Title | Category | File ID | URL | MIME Type | Size Bytes | Status | Sort Order | Created At | Updated At`
 
 16. **ContactMessages**  
-`Message ID | Name | Email | Message | Status | Created At | Handled At`
+`Message ID | Name | Email | Message | Status | Created At | Handled At | Reply | Replied At`
 
 ### Not required
 Do **not** create an AdminPassword sheet. Admin credentials are stored in Apps Script Properties.
+
+## AERON update — 2026-08-28
+- **MockTests** now stores Course + Subject ID + Subject Name. Run `setupSuryaSheets()`; missing headers are added safely without deleting existing data.
+- **ContactMessages** now stores `Reply` and `Replied At`. Admin can read, reply by email, and delete messages from `admin-contact-messages.html`.
+- **Admin login security** now uses a trusted-device approval challenge for every new browser/device: password alone does not create a session. An already logged-in trusted Admin device must tap YES/NO and approve the displayed two-digit number.
+- **Courses** already had backend CRUD; a full Admin Course management panel was added to `admin-courses.html`.
+- **Mock Test** admin panel is subject-wise and uses active Course Subjects. Student Mock Test Center shows the student's own course tests first and provides an All Courses button. The CBT question palette/timer/scoring remains server-backed.
+- **Result** grade thresholds are synchronized to A+ 90, A 80, B+ 70, B 60, C 50, D 33. Disabled Result Subjects are not returned.
+- **UI** includes responsive desktop/mobile panels, centered focused form controls on mobile, Enter-to-next-field for normal form controls, and stronger dark/light contrast across cards, popups, inputs and mock-test panels.
