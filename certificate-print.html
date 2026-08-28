@@ -1978,7 +1978,11 @@ async function loadResultSubjects(
 
         summary.innerHTML =
             "Overall Result: <strong>" +
-            escapeHTML(certificate["Result"] || "—") +
+            escapeHTML(
+    certificate["Final Result"] ||
+    certificate["Result"] ||
+    "—"
+) +
             "</strong> &nbsp; | &nbsp; Percentage: <strong>" +
             escapeHTML(certificate["Percentage"] ?? "—") +
             "%</strong> &nbsp; | &nbsp; Grade: <strong>" +
@@ -2152,6 +2156,7 @@ async function loadCertificate() {
 
 
         const finalResult =
+            certificate["Final Result"] ||
             certificate["Result"] ||
             "—";
 
