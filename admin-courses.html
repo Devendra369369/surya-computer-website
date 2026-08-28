@@ -30,6 +30,17 @@ Created : 09-08-2026
     <link rel="stylesheet" href="assets/css/project-ui.css">
 
     <script src="assets/js/admin-guard.js"></script>
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<style>
+.course-form-card,.course-list{max-width:1000px;margin:18px auto;padding:18px;background:var(--cimp-panel,#fff);border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08);}
+.course-form-card input,.course-form-card select,.course-form-card textarea{display:block;width:100%;box-sizing:border-box;padding:12px;margin:8px 0;border:1px solid #cbd5e1;border-radius:9px;}
+.course-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
+.course-actions button,.course-form-card>button{padding:11px 16px;border:0;border-radius:9px;cursor:pointer;}
+.course-record{border:1px solid #dbe2ea;border-radius:12px;padding:14px;margin:10px 0;display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap;}
+.course-record .actions{display:flex;gap:7px;flex-wrap:wrap;}
+.course-record button{padding:9px 12px;border:0;border-radius:8px;cursor:pointer;}
+.course-message{margin-top:8px;font-weight:700;}
+</style>
 </head>
 
 <body>
@@ -97,6 +108,66 @@ Created : 09-08-2026
     <div class="admin-header">
         <h2>📚 Course & Subject Management</h2>
         <p>Manage courses and their subjects</p>
+    </div>
+
+    <!-- COURSE MANAGEMENT -->
+
+    <div class="course-form-card">
+        <h3>➕📚 Add / Edit Course</h3>
+
+        <input type="hidden" id="courseEditId">
+
+        <input
+            type="text"
+            id="courseId"
+            placeholder="Course ID e.g. ADCA"
+            autocomplete="off"
+        >
+
+        <input
+            type="text"
+            id="courseName"
+            placeholder="Course Name"
+            autocomplete="off"
+        >
+
+        <input
+            type="text"
+            id="courseDuration"
+            placeholder="Duration e.g. 6 Months"
+            autocomplete="off"
+        >
+
+        <input
+            type="number"
+            id="courseFee"
+            min="0"
+            placeholder="Course Fee"
+            autocomplete="off"
+        >
+
+        <textarea
+            id="courseDescription"
+            rows="3"
+            placeholder="Course Description"
+        ></textarea>
+
+        <select id="courseStatus">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+
+        <div class="course-actions">
+            <button type="button" onclick="saveCourse()">💾 Save Course</button>
+            <button type="button" onclick="clearCourseForm()">🧹 Clear</button>
+        </div>
+
+        <div id="courseMessage" class="course-message"></div>
+    </div>
+
+    <div class="course-list">
+        <h3>📚 All Courses</h3>
+        <div id="courseList"><p>Loading courses...</p></div>
     </div>
 
     <!-- COURSE SELECTOR -->
@@ -209,7 +280,7 @@ Created : 09-08-2026
 <script>
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+    "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
 
 
 let allCourses = [];
@@ -228,6 +299,118 @@ function getAdminToken() {
         ) || ""
     ).trim();
 
+}
+
+
+/* ==================================================
+   COURSE MANAGEMENT
+================================================== */
+
+async function saveCourse() {
+    const token = getAdminToken();
+    const courseId = document.getElementById("courseId").value.trim();
+    const courseName = document.getElementById("courseName").value.trim();
+    const duration = document.getElementById("courseDuration").value.trim();
+    const fee = document.getElementById("courseFee").value;
+    const description = document.getElementById("courseDescription").value.trim();
+    const status = document.getElementById("courseStatus").value;
+    const message = document.getElementById("courseMessage");
+
+    if (!courseId || !courseName || !duration || fee === "" || Number(fee) < 0) {
+        message.textContent = "⚠️ Course ID, Name, Duration and Fee are required.";
+        return;
+    }
+
+    const editing = !!document.getElementById("courseEditId").value;
+    const action = editing ? "updateCourse" : "addCourse";
+
+    try {
+        const response = await fetch(SURYA_DATABASE_API,{
+            method:"POST",
+            headers:{"Content-Type":"text/plain;charset=utf-8"},
+            body:JSON.stringify({
+                action, token, courseId, courseName, duration,
+                fee:Number(fee), description, status
+            })
+        });
+        const result = await response.json();
+        if (!result.success) throw new Error(result.message || "Course save failed.");
+
+        message.textContent = "✅ " + (result.message || "Course saved.");
+        clearCourseForm();
+        await loadAllCourseSubjects();
+        renderCourseList();
+    } catch(error) {
+        message.textContent = "❌ " + error.message;
+    }
+}
+
+function clearCourseForm() {
+    ["courseEditId","courseId","courseName","courseDuration","courseFee","courseDescription"].forEach(function(id){
+        document.getElementById(id).value = "";
+    });
+    document.getElementById("courseStatus").value = "Active";
+}
+
+function editCourse(course) {
+    document.getElementById("courseEditId").value = course["Course ID"] || course.courseId || "";
+    document.getElementById("courseId").value = course["Course ID"] || course.courseId || "";
+    document.getElementById("courseName").value = course["Course Name"] || course.courseName || "";
+    document.getElementById("courseDuration").value = course["Duration"] || course.duration || "";
+    document.getElementById("courseFee").value = course["Fee"] ?? course.fee ?? "";
+    document.getElementById("courseDescription").value = course["Description"] || course.description || "";
+    document.getElementById("courseStatus").value = course["Status"] || course.status || "Active";
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+async function changeCourseStatus(courseId,status) {
+    try {
+        const action = status === "Active" ? "enableCourse" : "disableCourse";
+        const result = await (await fetch(SURYA_DATABASE_API,{
+            method:"POST",
+            headers:{"Content-Type":"text/plain;charset=utf-8"},
+            body:JSON.stringify({action,token:getAdminToken(),courseId})
+        })).json();
+        if (!result.success) throw new Error(result.message || "Status update failed.");
+        await loadAllCourseSubjects();
+        renderCourseList();
+    } catch(error) {
+        alert("❌ " + error.message);
+    }
+}
+
+function renderCourseList() {
+    const box = document.getElementById("courseList");
+    if (!box) return;
+
+    if (!allCourses.length) {
+        box.innerHTML = "<p>📭 No courses found.</p>";
+        return;
+    }
+
+    box.innerHTML = allCourses.map(function(course){
+        const id = course["Course ID"] || course.courseId || "";
+        const name = course["Course Name"] || course.courseName || "";
+        const duration = course["Duration"] || course.duration || "";
+        const fee = course["Fee"] ?? course.fee ?? 0;
+        const description = course["Description"] || course.description || "";
+        const status = course["Status"] || course.status || "Active";
+
+        return `<div class="course-record">
+            <div>
+                <strong>📚 ${escapeHTML(name)}</strong>
+                <div>🆔 ${escapeHTML(id)} • ⏱ ${escapeHTML(duration)} • 💰 ₹${escapeHTML(fee)}</div>
+                <div>${escapeHTML(description)}</div>
+                <b>${escapeHTML(status)}</b>
+            </div>
+            <div class="actions">
+                <button type="button" onclick='editCourse(${JSON.stringify(course)})'>✏️ Edit</button>
+                <button type="button" onclick='changeCourseStatus("${escapeAttribute(id)}","${status === "Active" ? "Inactive" : "Active"}")'>
+                    ${status === "Active" ? "🚫 Disable" : "🟢 Enable"}
+                </button>
+            </div>
+        </div>`;
+    }).join("");
 }
 
 
@@ -291,6 +474,7 @@ async function loadAllCourseSubjects() {
                 ? coursesResult.courses
                 : [];
 
+        renderCourseList();
 
         /* =========================================
            LOAD COURSE SUBJECTS
@@ -373,6 +557,9 @@ function populateCourseDropdown() {
         [
             ...new Set(
                 allCourses
+                    .filter(function(item){
+                        return String(item["Status"] || item.status || "Active").trim().toLowerCase() === "active";
+                    })
                     .map(
                         item =>
                             String(

@@ -1,13 +1,1640 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mock Test | Surya Computer Of Education Center</title><link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/responsive.css"><style>.wrap{max-width:900px;margin:25px auto;padding:15px}.card{background:#fff;padding:20px;border-radius:14px;margin:15px 0;box-shadow:0 4px 18px rgba(0,0,0,.08)}.btn{padding:11px 18px;border:0;border-radius:8px;cursor:pointer;margin:5px}.timer{position:sticky;top:5px;background:#fff;padding:12px;border-radius:8px;font-weight:700;text-align:center;z-index:3}.option{display:block;padding:12px;border:1px solid #ddd;border-radius:8px;margin:8px 0}.muted{opacity:.7}</style>    <link rel="stylesheet" href="assets/css/project-ui.css">
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-</head><body><div class="top-bar">📞 7084275870 | ✉️ sunilkumar5757@gmail.com</div><header class="header"><img src="assets/images/logo.png" class="logo" alt="Logo"><div class="title"><h1>SURYA COMPUTER OF EDUCATION CENTER</h1><p>Online Mock Test</p></div></header><main class="wrap"><div id="auth" class="card"><h2>🔐 Student Login Required</h2><p>पहले Student Login करें.</p><a href="student-login.html" class="btn">Student Login</a></div><div id="testCard" class="card" style="display:none"><h2>📝 Available Mock Tests</h2><div id="testList">Loading...</div></div><div id="examCard" class="card" style="display:none"><div class="timer" id="timer">Time: --:--</div><h2 id="examTitle"></h2><p id="examInfo"></p><form id="examForm"></form><button class="btn" onclick="submitExam(false)">✅ Submit Test</button><div id="submitMsg"></div></div><div id="resultCard" class="card" style="display:none"><h2>📊 Mock Test Result</h2><div id="result"></div></div><div id="historyCard" class="card" style="display:none"><h2>📚 My Mock Test History</h2><div id="history"></div></div></main><script>
-const API="https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";const token=sessionStorage.getItem('SURYA_STUDENT_TOKEN');let currentTest=null,questions=[],endsAt=0,timerHandle=null,submitLocked=false;
-function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}async function api(b){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...b,token})});const d=await r.json();if(!d.success)throw new Error(d.message||'Request failed');return d;}
-async function init(){if(!token){auth.style.display='block';return;}auth.style.display='none';testCard.style.display='block';historyCard.style.display='block';await loadTests();await loadHistory();const id=new URLSearchParams(location.search).get('test');if(id){const t=(window.__tests||[]).find(x=>String(x['Test ID'])===id);if(t)startTest(t);}}
-async function loadTests(){try{const d=await api({action:'publishedMockTests'});window.__tests=d.tests||[];testList.innerHTML=window.__tests.length?window.__tests.map(t=>`<div class="card"><b>${esc(t['Test ID'])}</b> — ${esc(t['Title'])}<br>${esc(t['Course'])} | ${esc(t['Duration'])} minutes | ${esc(t['Total Marks'])} marks<br><span class="muted">${esc(t['Description'])}</span><br><button class="btn" onclick='startTest(${JSON.stringify(t)})'>Start Test</button></div>`).join(''):'No published mock tests.';}catch(e){testList.textContent='❌ '+e.message;}}
-async function startTest(t){try{const d=await api({action:'publishedMockQuestions',testId:t['Test ID']});questions=d.questions||[];if(!questions.length)throw new Error('This test has no published questions.');currentTest=t;testCard.style.display='none';examCard.style.display='block';examTitle.textContent=t['Title'];examInfo.textContent=`${t['Course']||''} • ${questions.length} questions • ${t['Duration']} minutes`;examForm.innerHTML=questions.map((q,i)=>`<div class="card"><b>Q${i+1}. ${esc(q['Question'])}</b>${['A','B','C','D'].map(k=>`<label class="option"><input type="radio" name="q${i}" value="${k}"> ${k}. ${esc(q['Option '+k])}</label>`).join('')}</div>`).join('');endsAt=Date.now()+Number(t['Duration']||30)*60000;clearInterval(timerHandle);timerHandle=setInterval(updateTimer,1000);updateTimer();}catch(e){alert('❌ '+e.message);}}
-function updateTimer(){const sec=Math.max(0,Math.floor((endsAt-Date.now())/1000)),m=Math.floor(sec/60),s=sec%60;timer.textContent=`Time: ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;if(sec===0){clearInterval(timerHandle);submitExam(true);}}
-async function submitExam(auto){if(!currentTest||submitLocked)return;if(!auto&&!confirm('Submit this test now?'))return;submitLocked=true;const answers=questions.map((q,i)=>document.querySelector(`input[name="q${i}"]:checked`)?.value||'');try{submitMsg.textContent='Submitting...';const d=await api({action:'submitMockTest',testId:currentTest['Test ID'],answers});clearInterval(timerHandle);examCard.style.display='none';resultCard.style.display='block';const r=d.result;result.innerHTML=`<b>Score:</b> ${esc(r.score)} / ${esc(r.totalMarks)}<br><b>Percentage:</b> ${esc(r.percentage)}%<br><b>Grade:</b> ${esc(r.grade)}<br><b>Result:</b> ${esc(r.result)}<hr><p>✅ Correct answers are shown only after submission.</p>${r.review.map((x,i)=>`<div class="card"><b>Q${i+1}. ${esc(x.question)}</b><br>Your answer: ${esc(x.yourAnswer||'Not answered')}<br>Correct answer: <b>${esc(x.correctAnswer)}</b> — ${esc(x.correctText)}<br>Marks: ${esc(x.awarded)}/${esc(x.marks)}</div>`).join('')}`;loadHistory();}catch(e){submitLocked=false;submitMsg.textContent='❌ '+e.message;}}
-async function loadHistory(){try{const d=await api({action:'mockStudentHistory'});const arr=d.attempts||[];history.innerHTML=arr.length?arr.map(a=>`<div class="card"><b>${esc(a['Test Title'])}</b><br>Score: ${esc(a['Score'])}/${esc(a['Total Marks'])} | ${esc(a['Percentage'])}% | Grade ${esc(a['Grade'])} | ${esc(a['Result'])}<br>${esc(a['Submitted At'])}</div>`).join(''):'No attempts yet.';}catch(e){history.textContent='Unable to load history.';}}
-init();</script>    <script src="assets/js/project-ui.js"></script>
-</body></html>
+<title>Online Mock Test | Surya Computer Of Education Center</title>
+
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+<link rel="stylesheet" href="assets/css/project-ui.css">
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:#f3f6fa;
+    font-family:Arial, sans-serif;
+}
+
+.top-bar{
+    background:#172033;
+    color:#fff;
+    padding:8px 15px;
+    font-size:14px;
+}
+
+.header{
+    background:#fff;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:12px 18px;
+    border-bottom:1px solid #ddd;
+}
+
+.logo{
+    width:55px;
+    height:55px;
+    object-fit:contain;
+}
+
+.title h1{
+    margin:0;
+    font-size:20px;
+}
+
+.title p{
+    margin:4px 0 0;
+    color:#666;
+}
+
+.wrap{
+    max-width:1200px;
+    margin:auto;
+    padding:15px;
+}
+
+/* =========================
+   GENERAL
+========================= */
+
+.card{
+    background:#fff;
+    border-radius:10px;
+    padding:18px;
+    margin:12px 0;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.btn{
+    border:0;
+    border-radius:7px;
+    padding:10px 16px;
+    cursor:pointer;
+    background:#1769aa;
+    color:#fff;
+    font-weight:600;
+    margin:4px;
+}
+
+.btn:hover{
+    opacity:.9;
+}
+
+.btn.secondary{
+    background:#555;
+}
+
+.btn.orange{
+    background:#e67e22;
+}
+
+.btn.green{
+    background:#198754;
+}
+
+.btn.red{
+    background:#c62828;
+}
+
+/* =========================
+   TEST LIST
+========================= */
+
+.test-item{
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:15px;
+    margin:10px 0;
+}
+
+.test-title{
+    font-size:18px;
+    font-weight:700;
+}
+
+.muted{
+    color:#777;
+    font-size:14px;
+}
+
+/* =========================
+   EXAM TOP
+========================= */
+
+.exam-top{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:#fff;
+    border-bottom:1px solid #ddd;
+    padding:10px;
+}
+
+.exam-top-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+}
+
+.timer{
+    background:#172033;
+    color:#fff;
+    padding:10px 15px;
+    border-radius:7px;
+    font-size:18px;
+    font-weight:bold;
+    min-width:105px;
+    text-align:center;
+}
+
+.timer.warning{
+    background:#c62828;
+}
+
+/* =========================
+   CBT LAYOUT
+========================= */
+
+.cbt-layout{
+    display:grid;
+    grid-template-columns:1fr 300px;
+    gap:15px;
+    margin-top:15px;
+}
+
+.question-area{
+    min-width:0;
+}
+
+.palette-area{
+    position:sticky;
+    top:80px;
+    height:max-content;
+}
+
+/* =========================
+   QUESTION
+========================= */
+
+.question-card{
+    background:#fff;
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.question-number{
+    font-size:17px;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+.question-text{
+    font-size:19px;
+    line-height:1.6;
+    margin-bottom:18px;
+}
+
+/* =========================
+   OPTIONS
+========================= */
+
+.option{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border:1px solid #d6d6d6;
+    border-radius:7px;
+    padding:13px;
+    margin:9px 0;
+    cursor:pointer;
+    background:#fff;
+    user-select:none;
+}
+
+.option:hover{
+    background:#f5f8fc;
+}
+
+.option.selected{
+    background:#e8f2ff;
+    border:2px solid #1769aa;
+}
+
+.option input{
+    width:18px;
+    height:18px;
+    cursor:pointer;
+}
+
+.option-label{
+    flex:1;
+    cursor:pointer;
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.question-nav{
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:15px;
+}
+
+/* =========================
+   PALETTE
+========================= */
+
+.palette-title{
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.palette{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:7px;
+}
+
+.palette-btn{
+    border:1px solid #ccc;
+    background:#eee;
+    min-height:40px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.palette-btn.answered{
+    background:#198754;
+    color:#fff;
+    border-color:#198754;
+}
+
+.palette-btn.review{
+    background:#e67e22;
+    color:#fff;
+    border-color:#e67e22;
+}
+
+.palette-btn.review-answered{
+    background:#6f42c1;
+    color:#fff;
+    border-color:#6f42c1;
+}
+
+.palette-btn.current{
+    outline:3px solid #1769aa;
+}
+
+/* =========================
+   LEGEND
+========================= */
+
+.legend{
+    margin-top:15px;
+    font-size:13px;
+}
+
+.legend div{
+    margin:7px 0;
+}
+
+.dot{
+    display:inline-block;
+    width:15px;
+    height:15px;
+    border-radius:4px;
+    vertical-align:middle;
+    margin-right:5px;
+}
+
+.dot.unanswered{
+    background:#eee;
+    border:1px solid #aaa;
+}
+
+.dot.answered{
+    background:#198754;
+}
+
+.dot.review{
+    background:#e67e22;
+}
+
+.dot.review-answer{
+    background:#6f42c1;
+}
+
+/* =========================
+   RESULT
+========================= */
+
+.result-score{
+    font-size:28px;
+    font-weight:bold;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:800px){
+
+    .cbt-layout{
+        grid-template-columns:1fr;
+    }
+
+    .palette-area{
+        position:relative;
+        top:auto;
+        order:-1;
+    }
+
+    .exam-top-row{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .timer{
+        width:100%;
+    }
+
+    .question-text{
+        font-size:17px;
+    }
+
+}
+
+</style>
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+</head>
+
+<body>
+
+<div class="top-bar">
+📞 7084275870 | ✉️ sunilkumar5757@gmail.com
+</div>
+
+<header class="header">
+    <img src="assets/images/logo.png" class="logo" alt="Logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Online Mock Test • CBT Examination</p>
+    </div>
+</header>
+
+<main class="wrap">
+
+<!-- =========================
+     LOGIN
+========================= -->
+
+<div id="auth" class="card" style="display:none;">
+    <h2>🔐 Student Login Required</h2>
+    <p>Mock Test देने के लिए पहले Student Login करें।</p>
+    <a href="student-login.html" class="btn">
+        Student Login
+    </a>
+</div>
+
+
+<!-- =========================
+     TEST SELECTION
+========================= -->
+
+<div id="testCard" class="card" style="display:none;">
+
+    <h2>📝 Mock Test Center</h2>
+
+    <p>
+        पहले आपके अपने course के tests दिखेंगे। जरूरत हो तो All Courses भी देख सकते हैं।
+    </p>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0;">
+        <button class="btn" type="button" id="myCourseTestsBtn" onclick="setTestView('course')">📚 My Course</button>
+        <button class="btn secondary" type="button" id="allCourseTestsBtn" onclick="setTestView('all')">🌐 All Courses</button>
+    </div>
+
+    <div id="testList">
+        Loading...
+    </div>
+
+</div>
+
+
+<!-- =========================
+     EXAM
+========================= -->
+
+<div id="examCard" style="display:none;">
+
+    <div class="exam-top">
+
+        <div class="exam-top-row">
+
+            <div>
+                <b id="examTitle"></b>
+                <br>
+                <span id="examInfo" class="muted"></span>
+            </div>
+
+            <div id="timer" class="timer">
+                00:00
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="cbt-layout">
+
+        <!-- QUESTION -->
+
+        <section class="question-area">
+
+            <div class="question-card">
+
+                <div id="questionNumber"
+                     class="question-number">
+                </div>
+
+                <div id="questionText"
+                     class="question-text">
+                </div>
+
+                <div id="options">
+                </div>
+
+                <div class="question-nav">
+
+                    <button
+                        class="btn secondary"
+                        onclick="previousQuestion()">
+                        ◀ Previous
+                    </button>
+
+                    <button
+                        class="btn orange"
+                        onclick="markReviewNext()">
+                        🔖 Mark for Review & Next
+                    </button>
+
+                    <button
+                        class="btn green"
+                        onclick="nextQuestion()">
+                        Next ▶
+                    </button>
+
+                </div>
+
+                <div class="question-nav">
+
+                    <button
+                        class="btn"
+                        onclick="clearAnswer()">
+                        ✖ Clear Response
+                    </button>
+
+                    <button
+                        class="btn red"
+                        onclick="submitExam(false)">
+                        ✅ Submit Test
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- QUESTION PALETTE -->
+
+        <aside class="palette-area">
+
+            <div class="card">
+
+                <div class="palette-title">
+                    📋 Question Paper
+                </div>
+
+                <div id="palette"
+                     class="palette">
+                </div>
+
+                <div class="legend">
+
+                    <div>
+                        <span class="dot unanswered"></span>
+                        Not Visited / Unanswered
+                    </div>
+
+                    <div>
+                        <span class="dot answered"></span>
+                        Answered
+                    </div>
+
+                    <div>
+                        <span class="dot review"></span>
+                        Mark for Review
+                    </div>
+
+                    <div>
+                        <span class="dot review-answer"></span>
+                        Answered + Review
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     RESULT
+========================= -->
+
+<div id="resultCard"
+     class="card"
+     style="display:none;">
+
+    <h2>📊 Mock Test Result</h2>
+
+    <div id="result">
+    </div>
+
+    <button
+        class="btn"
+        onclick="location.reload()">
+        🔄 Back to Mock Tests
+    </button>
+
+</div>
+
+
+<!-- =========================
+     HISTORY
+========================= -->
+
+<div id="historyCard"
+     class="card"
+     style="display:none;">
+
+    <h2>📚 My Mock Test History</h2>
+
+    <div id="history">
+        Loading...
+    </div>
+
+</div>
+
+</main>
+
+
+<script>
+
+"use strict";
+
+
+/* =====================================================
+   API
+===================================================== */
+
+const API =
+"https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+const token =
+sessionStorage.getItem("SURYA_STUDENT_TOKEN");
+
+let tests = [];
+let courseTests = [];
+let allCourseTests = [];
+let studentCourse = "";
+let testView = "course";
+
+let currentTest = null;
+
+let questions = [];
+
+let currentIndex = 0;
+
+let answers = [];
+
+let reviewFlags = [];
+
+let visited = [];
+
+let endsAt = 0;
+
+let timerHandle = null;
+
+let submitLocked = false;
+
+
+/* =====================================================
+   ESCAPE
+===================================================== */
+
+function esc(v){
+
+    return String(v ?? "")
+        .replace(/[&<>"']/g,m=>({
+
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+
+        }[m]));
+
+}
+
+
+/* =====================================================
+   API CALL
+===================================================== */
+
+async function api(body){
+
+    const response =
+        await fetch(API,{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                "text/plain;charset=utf-8"
+            },
+
+            body:JSON.stringify({
+
+                ...body,
+                token
+
+            })
+
+        });
+
+    const data =
+        await response.json();
+
+    if(!data.success){
+
+        throw new Error(
+            data.message ||
+            "Request failed."
+        );
+
+    }
+
+    return data;
+
+}
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+async function init(){
+
+    if(!token){
+
+        auth.style.display="block";
+
+        return;
+
+    }
+
+    auth.style.display="none";
+
+    testCard.style.display="block";
+
+    historyCard.style.display="block";
+
+    await loadTests();
+
+    await loadHistory();
+
+}
+
+
+/* =====================================================
+   LOAD TESTS
+===================================================== */
+
+async function loadTests(){
+
+    try{
+
+        const data =
+            await api({
+
+                action:
+                "publishedMockTests"
+
+            });
+
+        studentCourse = String(data.studentCourse || "").trim();
+        courseTests = Array.isArray(data.courseTests) ? data.courseTests : (data.tests || []);
+        allCourseTests = Array.isArray(data.allTests) ? data.allTests : courseTests;
+        tests = testView === "all" ? allCourseTests : courseTests;
+
+        renderTests();
+
+    }catch(error){
+
+        testList.innerHTML =
+            "❌ " +
+            esc(error.message);
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDER TESTS
+===================================================== */
+
+function setTestView(view){
+    testView = view === "all" ? "all" : "course";
+    tests = testView === "all" ? allCourseTests : courseTests;
+
+    const mine = document.getElementById("myCourseTestsBtn");
+    const all = document.getElementById("allCourseTestsBtn");
+    if(mine) mine.classList.toggle("green", testView === "course");
+    if(all) all.classList.toggle("green", testView === "all");
+
+    renderTests();
+}
+
+function renderTests(){
+
+    if(!tests.length){
+        testList.innerHTML =
+            testView === "course"
+                ? `<p>📭 ${esc(studentCourse || "आपके course")} के लिए कोई published mock test उपलब्ध नहीं है। नीचे All Courses से दूसरे courses के tests देख सकते हैं.</p>`
+                : "<p>📭 No published mock tests available.</p>";
+        return;
+    }
+
+    const groups = {};
+
+    tests.forEach(test=>{
+        const course = String(test["Course"] || "Other Courses").trim();
+        if(!groups[course]) groups[course]=[];
+        groups[course].push(test);
+    });
+
+    let html = "";
+
+    Object.keys(groups).forEach(course=>{
+        html += `
+            <div class="card">
+                <h3>📚 ${esc(course)}${testView === "course" ? " — Your Course" : ""}</h3>
+                ${groups[course].map(test=>`
+                    <div class="test-item">
+                        <div class="test-title">${esc(test["Title"])}</div>
+                        <div class="muted">
+                            📖 Subject: <b>${esc(test["Subject Name"] || "General")}</b>
+                            ${test["Subject ID"] ? " ("+esc(test["Subject ID"])+")" : ""}
+                            <br>🆔 ${esc(test["Test ID"])}
+                            <br>⏱ ${esc(test["Duration"])} minutes
+                            &nbsp; • &nbsp;
+                            📝 ${esc(test["Total Marks"])} marks
+                        </div>
+                        <p>${esc(test["Description"])}</p>
+                        <button class="btn" type="button" onclick="startTestById('${esc(test["Test ID"])}')">
+                            🚀 Start CBT Test
+                        </button>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+    });
+
+    testList.innerHTML = html;
+}
+
+/* =====================================================
+   START TEST
+===================================================== */
+
+async function startTestById(testId){
+
+    const test =
+        tests.find(
+            x =>
+            String(x["Test ID"]) ===
+            String(testId)
+        );
+
+    if(!test){
+
+        alert("❌ Test not found.");
+
+        return;
+
+    }
+
+    if(
+        !confirm(
+            "क्या आप यह mock test शुरू करना चाहते हैं?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    try{
+
+        const data =
+            await api({
+
+                action:
+                "publishedMockQuestions",
+
+                testId:
+                test["Test ID"]
+
+            });
+
+
+        questions =
+            data.questions || [];
+
+
+        if(!questions.length){
+
+            throw new Error(
+                "This test has no published questions."
+            );
+
+        }
+
+
+        currentTest=test;
+
+        currentIndex=0;
+
+        answers =
+            new Array(
+                questions.length
+            ).fill("");
+
+        reviewFlags =
+            new Array(
+                questions.length
+            ).fill(false);
+
+        visited =
+            new Array(
+                questions.length
+            ).fill(false);
+
+
+        testCard.style.display="none";
+
+        historyCard.style.display="none";
+
+        resultCard.style.display="none";
+
+        examCard.style.display="block";
+
+
+        examTitle.textContent =
+            test["Title"];
+
+        examInfo.textContent =
+            `${test["Course"] || ""} • ` +
+            `${questions.length} questions • ` +
+            `${test["Duration"]} minutes`;
+
+
+        endsAt =
+            Date.now() +
+            Number(test["Duration"] || 30) *
+            60000;
+
+
+        clearInterval(timerHandle);
+
+        timerHandle =
+            setInterval(
+                updateTimer,
+                1000
+            );
+
+
+        renderPalette();
+
+        renderQuestion();
+
+        updateTimer();
+
+
+        window.scrollTo({
+            top:0,
+            behavior:"smooth"
+        });
+
+
+    }catch(error){
+
+        alert(
+            "❌ " +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDER QUESTION
+===================================================== */
+
+function renderQuestion(){
+
+    const q =
+        questions[currentIndex];
+
+    if(!q)return;
+
+
+    visited[currentIndex]=true;
+
+
+    questionNumber.textContent =
+        `Question ${currentIndex+1} of ${questions.length}`;
+
+
+    questionText.textContent =
+        q["Question"];
+
+
+    const selected =
+        answers[currentIndex];
+
+
+    options.innerHTML =
+        ["A","B","C","D"]
+        .map(letter=>`
+
+            <label
+                class="option ${
+                    selected===letter
+                    ? "selected"
+                    : ""
+                }"
+                data-option="${letter}">
+
+                <input
+                    type="radio"
+                    name="currentQuestion"
+                    value="${letter}"
+                    ${
+                        selected===letter
+                        ? "checked"
+                        : ""
+                    }>
+
+                <span class="option-label">
+
+                    <b>${letter}.</b>
+                    ${esc(q["Option "+letter])}
+
+                </span>
+
+            </label>
+
+        `)
+        .join("");
+
+
+    /*
+       Single selection.
+       Clicking the selected option again
+       removes the selection.
+    */
+
+    document
+        .querySelectorAll(
+            'input[name="currentQuestion"]'
+        )
+        .forEach(input=>{
+
+            input.addEventListener(
+                "click",
+                function(){
+
+                    const value =
+                        this.value;
+
+                    /*
+                       Radio buttons normally cannot
+                       unselect themselves.
+                       We implement that behaviour.
+                    */
+
+                    if(
+                        answers[currentIndex] ===
+                        value
+                    ){
+
+                        this.checked=false;
+
+                        answers[currentIndex]="";
+
+                        updateOptionVisual();
+
+                    }else{
+
+                        answers[currentIndex]=value;
+
+                        updateOptionVisual();
+
+                    }
+
+                    renderPalette();
+
+                }
+            );
+
+        });
+
+
+    updateOptionVisual();
+
+    renderPalette();
+
+}
+
+
+/* =====================================================
+   OPTION VISUAL
+===================================================== */
+
+function updateOptionVisual(){
+
+    document
+        .querySelectorAll(".option")
+        .forEach(label=>{
+
+            const letter =
+                label.dataset.option;
+
+            label.classList.toggle(
+
+                "selected",
+
+                answers[currentIndex] ===
+                letter
+
+            );
+
+        });
+
+}
+
+/* =====================================================
+   PREVIOUS
+===================================================== */
+
+function previousQuestion(){
+
+    if(currentIndex<=0){
+
+        return;
+
+    }
+
+    currentIndex--;
+
+    renderQuestion();
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+/* =====================================================
+   NEXT
+===================================================== */
+
+function nextQuestion(){
+
+    if(
+        currentIndex <
+        questions.length-1
+    ){
+
+        currentIndex++;
+
+        renderQuestion();
+
+        window.scrollTo({
+            top:0,
+            behavior:"smooth"
+        });
+
+    }
+
+}
+
+
+/* =====================================================
+   MARK REVIEW & NEXT
+===================================================== */
+
+function markReviewNext(){
+
+    reviewFlags[currentIndex]=
+        !reviewFlags[currentIndex];
+
+    renderPalette();
+
+
+    if(
+        currentIndex <
+        questions.length-1
+    ){
+
+        currentIndex++;
+
+        renderQuestion();
+
+    }
+
+}
+
+
+/* =====================================================
+   CLEAR RESPONSE
+===================================================== */
+
+function clearAnswer(){
+
+    answers[currentIndex]="";
+
+    renderQuestion();
+
+}
+
+
+/* =====================================================
+   QUESTION PALETTE
+===================================================== */
+
+function renderPalette(){
+
+    palette.innerHTML =
+        questions.map((q,i)=>{
+
+            let state="";
+
+            if(
+                answers[i] &&
+                reviewFlags[i]
+            ){
+
+                state="review-answered";
+
+            }else if(
+                reviewFlags[i]
+            ){
+
+                state="review";
+
+            }else if(
+                answers[i]
+            ){
+
+                state="answered";
+
+            }
+
+
+            if(i===currentIndex){
+
+                state += " current";
+
+            }
+
+
+            return `
+
+                <button
+                    class="palette-btn ${state}"
+                    onclick="goToQuestion(${i})">
+
+                    ${i+1}
+
+                </button>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =====================================================
+   GO TO QUESTION
+===================================================== */
+
+function goToQuestion(index){
+
+    if(
+        index < 0 ||
+        index >= questions.length
+    ){
+
+        return;
+
+    }
+
+    currentIndex=index;
+
+    renderQuestion();
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+/* =====================================================
+   TIMER
+===================================================== */
+
+function updateTimer(){
+
+    const sec =
+        Math.max(
+            0,
+            Math.floor(
+                (endsAt-Date.now())/1000
+            )
+        );
+
+
+    const minutes =
+        Math.floor(sec/60);
+
+    const seconds =
+        sec%60;
+
+
+    timer.textContent =
+        `${String(minutes).padStart(2,"0")}:` +
+        `${String(seconds).padStart(2,"0")}`;
+
+
+    if(sec<=60){
+
+        timer.classList.add("warning");
+
+    }else{
+
+        timer.classList.remove("warning");
+
+    }
+
+
+    if(sec===0){
+
+        clearInterval(timerHandle);
+
+        submitExam(true);
+
+    }
+
+}
+
+
+/* =====================================================
+   SUBMIT
+===================================================== */
+
+async function submitExam(auto){
+
+    if(
+        !currentTest ||
+        submitLocked
+    ){
+
+        return;
+
+    }
+
+
+    const unanswered =
+        answers.filter(
+            x => !x
+        ).length;
+
+
+    if(!auto){
+
+        if(unanswered>0){
+
+            const ok =
+                confirm(
+
+                    `⚠️ ${unanswered} question(s) ` +
+                    `का answer नहीं दिया गया है।\n\n` +
+                    `क्या आप फिर भी test submit करना चाहते हैं?`
+
+                );
+
+            if(!ok){
+
+                return;
+
+            }
+
+        }else{
+
+            const ok =
+                confirm(
+                    "Submit this test now?"
+                );
+
+            if(!ok){
+
+                return;
+
+            }
+
+        }
+
+    }else{
+
+        alert(
+            "⏱️ Time is over!\n\n" +
+            "Test automatically submitted."
+        );
+
+    }
+
+
+    submitLocked=true;
+
+
+    try{
+
+        const data =
+            await api({
+
+                action:
+                "submitMockTest",
+
+                testId:
+                currentTest["Test ID"],
+
+                answers
+
+            });
+
+
+        clearInterval(timerHandle);
+
+
+        examCard.style.display="none";
+
+        resultCard.style.display="block";
+
+
+        const r =
+            data.result;
+
+
+        result.innerHTML = `
+
+            <div class="result-score">
+
+                ${esc(r.score)}
+                /
+                ${esc(r.totalMarks)}
+
+            </div>
+
+            <p>
+                <b>Percentage:</b>
+                ${esc(r.percentage)}%
+            </p>
+
+            <p>
+                <b>Grade:</b>
+                ${esc(r.grade)}
+            </p>
+
+            <p>
+                <b>Result:</b>
+                ${esc(r.result)}
+            </p>
+
+            <hr>
+
+            <p>
+                ✅ Correct answers are shown only
+                after submission.
+            </p>
+
+            ${
+                r.review.map((x,i)=>`
+
+                    <div class="card">
+
+                        <b>
+                            Q${i+1}.
+                            ${esc(x.question)}
+                        </b>
+
+                        <p>
+                            Your answer:
+                            <b>
+                                ${
+                                    esc(
+                                        x.yourAnswer ||
+                                        "Not answered"
+                                    )
+                                }
+                            </b>
+                        </p>
+
+                        <p>
+                            Correct answer:
+                            <b>
+                                ${esc(x.correctAnswer)}
+                            </b>
+                            —
+                            ${esc(x.correctText)}
+                        </p>
+
+                        <p>
+                            Marks:
+                            ${esc(x.awarded)}
+                            /
+                            ${esc(x.marks)}
+                        </p>
+
+                    </div>
+
+                `).join("")
+            }
+
+        `;
+
+
+        await loadHistory();
+
+
+        window.scrollTo({
+            top:0,
+            behavior:"smooth"
+        });
+
+
+    }catch(error){
+
+        submitLocked=false;
+
+        alert(
+            "❌ " +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   HISTORY
+===================================================== */
+
+async function loadHistory(){
+
+    try{
+
+        const data =
+            await api({
+
+                action:
+                "mockStudentHistory"
+
+            });
+
+
+        const arr =
+            data.attempts || [];
+
+
+        history.innerHTML =
+            arr.length
+
+            ?
+
+            arr.map(a=>`
+
+                <div class="card">
+
+                    <b>
+                        ${esc(a["Test Title"])}
+                    </b>
+
+                    <br>
+
+                    Score:
+                    ${esc(a["Score"])}/
+                    ${esc(a["Total Marks"])}
+
+                    |
+
+                    ${esc(a["Percentage"])}%
+
+                    |
+
+                    Grade
+                    ${esc(a["Grade"])}
+
+                    |
+
+                    ${esc(a["Result"])}
+
+                    <br>
+
+                    <span class="muted">
+
+                        ${esc(a["Submitted At"])}
+
+                    </span>
+
+                </div>
+
+            `).join("")
+
+            :
+
+            "No attempts yet.";
+
+
+    }catch(error){
+
+        history.textContent =
+            "Unable to load history.";
+
+    }
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+init();
+
+</script>
+
+<script src="assets/js/project-ui.js"></script>
+
+</body>
+</html>

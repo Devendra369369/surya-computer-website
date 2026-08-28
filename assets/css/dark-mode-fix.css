@@ -1,0 +1,409 @@
+/*
+==================================================
+SURYA COMPUTER OF EDUCATION CENTER
+File    : dark-mode-fix.css
+Version : v1.0.0
+Purpose : Popup + Dark Mode + Cursor Fix
+==================================================
+*/
+
+/* ==================================================
+   CURSOR
+================================================== */
+
+button,
+.btn,
+a.btn,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+.palette-btn,
+.option {
+    cursor: pointer;
+}
+
+
+/* ==================================================
+   POPUP / DIALOG
+================================================== */
+
+.swal2-popup,
+.modal,
+.popup,
+.dialog,
+.confirm-popup,
+.alert-popup,
+[role="dialog"] {
+    color: #172033;
+}
+
+
+/* Popup buttons */
+.swal2-actions,
+.modal-actions,
+.popup-actions,
+.dialog-actions,
+.confirm-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+
+/* Cancel button */
+.swal2-cancel,
+.btn-cancel,
+.cancel-btn,
+button.cancel,
+button[data-action="cancel"] {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    cursor: pointer !important;
+}
+
+
+/* ==================================================
+   DARK MODE — BODY
+================================================== */
+
+html.dark-mode body,
+body.dark-mode,
+html.dark body,
+body.dark,
+html[data-theme="dark"] body,
+body[data-theme="dark"],
+html[data-mode="dark"] body,
+body[data-mode="dark"] {
+    color: #f1f5f9;
+}
+
+
+/* ==================================================
+   DARK MODE — CARDS
+================================================== */
+
+html.dark-mode .card,
+body.dark-mode .card,
+html.dark .card,
+body.dark .card,
+html[data-theme="dark"] .card,
+body[data-theme="dark"] .card {
+    background: #182131;
+    color: #f1f5f9;
+    border-color: #334155;
+}
+
+
+/* ==================================================
+   DARK MODE — TEXT
+================================================== */
+
+html.dark-mode h1,
+html.dark-mode h2,
+html.dark-mode h3,
+html.dark-mode h4,
+html.dark-mode h5,
+html.dark-mode h6,
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6,
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6,
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark h4,
+body.dark h5,
+body.dark h6 {
+    color: #ffffff;
+}
+
+
+html.dark-mode p,
+html.dark-mode label,
+html.dark-mode span,
+body.dark-mode p,
+body.dark-mode label,
+body.dark-mode span,
+html.dark p,
+html.dark label,
+html.dark span,
+body.dark p,
+body.dark label,
+body.dark span {
+    color: inherit;
+}
+
+
+/* ==================================================
+   MUTED TEXT
+================================================== */
+
+html.dark-mode .muted,
+body.dark-mode .muted,
+html.dark .muted,
+body.dark .muted,
+html[data-theme="dark"] .muted,
+body[data-theme="dark"] .muted {
+    color: #b8c2d1 !important;
+}
+
+
+/* ==================================================
+   DARK MODE — INPUTS
+================================================== */
+
+html.dark-mode input,
+html.dark-mode select,
+html.dark-mode textarea,
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea,
+html.dark input,
+html.dark select,
+html.dark textarea,
+body.dark input,
+body.dark select,
+body.dark textarea {
+    background: #111827;
+    color: #f8fafc;
+    border-color: #475569;
+}
+
+
+html.dark-mode input::placeholder,
+html.dark-mode textarea::placeholder,
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder,
+html.dark input::placeholder,
+html.dark textarea::placeholder,
+body.dark input::placeholder,
+body.dark textarea::placeholder {
+    color: #94a3b8;
+}
+
+
+/* ==================================================
+   DARK MODE — MOCK TEST OPTIONS
+================================================== */
+
+html.dark-mode .option,
+body.dark-mode .option,
+html.dark .option,
+body.dark .option,
+html[data-theme="dark"] .option,
+body[data-theme="dark"] .option {
+    background: #1e293b;
+    color: #f8fafc;
+    border-color: #475569;
+}
+
+
+html.dark-mode .option.selected,
+body.dark-mode .option.selected,
+html.dark .option.selected,
+body.dark .option.selected,
+html[data-theme="dark"] .option.selected,
+body[data-theme="dark"] .option.selected {
+    background: #173b5e;
+    color: #ffffff;
+}
+
+
+/* ==================================================
+   DARK MODE — EXAM HEADER
+================================================== */
+
+html.dark-mode .exam-top,
+body.dark-mode .exam-top,
+html.dark .exam-top,
+body.dark .exam-top {
+    background: #111827;
+    color: #ffffff;
+    border-color: #334155;
+}
+
+
+/* ==================================================
+   DARK MODE — HEADER
+================================================== */
+
+html.dark-mode .header,
+body.dark-mode .header,
+html.dark .header,
+body.dark .header {
+    background: #111827;
+    color: #ffffff;
+    border-color: #334155;
+}
+
+
+/* ==================================================
+   DARK MODE — PALETTE
+================================================== */
+
+html.dark-mode .palette-btn,
+body.dark-mode .palette-btn,
+html.dark .palette-btn,
+body.dark .palette-btn {
+    background: #334155;
+    color: #f8fafc;
+    border-color: #64748b;
+}
+
+
+html.dark-mode .palette-btn.current,
+body.dark-mode .palette-btn.current,
+html.dark .palette-btn.current,
+body.dark .palette-btn.current {
+    outline: 3px solid #60a5fa;
+}
+
+
+/* ==================================================
+   DARK MODE — POPUP
+================================================== */
+
+html.dark-mode .swal2-popup,
+body.dark-mode .swal2-popup,
+html.dark .swal2-popup,
+body.dark .swal2-popup,
+html[data-theme="dark"] .swal2-popup,
+body[data-theme="dark"] .swal2-popup,
+html.dark-mode .modal,
+body.dark-mode .modal,
+html.dark .modal,
+body.dark .modal {
+    background: #182131;
+    color: #f8fafc;
+}
+
+
+/* Popup text */
+html.dark-mode .swal2-title,
+body.dark-mode .swal2-title,
+html.dark .swal2-title,
+body.dark .swal2-title,
+html.dark-mode .swal2-html-container,
+body.dark-mode .swal2-html-container,
+html.dark .swal2-html-container,
+body.dark .swal2-html-container {
+    color: #f8fafc !important;
+}
+
+
+/* ==================================================
+   FOCUS
+================================================== */
+
+button:focus,
+.btn:focus {
+    outline: 3px solid rgba(23,105,170,.35);
+    outline-offset: 2px;
+}
+
+
+/* ==================================================
+   DISABLED
+================================================== */
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: .6;
+}
+
+/* ==================================================
+   UNIVERSAL DARK/LIGHT PANEL CONTRAST
+================================================== */
+html[data-theme="dark"] body{
+    background:#0f172a !important;
+    color:#f8fafc !important;
+}
+html[data-theme="dark"] .admin-card,
+html[data-theme="dark"] .admin-panel,
+html[data-theme="dark"] .admin-courses,
+html[data-theme="dark"] .admin-header,
+html[data-theme="dark"] .course-form-card,
+html[data-theme="dark"] .course-list,
+html[data-theme="dark"] .mock-panel,
+html[data-theme="dark"] .message-card,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .modal,
+html[data-theme="dark"] .popup,
+html[data-theme="dark"] .dialog,
+html[data-theme="dark"] .test-item,
+html[data-theme="dark"] .question-row,
+html[data-theme="dark"] table{
+    background:#182131 !important;
+    color:#f8fafc !important;
+    border-color:#475569 !important;
+}
+html[data-theme="dark"] .admin-card *,
+html[data-theme="dark"] .admin-panel *,
+html[data-theme="dark"] .admin-courses *,
+html[data-theme="dark"] .admin-header *,
+html[data-theme="dark"] .course-form-card *,
+html[data-theme="dark"] .course-list *,
+html[data-theme="dark"] .mock-panel *,
+html[data-theme="dark"] .message-card *,
+html[data-theme="dark"] .card *,
+html[data-theme="dark"] .test-item *,
+html[data-theme="dark"] .question-row *{
+    color:inherit;
+}
+html[data-theme="dark"] a:not(.admin-btn):not(.btn){
+    color:#93c5fd;
+}
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea{
+    background:#0f172a !important;
+    color:#f8fafc !important;
+    border-color:#64748b !important;
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder{
+    color:#94a3b8 !important;
+}
+html[data-theme="light"] input,
+html[data-theme="light"] select,
+html[data-theme="light"] textarea{
+    color:#172033;
+    background:#fff;
+}
+html[data-theme="light"] .muted,
+html[data-theme="light"] .small{
+    color:#5f6b7a;
+}
+
+html[data-theme="dark"] #adminLoginVerification,
+html[data-theme="dark"] #forgotPasswordPanel{
+    background:#182131 !important;
+    color:#f8fafc !important;
+    border-color:#475569 !important;
+}
+html[data-theme="dark"] #adminLoginVerification *,
+html[data-theme="dark"] #forgotPasswordPanel *{
+    color:inherit;
+}
+
+html[data-theme="dark"] #passwordPanel{
+    background:#182131 !important;
+    color:#f8fafc !important;
+    border:1px solid #475569;
+}
+html[data-theme="dark"] #passwordPanel *{color:inherit;}
+
+html[data-theme="dark"] .item{background:#182131 !important;color:#f8fafc !important;border-color:#475569 !important;} html[data-theme="dark"] .item-body *{color:inherit;}
+
+html[data-theme="dark"] .emergency-card{background:#182131 !important;color:#f8fafc !important;border:1px solid #475569;} html[data-theme="dark"] .emergency-card *{color:inherit;}

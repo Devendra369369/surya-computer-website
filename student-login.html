@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Student Login | Surya Computer Of Education Center</title><link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/responsive.css"><style>.auth-box{max-width:520px;margin:35px auto;padding:22px;background:#fff;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08)}.auth-box input{width:100%;box-sizing:border-box;padding:12px;margin:7px 0;border:1px solid #ccc;border-radius:8px}.auth-box button{padding:11px 18px;border:0;border-radius:8px;cursor:pointer;margin:6px 4px 6px 0}.msg{margin:12px 0;font-weight:600}.hidden{display:none}</style>    <link rel="stylesheet" href="assets/css/project-ui.css">
 
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
 </head><body>
 <div class="top-bar">📞 7084275870 | ✉️ sunilkumar5757@gmail.com</div><header class="header"><img src="assets/images/logo.png" alt="Logo" class="logo"><div class="title"><h1>SURYA COMPUTER OF EDUCATION CENTER</h1><p>Student Portal</p></div></header>
 <nav class="navbar"><a href="index.html">Home</a><a href="courses.html">Courses</a><a href="result.html">Result</a><a href="certificate.html">Certificate</a><a href="student-login.html">Student Login</a><a href="contact.html">Contact</a></nav>
@@ -7,7 +8,7 @@
 <div id="resetBox" class="hidden"><h2>🔑 Reset Password</h2><p>Registered email पर OTP भेजा जाएगा।</p><input id="resetId" placeholder="Student ID"><input id="resetEmail" type="email" placeholder="Registered Email"><button onclick="sendOtp()">📩 Send OTP</button><div id="otpStep" class="hidden"><input id="otp" placeholder="6-digit OTP"><input id="newPassword" type="password" placeholder="New Password (8+ characters)"><button onclick="resetPassword()">🔐 Reset Password</button></div><button onclick="showLogin()">← Back to Login</button><div id="resetMsg" class="msg"></div></div></main>
 <footer><p>© 2026 Surya Computer Of Education Center | All Rights Reserved.</p></footer>
 <script>
-const API="https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+const API="https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
 async function api(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});const d=await r.json();if(!d.success)throw new Error(d.message||'Request failed');return d;}
 function showReset(){loginBox.classList.add('hidden');resetBox.classList.remove('hidden');}
 function showLogin(){resetBox.classList.add('hidden');loginBox.classList.remove('hidden');}

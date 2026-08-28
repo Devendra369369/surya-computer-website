@@ -3,7 +3,7 @@
 ================================================== */
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+    "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
 
 /* ==================================================
    RESULT MANAGEMENT
@@ -850,69 +850,63 @@ function editSpecificResult(result) {
 
 
 /* ==================================================
+   CENTRAL RESULT PUBLISH
+   The central Google Apps Script is authoritative.
+================================================== */
+async function AERON_CENTRAL_PUBLISH_RESULT(resultId) {
+    const token = sessionStorage.getItem("SURYA_ADMIN_TOKEN") || "";
+    if (!token) throw new Error("Admin session expired. Please login again.");
+
+    const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec",
+        {
+            method:"POST",
+            headers:{"Content-Type":"text/plain;charset=utf-8"},
+            body:JSON.stringify({
+                action:"publishResult",
+                token:token,
+                resultId:String(resultId || "").trim()
+            })
+        }
+    );
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message || "Result publish failed.");
+    return data;
+}
+
+/* ==================================================
    PUBLISH SPECIFIC RESULT
 ================================================== */
 
-function publishSpecificResult(result) {
+async function publishSpecificResult(result) {
+    const resultId = String(result && result.resultId || "").trim();
 
-    const results =
-        getSuryaModule("results");
-
-
-    const resultIndex =
-        results.findIndex(function(item) {
-
-            return (
-
-                item.studentId ===
-                result.studentId
-
-                &&
-
-                String(item.exam || "")
-                    .trim()
-                    .toLowerCase() ===
-
-                String(result.exam || "")
-                    .trim()
-                    .toLowerCase()
-
-            );
-
-        });
-
-
-    if (resultIndex === -1) {
-
-        alert(
-            "Result record not found."
-        );
-
+    if (!resultId) {
+        alert("❌ Result ID missing. Cannot publish result.");
         return;
     }
 
+    if (!confirm("क्या इस result को Publish करना है?")) return;
 
-    results[resultIndex].status =
-        "Published";
+    try {
+        await AERON_CENTRAL_PUBLISH_RESULT(resultId);
 
+        const results = getSuryaModule("results");
+        const resultIndex = results.findIndex(function(item){
+            return String(item.resultId || "").trim().toUpperCase() === resultId.toUpperCase();
+        });
+        if (resultIndex >= 0) {
+            results[resultIndex].status = "Published";
+            updateSuryaModule("results", results);
+            currentResult = results[resultIndex];
+        }
 
-    updateSuryaModule(
-        "results",
-        results
-    );
-
-
-    currentResult =
-        results[resultIndex];
-
-
-    alert(
-        "✅ Result Published Successfully!"
-    );
-
-
-    searchResult();
-
+        alert("✅ Result Published Successfully!");
+        searchResult();
+    } catch (error) {
+        console.error("CENTRAL RESULT PUBLISH ERROR:", error);
+        alert("❌ " + error.message);
+    }
 }
 
 /* ==================================================
@@ -1034,94 +1028,40 @@ function editResult() {
    Multiple Exams Safe
 ================================================== */
 
-function publishResult() {
-
+async function publishResult() {
     if (!currentResult) {
-
-        alert(
-            "Result record not found."
-        );
-
+        alert("Result record not found.");
         return;
     }
 
-
-    const resultId =
-        String(
-            currentResult.resultId || ""
-        ).trim();
-
-
+    const resultId = String(currentResult.resultId || "").trim();
     if (!resultId) {
-
-        alert(
-            "Result ID missing. Cannot publish result."
-        );
-
+        alert("Result ID missing. Cannot publish result.");
         return;
     }
 
+    if (!confirm("क्या इस result को Publish करना है?")) return;
 
-    const results =
-        getSuryaModule("results");
+    try {
+        await AERON_CENTRAL_PUBLISH_RESULT(resultId);
 
+        const results = getSuryaModule("results");
+        const resultIndex = results.findIndex(function(result){
+            return String(result.resultId || "").trim().toUpperCase() === resultId.toUpperCase();
+        });
+        if (resultIndex >= 0) {
+            results[resultIndex].status = "Published";
+            updateSuryaModule("results", results);
+            currentResult = results[resultIndex];
+            displayResult(currentResult);
+        }
 
-    const resultIndex =
-        results.findIndex(
-            function(result) {
-
-                return (
-                    String(
-                        result.resultId || ""
-                    ).trim().toUpperCase()
-                    ===
-                    resultId.toUpperCase()
-                );
-
-            }
-        );
-
-
-    if (resultIndex === -1) {
-
-        alert(
-            "Result record not found."
-        );
-
-        return;
+        alert("✅ Result Published Successfully!");
+    } catch (error) {
+        console.error("CENTRAL RESULT PUBLISH ERROR:", error);
+        alert("❌ " + error.message);
     }
-
-
-    /*
-       Publish ONLY the selected result.
-       Student ID alone is NOT used.
-    */
-
-    results[resultIndex].status =
-        "Published";
-
-
-    updateSuryaModule(
-        "results",
-        results
-    );
-
-
-    currentResult =
-        results[resultIndex];
-
-
-    displayResult(
-        currentResult
-    );
-
-
-    alert(
-        "Result Published Successfully!"
-    );
-
-            }
-
+}
 
 /* ==================================================
    OPEN RESULT ENTRY

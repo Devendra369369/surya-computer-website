@@ -3,7 +3,7 @@
 ================================================== */
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+    "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
 
 
 /* ==================================================
@@ -348,7 +348,7 @@ function displayCertificate(
 
             <p>
                 <strong>Result:</strong>
-                ${escapeHtml(certificate["Result"])}
+                ${escapeHtml((certificate["Final Result"] || certificate["Result"] || ""))}
             </p>
 
             <p>
@@ -669,7 +669,7 @@ function viewCertificate() {
         (certificate["Grade"] || "") +
 
         "\n\nResult: " +
-        (certificate["Result"] || "") +
+        ((certificate["Final Result"] || certificate["Result"] || "") || "") +
 
         "\n\nIssue Date: " +
         formatDate(

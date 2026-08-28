@@ -641,46 +641,42 @@ function hasResult(student, results) {
 
     };
 
-    window.AERON_PUBLISH_RESULT = function (result) {
+    window.AERON_PUBLISH_RESULT = async function (result) {
 
-        const results = getResults();
+        const resultId =
+            String(result && result.resultId || "").trim();
 
-        const index =
-            results.findIndex(function (r) {
-
-                return (
-                    String(r.resultId || "") ===
-                    String(result.resultId || "")
-                )
-                ||
-                (
-                    String(r.studentId || "") ===
-                    String(result.studentId || "")
-                    &&
-                    String(r.exam || "").trim().toLowerCase() ===
-                    String(result.exam || "").trim().toLowerCase()
-                );
-
-            });
-
-        if (index === -1) {
-
-            alert("❌ Result record not found.");
+        if (!resultId) {
+            alert("❌ Result ID missing. Cannot publish result.");
             return;
-
         }
 
-        results[index].status = "Published";
+        if (!confirm("क्या इस result को Publish करना है?")) return;
 
-        updateSuryaModule(
-            "results",
-            results
-        );
+        try {
+            if (typeof AERON_CENTRAL_PUBLISH_RESULT !== "function") {
+                throw new Error("Central Result Publish module is unavailable.");
+            }
 
-        alert("✅ Result Published Successfully!");
+            await AERON_CENTRAL_PUBLISH_RESULT(resultId);
 
-        AERON_RESULT_RENDER("complete");
+            const results = getResults();
+            const index = results.findIndex(function (r) {
+                return String(r.resultId || "").trim().toUpperCase() === resultId.toUpperCase();
+            });
 
+            if (index >= 0) {
+                results[index].status = "Published";
+                updateSuryaModule("results", results);
+            }
+
+            alert("✅ Result Published Successfully!");
+            AERON_RESULT_RENDER("complete");
+
+        } catch (error) {
+            console.error("CENTRAL RESULT PUBLISH ERROR:", error);
+            alert("❌ " + error.message);
+        }
     };
 
 
@@ -709,7 +705,7 @@ function hasResult(student, results) {
     ======================================================== */
 
     const AERON_RESULT_API =
-        "https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+        "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
 
 
     const THEORY_MAX = 70;
@@ -734,6 +730,7 @@ function hasResult(student, results) {
     let AERON_COURSE_SUBJECT_LIST = [];
 
     let AERON_SELECTED_RESULT_SUBJECTS = [];
+    let AERON_EXISTING_RESULT_SUBJECT_IDS = new Set();
 
     
 
@@ -1680,6 +1677,9 @@ if (
         AERON_SELECTED_RESULT_SUBJECTS =
             [];
 
+        AERON_EXISTING_RESULT_SUBJECT_IDS =
+            new Set();
+
                 /*
          * AERON EDIT MODE
          * Keep existing result information.
@@ -1753,6 +1753,20 @@ if (
                         subjectData.subjects
                     )
                 ) {
+
+                    AERON_EXISTING_RESULT_SUBJECT_IDS =
+                        new Set(
+                            subjectData.subjects
+                                .map(function(item){
+                                    return String(
+                                        item.subjectId ||
+                                        item.SubjectID ||
+                                        item["Subject ID"] ||
+                                        ""
+                                    ).trim().toUpperCase();
+                                })
+                                .filter(Boolean)
+                        );
 
                     AERON_SELECTED_RESULT_SUBJECTS =
     subjectData.subjects.map(
@@ -3493,6 +3507,32 @@ if (
              * CENTRAL RESULT SUBJECTS
              */
 
+            const usedResultSubjectIds = new Set(
+                Array.from(AERON_EXISTING_RESULT_SUBJECT_IDS)
+                    .concat(
+                        AERON_SELECTED_RESULT_SUBJECTS
+                    .map(function(item){
+                        return String(item.subjectId || "").trim().toUpperCase();
+                    })
+                    .filter(Boolean)
+                    )
+            );
+
+            let nextSubjectNumber = 1;
+
+            function getUniqueResultSubjectId() {
+                let candidate = "";
+                do {
+                    candidate =
+                        savedCentralResultId +
+                        "-SUB-" +
+                        String(nextSubjectNumber++).padStart(2, "0");
+                } while (usedResultSubjectIds.has(candidate.toUpperCase()));
+
+                usedResultSubjectIds.add(candidate.toUpperCase());
+                return candidate;
+            }
+
             for (
                 let i = 0;
                 i <
@@ -3531,12 +3571,7 @@ if (
 
                     subjectId:
                         existingSubjectId ||
-                        (
-                            savedCentralResultId +
-                            "-SUB-" +
-                            String(i + 1)
-                                .padStart(2, "0")
-                        ),
+                        getUniqueResultSubjectId(),
 
                     maxTheoryMarks:
                         Number(
@@ -3623,6 +3658,44 @@ if (
 
             }
 
+            /*
+             * Edit reconciliation:
+             * subjects removed from the editor are disabled centrally,
+             * never physically deleted.
+             */
+            const selectedIdsAfterSave = new Set(
+                AERON_SELECTED_RESULT_SUBJECTS
+                    .map(function(item){
+                        return String(item.subjectId || "").trim().toUpperCase();
+                    })
+                    .filter(Boolean)
+            );
+
+            for (const oldSubjectId of Array.from(AERON_EXISTING_RESULT_SUBJECT_IDS)) {
+                if (selectedIdsAfterSave.has(oldSubjectId)) continue;
+
+                const disableResponse = await centralRequest(
+                    "disableResultSubject",
+                    {
+                        method:"POST",
+                        body:{
+                            action:"disableResultSubject",
+                            resultId:savedCentralResultId,
+                            subjectId:oldSubjectId,
+                            token:sessionStorage.getItem("SURYA_ADMIN_TOKEN")
+                        }
+                    }
+                );
+
+                if (!disableResponse || !disableResponse.success) {
+                    throw new Error(
+                        disableResponse && disableResponse.message
+                            ? disableResponse.message
+                            : "Removed Result Subject could not be disabled."
+                    );
+                }
+            }
+
 
             showValidation(
                 "✅ Result subjects saved successfully to Central Database."
@@ -3632,7 +3705,7 @@ if (
             alert(
                 "✅ Result saved successfully!\n\n" +
                 "Result ID: " +
-                resultId
+                savedCentralResultId
             );
 
 

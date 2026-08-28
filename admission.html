@@ -54,6 +54,7 @@ console.log(
 <script src="assets/js/student-aadhaar-upload.js"></script>
     <link rel="stylesheet" href="assets/css/project-ui.css">
 
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
 </head>
 <body>
 
@@ -507,7 +508,7 @@ FOOTER
 ================================================== */
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+    "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
 
 
 /* ==================================================
@@ -1226,6 +1227,28 @@ initStudentMarcsheetUpload();
 </script>
 
 
+    <script>
+    (async function(){
+        const select=document.getElementById("course");
+        if(!select) return;
+        try{
+            const r=await fetch("https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec?action=publicCourses");
+            const d=await r.json();
+            if(!d.success || !Array.isArray(d.courses)) return;
+            const current=select.value;
+            select.innerHTML='<option value="">Select Course</option>';
+            d.courses.forEach(function(c){
+                const id=String(c["Course ID"]||"").trim();
+                const name=String(c["Course Name"]||id).trim();
+                const option=document.createElement("option");
+                option.value=id;
+                option.textContent=name;
+                select.appendChild(option);
+            });
+            if(current) select.value=current;
+        }catch(e){ console.warn("PUBLIC COURSE LOAD ERROR",e); }
+    })();
+    </script>
     <script src="assets/js/project-ui.js"></script>
 
 </body>

@@ -25,6 +25,7 @@ Created : 08-08-2026
 
     <link rel="stylesheet" href="assets/css/project-ui.css">
 
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
 </head>
 
 <body>
@@ -290,7 +291,7 @@ DASHBOARD SCRIPT
 ==================================================-->
 
 <script>
-const STUDENT_API="https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+const STUDENT_API="https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
 const STUDENT_TOKEN=sessionStorage.getItem("SURYA_STUDENT_TOKEN");
 async function studentApi(body){const r=await fetch(STUDENT_API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...body,token:STUDENT_TOKEN})});const d=await r.json();if(!d.success)throw new Error(d.message||"Request failed");return d;}
 async function loadStudentDashboard(){

@@ -23,6 +23,7 @@ Created : 06-08-2026
     <link rel="stylesheet" href="assets/css/responsive.css">
     <link rel="stylesheet" href="assets/css/project-ui.css">
 
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
 </head>
 
 <body>
@@ -436,7 +437,7 @@ FOOTER SECTION
     <script src="assets/js/main.js"></script>
 
     <script>
-const HOME_MEDIA_API="https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec";
+const HOME_MEDIA_API="https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
 function homeEsc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 async function loadHomeMedia(){try{const r=await fetch(HOME_MEDIA_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'publicMedia'})});const d=await r.json();const a=(d.media||[]).slice(0,6);if(a.length)homeGallery.innerHTML=a.map(x=>`<img src="${homeEsc(x.url)}" alt="${homeEsc(x.title)}" loading="lazy">`).join('');}catch(e){}}
 loadHomeMedia();
@@ -461,7 +462,7 @@ loadHomeMedia();
 </script>
 
 <script>
-(async function(){try{const r=await fetch('https://script.google.com/macros/s/AKfycbziAiwAq8nTE-65FVdy8LbmQFBbLVoeukklrOK4uFAgNKZyyjY5bMBJSuOPTBgY5bVufw/exec',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'publicNotices'})});const d=await r.json();if(!d.success||!d.notices?.length)return;const e=document.getElementById('homeNoticeBox');if(!e)return;e.innerHTML=d.notices.slice(0,5).map(n=>`<article class="modern-notice"><span class="notice-badge">${n.priority==='High'?'IMPORTANT':'NOTICE'}</span><h3>${String(n.title).replace(/[&<>]/g,'')}</h3><p>${String(n.message).replace(/[&<>]/g,'')}</p></article>`).join('');}catch(e){}})();
+(async function(){try{const r=await fetch('https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'publicNotices'})});const d=await r.json();if(!d.success||!d.notices?.length)return;const e=document.getElementById('homeNoticeBox');if(!e)return;e.innerHTML=d.notices.slice(0,5).map(n=>`<article class="modern-notice"><span class="notice-badge">${n.priority==='High'?'IMPORTANT':'NOTICE'}</span><h3>${String(n.title).replace(/[&<>]/g,'')}</h3><p>${String(n.message).replace(/[&<>]/g,'')}</p></article>`).join('');}catch(e){}})();
 </script>
 </body>
 </html>

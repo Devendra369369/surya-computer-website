@@ -24,6 +24,7 @@ Created : 07-08-2026
 
     <link rel="stylesheet" href="assets/css/project-ui.css">
 
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
 </head>
 
 <body>
@@ -76,38 +77,8 @@ COURSES SECTION
 
     <h2>Our Popular Courses</h2>
 
-    <div class="course-container">
-
-        <div class="course-card">
-            <h3>ADCA</h3>
-            <p>Advanced Diploma in Computer Applications</p>
-            <p><strong>Duration:</strong> 12 Months</p>
-        </div>
-
-        <div class="course-card">
-            <h3>DCA</h3>
-            <p>Diploma in Computer Applications</p>
-            <p><strong>Duration:</strong> 6 Months</p>
-        </div>
-
-        <div class="course-card">
-            <h3>CCC</h3>
-            <p>Course on Computer Concepts</p>
-            <p><strong>Duration:</strong> 3 Months</p>
-        </div>
-
-        <div class="course-card">
-            <h3>Tally Prime</h3>
-            <p>Accounting with GST</p>
-            <p><strong>Duration:</strong> 3 Months</p>
-        </div>
-
-        <div class="course-card">
-            <h3>Web Designing</h3>
-            <p>HTML, CSS & JavaScript</p>
-            <p><strong>Duration:</strong> 6 Months</p>
-        </div>
-
+    <div class="course-container" id="publicCourseList">
+        <p>⏳ Loading courses...</p>
     </div>
 
 </section>
@@ -122,7 +93,28 @@ FOOTER
 
 </footer>
 
-    <script src="assets/js/project-ui.js"></script>
+    <script>
+"use strict";
+const SURYA_PUBLIC_COURSES_API="https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
+function escCourse(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+(async function(){
+ const box=document.getElementById("publicCourseList");
+ try{
+  const r=await fetch(SURYA_PUBLIC_COURSES_API+"?action=publicCourses");
+  const d=await r.json();
+  const courses=d.courses||[];
+  box.innerHTML=courses.length?courses.map(c=>`
+   <div class="course-card">
+    <h3>${escCourse(c["Course Name"])}</h3>
+    <p>${escCourse(c["Description"])}</p>
+    <p><strong>Course ID:</strong> ${escCourse(c["Course ID"])}</p>
+    <p><strong>Duration:</strong> ${escCourse(c["Duration"])}</p>
+    <p><strong>Fee:</strong> ₹${escCourse(c["Fee"])}</p>
+   </div>`).join(""):"<p>📭 No active courses available.</p>";
+ }catch(e){box.innerHTML="<p>❌ Courses could not be loaded right now.</p>";}
+})();
+</script>
+<script src="assets/js/project-ui.js"></script>
 
 </body>
 </html>

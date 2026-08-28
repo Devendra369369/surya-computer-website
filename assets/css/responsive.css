@@ -80,3 +80,54 @@ Guide   : AERON
     }
 
 }
+
+/* ==================================================
+   CIMP UNIVERSAL DESKTOP + MOBILE PANELS
+================================================== */
+:root{
+    --cimp-panel:#ffffff;
+    --cimp-text:#172033;
+    --cimp-muted:#5f6b7a;
+    --cimp-border:#dbe2ea;
+}
+html[data-theme="light"]{
+    --cimp-panel:#ffffff;
+    --cimp-text:#172033;
+    --cimp-muted:#5f6b7a;
+    --cimp-border:#dbe2ea;
+}
+html[data-theme="dark"]{
+    --cimp-panel:#182131;
+    --cimp-text:#f8fafc;
+    --cimp-muted:#cbd5e1;
+    --cimp-border:#475569;
+}
+.admin-panel,.admin-courses,.mock-wrap,.contact-admin-wrap,.admin-results,.admin-certificates{
+    width:min(1200px,calc(100% - 24px));
+    margin-left:auto;
+    margin-right:auto;
+}
+.admin-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:16px;
+}
+.admin-card,.course-form-card,.course-list,.mock-panel,.message-card{
+    max-width:100%;
+    box-sizing:border-box;
+}
+@media(max-width:700px){
+    .admin-panel,.admin-courses,.mock-wrap,.contact-admin-wrap{
+        width:calc(100% - 16px);
+        padding-left:8px;
+        padding-right:8px;
+        box-sizing:border-box;
+    }
+    .admin-grid{grid-template-columns:1fr;}
+    .admin-card{width:100%;}
+    .header{padding:10px;gap:9px;}
+    .title h1{font-size:17px;}
+    .title p{font-size:13px;}
+    .navbar{overflow-x:auto;white-space:nowrap;}
+    input,select,textarea,button{max-width:100%;}
+}
