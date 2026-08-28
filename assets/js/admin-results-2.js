@@ -3550,8 +3550,17 @@ if (
                     ).trim();
 
 
-                const subjectAction =
-    existingSubjectId
+                /*
+ * IMPORTANT:
+ * subject.subjectId is the COURSE SUBJECT ID (e.g. CCC02).
+ * It does NOT mean that this subject already exists inside
+ * the current Result.
+ *
+ * Only subjects loaded from Result Subjects are marked
+ * isExistingResultSubject=true.
+ */
+const subjectAction =
+    subject.isExistingResultSubject === true
         ? "updateResultSubject"
         : "saveResultSubject";
 
