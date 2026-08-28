@@ -860,6 +860,14 @@ function displayStudents(students) {
 
         studentList.appendChild(card);
 
+        const photoElement =
+            card.querySelector(".student-record-photo");
+
+        loadStudentPhotoIntoCard(
+            student,
+            photoElement
+        );
+
     });
 
 }
@@ -1305,11 +1313,10 @@ function cancelStudentEdit() {
    CERTIFICATE
 ================================================== */
 
-function openStudentCertificate(studentId) {
+async function openStudentCertificate(studentId) {
 
     const student =
         findStudent(studentId);
-
 
     if (!student) {
 
@@ -1321,143 +1328,416 @@ function openStudentCertificate(studentId) {
 
     }
 
-      /* ==================================================
-       LOAD STUDENT RESULT
-    ================================================== */
-
-    const results =
-        getSuryaModule("results");
-
-
-    const studentResult =
-        results.find(
-            function(result) {
-
-                return (
-                    result.studentId ===
-                    student.id
-                );
-
-            }
-        );
-  
-    const certificates =
-        getSuryaModule("certificates");
-
-
-    const existingCertificate =
-        certificates.find(
-            function(certificate) {
-
-                return (
-                    certificate.studentId ===
-                    student.id
-                );
-
-            }
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
         );
 
-
-    if (existingCertificate) {
+    if (!adminToken) {
 
         alert(
+            "❌ Admin session expired. Please login again."
+        );
 
-            "📜 Certificate already exists.\n\n" +
-
-            "Certificate ID: " +
-            existingCertificate.certificateId
-
+        window.location.replace(
+            "admin-login.html"
         );
 
         return;
 
     }
-  
 
+    try {
 
-    const certificateId =
-        generateCertificateId();
+        /* =========================================
+           LOAD CENTRAL RESULTS
+           IMPORTANT: filter by exact Student ID.
+           One certificate = one selected Result ID.
+        ========================================= */
 
+        const response =
+            await fetch(
+                SURYA_DATABASE_API +
+                "?action=results&token=" +
+                encodeURIComponent(adminToken)
+            );
 
-       const newCertificate = {
+        const data =
+            await response.json();
 
-        certificateId:
-            certificateId,
+        if (
+            !data.success ||
+            !Array.isArray(data.results)
+        ) {
+            throw new Error(
+                data.message ||
+                "Unable to load student results."
+            );
+        }
 
-        studentId:
-            student.id,
+        const studentIdUpper =
+            String(student.id || "")
+                .trim()
+                .toUpperCase();
 
-        studentName:
-            student.name,
+        const results =
+            data.results
+                .filter(function(result) {
 
-        fatherName:
-            student.fatherName || "—",
+                    return (
+                        String(
+                            result["Student ID"] ||
+                            result.studentId ||
+                            ""
+                        )
+                        .trim()
+                        .toUpperCase() ===
+                        studentIdUpper
+                    );
 
-        course:
-            student.course,
+                })
+                .sort(function(a, b) {
 
-        totalMarks:
-            studentResult
-                ? studentResult.totalMarks
-                : "—",
+                    const da =
+                        new Date(
+                            a["Exam Date"] ||
+                            a.examDate ||
+                            0
+                        ).getTime();
 
-        obtainedMarks:
-            studentResult
-                ? studentResult.obtainedMarks
-                : "—",
+                    const db =
+                        new Date(
+                            b["Exam Date"] ||
+                            b.examDate ||
+                            0
+                        ).getTime();
 
-        percentage:
-            studentResult
-                ? studentResult.percentage
-                : "—",
+                    return db - da;
 
-        grade:
-            studentResult
-                ? studentResult.grade
-                : "—",
+                });
 
-        result:
-            studentResult
-                ? studentResult.result
-                : "—",
+        if (!results.length) {
 
-        issueDate:
-            new Date().toLocaleDateString(
-                "en-GB",
+            alert(
+                "❌ No result found for this student.\n\n" +
+                "Student ID: " +
+                student.id
+            );
+
+            return;
+
+        }
+
+        /* =========================================
+           SELECT EXACT EXAM / RESULT ID
+           This prevents mixing subjects between exams.
+        ========================================= */
+
+        let message =
+            "📜 SELECT EXAM FOR CERTIFICATE\n\n" +
+            "Student: " +
+            (student.name || "N/A") +
+            "\nStudent ID: " +
+            student.id +
+            "\n\n";
+
+        results.forEach(function(result, index) {
+
+            const rid =
+                result["Result ID"] ||
+                result.resultId ||
+                "";
+
+            const exam =
+                result["Exam"] ||
+                result.exam ||
+                "Unknown Exam";
+
+            const date =
+                result["Exam Date"] ||
+                result.examDate ||
+                "";
+
+            const status =
+                result["Status"] ||
+                result.status ||
+                "";
+
+            message +=
+                (index + 1) +
+                ". " +
+                exam +
+                (date ? " — " + date : "") +
+                " — " +
+                status +
+                "\n   Result ID: " +
+                rid +
+                "\n\n";
+
+        });
+
+        const answer =
+            prompt(
+                message +
+                "Enter exam number:"
+            );
+
+        if (answer === null) {
+            return;
+        }
+
+        const selectedIndex =
+            Number(answer) - 1;
+
+        if (
+            !Number.isInteger(selectedIndex) ||
+            selectedIndex < 0 ||
+            selectedIndex >= results.length
+        ) {
+
+            alert(
+                "❌ Invalid exam number."
+            );
+
+            return;
+
+        }
+
+        const selectedResult =
+            results[selectedIndex];
+
+        const resultId =
+            String(
+                selectedResult["Result ID"] ||
+                selectedResult.resultId ||
+                ""
+            ).trim();
+
+        if (!resultId) {
+
+            alert(
+                "❌ Result ID is missing. Certificate cannot be issued."
+            );
+
+            return;
+
+        }
+
+        const resultStatus =
+            String(
+                selectedResult["Status"] ||
+                selectedResult.status ||
+                ""
+            )
+            .trim()
+            .toUpperCase();
+
+        if (
+            resultStatus &&
+            resultStatus !== "PUBLISHED" &&
+            resultStatus !== "ACTIVE"
+        ) {
+
+            alert(
+                "⚠️ This result is not published yet.\n\n" +
+                "Result ID: " +
+                resultId +
+                "\nStatus: " +
+                (selectedResult["Status"] || selectedResult.status || "Draft") +
+                "\n\nPublish this result first, then issue the certificate."
+            );
+
+            return;
+
+        }
+
+        /* =========================================
+           CENTRAL CERTIFICATE CREATION
+           Backend uses this exact Result ID.
+        ========================================= */
+
+        const createResponse =
+            await fetch(
+                SURYA_DATABASE_API,
                 {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric"
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+                    body: JSON.stringify({
+                        action:
+                            "createCertificateFromResult",
+                        token:
+                            adminToken,
+                        resultId:
+                            resultId
+                    })
                 }
-            ),
+            );
 
-        status:
-            "Verified"
+        const created =
+            await createResponse.json();
 
-    };
+        if (!created.success) {
 
+            alert(
+                "❌ Certificate could not be issued.\n\n" +
+                (
+                    created.message ||
+                    "Unknown error."
+                ) +
+                (
+                    created.certificateId
+                        ? "\n\nCertificate ID: " +
+                          created.certificateId
+                        : ""
+                )
+            );
 
-    certificates.push(
-        newCertificate
-    );
+            return;
 
+        }
 
-    updateSuryaModule(
-        "certificates",
-        certificates
-    );
+        alert(
+            "✅ Certificate created successfully!\n\n" +
+            "Certificate ID: " +
+            created.certificateId +
+            "\nResult ID: " +
+            resultId
+        );
 
+    }
+    catch (error) {
 
-    alert(
+        console.error(
+            "CERTIFICATE ISSUE ERROR:",
+            error
+        );
 
-        "✅ Certificate created successfully!\n\n" +
+        alert(
+            "❌ Certificate issue request failed.\n\n" +
+            (
+                error.message ||
+                String(error)
+            )
+        );
 
-        "Certificate ID: " +
-        certificateId
-
-    );
+    }
 
 }
+
+
+/* ==================================================
+   STUDENT PHOTO LOADER
+   Google Drive files are loaded through the protected
+   central API so private Drive links also work.
+================================================== */
+
+function extractDriveFileId(url) {
+
+    const value =
+        String(url || "").trim();
+
+    if (!value) return "";
+
+    let match =
+        value.match(
+            /\/file\/d\/([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) return match[1];
+
+    match =
+        value.match(
+            /[?&]id=([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) return match[1];
+
+    match =
+        value.match(
+            /\/open\?id=([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) return match[1];
+
+    /* Sometimes the sheet already contains the file ID. */
+    if (/^[a-zA-Z0-9_-]{20,}$/.test(value)) {
+        return value;
+    }
+
+    return "";
+
+}
+
+
+async function loadStudentPhotoIntoCard(
+    student,
+    imageElement
+) {
+
+    if (!student || !imageElement) return;
+
+    const photoValue =
+        student.photo ||
+        student["Photo"] ||
+        "";
+
+    const fileId =
+        extractDriveFileId(photoValue);
+
+    if (!fileId) {
+        return;
+    }
+
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+    if (!adminToken) return;
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API +
+                "?action=studentPhoto&id=" +
+                encodeURIComponent(fileId) +
+                "&token=" +
+                encodeURIComponent(adminToken)
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            data.success &&
+            data.data &&
+            data.mimeType
+        ) {
+
+            imageElement.src =
+                "data:" +
+                data.mimeType +
+                ";base64," +
+                data.data;
+
+        }
+
+    }
+    catch (error) {
+
+        console.warn(
+            "STUDENT PHOTO LOAD FAILED:",
+            error
+        );
+
+    }
+
+}
+
 
 
 /* ==================================================
