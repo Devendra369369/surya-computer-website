@@ -541,6 +541,20 @@ if (action === "recordAdminSecurityEvent") {
         }
 
         /* =========================================
+           ADMIN: CERTIFICATES
+        ========================================= */
+
+        if (action === "certificates") {
+            return getCertificates();
+        }
+
+        if (action === "disableCertificate") {
+            return disableCertificate(
+                data.certificateId
+            );
+        }
+
+        /* =========================================
            STUDENT SESSION ROUTES
         ========================================= */
         if (action === "studentLogout") return jsonResponse(studentLogout_(token));
