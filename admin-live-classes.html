@@ -2,5 +2,344 @@
     <link rel="stylesheet" href="assets/css/project-ui.css">
 
     <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
-</head><body><main class="wrap"><h2>🔴 Live Classes Management</h2><div class="card"><div class="grid"><input id="id" placeholder="Class ID (blank = auto)"><input id="title" placeholder="Class title"><input id="course" placeholder="Course (blank = all)"><input id="teacher" placeholder="Teacher"><input id="date" placeholder="Date"><input id="start" placeholder="Start time"><input id="end" placeholder="End time"><input id="url" placeholder="Join URL"><textarea id="desc" placeholder="Description"></textarea><select id="status"><option>Draft</option><option>Published</option></select></div><button class="btn" onclick="save()">💾 Save</button><div id="msg" class="msg"></div></div><div id="list"></div></main><script>const API="https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec",token=sessionStorage.getItem('SURYA_ADMIN_TOKEN'),auth=sessionStorage.getItem('SURYA_ADMIN_AUTH');if(auth!=='true'||!token)location.replace('admin-login.html');function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}async function api(b){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...b,token})});const d=await r.json();if(!d.success)throw new Error(d.message);return d;}async function save(){try{await api({action:'liveSave',class:{classId:id.value,title:title.value,course:course.value,teacher:teacher.value,date:date.value,startTime:start.value,endTime:end.value,joinUrl:url.value,description:desc.value,status:status.value}});msg.textContent='✅ Saved';load();}catch(e){msg.textContent='❌ '+e.message;}}async function load(){try{const d=await api({action:'liveAdminList'});list.innerHTML=(d.classes||[]).map(c=>`<div class="card"><b>${esc(c['Class ID'])}</b> — ${esc(c.Title)} | ${esc(c.Course)} | ${esc(c.Status)}<br>${esc(c.Date)} ${esc(c['Start Time'])}-${esc(c['End Time'])}<br><button class="btn" onclick='edit(${JSON.stringify(c)})'>Edit</button><button class="btn" onclick='del("${esc(c['Class ID'])}")'>Delete</button></div>`).join('')||'No classes.';}catch(e){msg.textContent='❌ '+e.message;}}function edit(c){id.value=c['Class ID'];title.value=c.Title;course.value=c.Course;teacher.value=c.Teacher;date.value=c.Date;start.value=c['Start Time'];end.value=c['End Time'];url.value=c['Join URL'];desc.value=c.Description;status.value=c.Status;}async function del(x){if(!confirm('Delete class?'))return;try{await api({action:'liveDelete',classId:x});load();}catch(e){msg.textContent='❌ '+e.message;}}load();</script>    <script src="assets/js/project-ui.js"></script>
+</head><body><main class="wrap">
+<h2>🔴 Live Classes Management</h2>
+
+<div class="card">
+<div class="grid">
+<input id="liveClassId" placeholder="Class ID (blank = auto)">
+<input id="liveTitle" placeholder="Class title">
+<input id="liveCourse" placeholder="Course (blank = all)">
+<input id="liveTeacher" placeholder="Teacher">
+<input id="liveDate" type="date">
+<input id="liveStart" type="time">
+<input id="liveEnd" type="time">
+<input id="liveUrl" placeholder="Join URL">
+<textarea id="liveDesc" placeholder="Description"></textarea>
+
+<select id="liveStatus">
+<option value="Draft">Draft</option>
+<option value="Published">Published</option>
+</select>
+</div>
+
+<button class="btn" onclick="saveLiveClass()">💾 Save</button>
+<button class="btn" onclick="clearLiveForm()">🧹 Clear</button>
+
+<div id="msg" class="msg"></div>
+</div>
+
+<div id="list"></div>
+</main><script>
+const API =
+"https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
+
+const token =
+sessionStorage.getItem("SURYA_ADMIN_TOKEN");
+
+const auth =
+sessionStorage.getItem("SURYA_ADMIN_AUTH");
+
+if (auth !== "true" || !token) {
+    location.replace("admin-login.html");
+}
+
+const $ = id => document.getElementById(id);
+
+function esc(v) {
+    return String(v ?? "").replace(
+        /[&<>"']/g,
+        m => ({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+        }[m])
+    );
+}
+
+async function api(body) {
+
+    const r = await fetch(API, {
+        method: "POST",
+        headers: {
+            "Content-Type":
+            "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+            ...body,
+            token
+        })
+    });
+
+    const d = await r.json();
+
+    if (!d.success) {
+        throw new Error(
+            d.message || "Request failed."
+        );
+    }
+
+    return d;
+}
+
+function normalizeTime(v) {
+
+    if (v === null || v === undefined || v === "") {
+        return "";
+    }
+
+    if (v instanceof Date) {
+        return v.toISOString().slice(11,16);
+    }
+
+    const x = String(v).trim();
+
+    // Google Apps Script Date string
+    const iso = x.match(
+        /T(\d{2}):(\d{2})/
+    );
+
+    if (iso) {
+        return iso[1] + ":" + iso[2];
+    }
+
+    // HH:mm:ss
+    const normal = x.match(
+        /^(\d{1,2}):(\d{2})(?::\d{2})?$/
+    );
+
+    if (normal) {
+        return String(normal[1]).padStart(2,"0")
+             + ":" + normal[2];
+    }
+
+    return x;
+}
+
+function normalizeDate(v) {
+
+    const x = String(v ?? "").trim();
+
+    if (!x) return "";
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(x)) {
+        return x;
+    }
+
+    const m = x.match(
+        /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/
+    );
+
+    if (m) {
+        return `${m[3]}-${String(m[2]).padStart(2,"0")}-${String(m[1]).padStart(2,"0")}`;
+    }
+
+    const d = new Date(x);
+
+    if (!isNaN(d.getTime())) {
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    }
+
+    return "";
+}
+
+async function saveLiveClass() {
+
+    const data = {
+
+        classId: $("liveClassId").value.trim(),
+
+        title: $("liveTitle").value.trim(),
+
+        course: $("liveCourse").value.trim(),
+
+        teacher: $("liveTeacher").value.trim(),
+
+        date: $("liveDate").value,
+
+        startTime: $("liveStart").value,
+
+        endTime: $("liveEnd").value,
+
+        joinUrl: $("liveUrl").value.trim(),
+
+        description: $("liveDesc").value.trim(),
+
+        status: $("liveStatus").value
+    };
+
+    if (!data.title) {
+        $("msg").textContent =
+        "❌ Class title required.";
+        return;
+    }
+
+    if (!data.date) {
+        $("msg").textContent =
+        "❌ Date required.";
+        return;
+    }
+
+    if (!data.joinUrl) {
+        $("msg").textContent =
+        "❌ Join URL required.";
+        return;
+    }
+
+    try {
+
+        $("msg").textContent =
+        "⏳ Saving...";
+
+        await api({
+            action: "liveSave",
+            class: data
+        });
+
+        $("msg").textContent =
+        "✅ Saved successfully.";
+
+        await loadLiveClasses();
+
+    } catch (e) {
+
+        $("msg").textContent =
+        "❌ " + e.message;
+    }
+}
+
+async function loadLiveClasses() {
+
+    try {
+
+        const d = await api({
+            action: "liveAdminList"
+        });
+
+        const classes = d.classes || [];
+
+        $("list").innerHTML =
+        classes.map(c => {
+
+            const published =
+            String(c.Status).toLowerCase() ===
+            "published";
+
+            return `
+            <div class="card">
+
+            <b>${esc(c["Class ID"])}</b>
+            — ${esc(c.Title)}
+            | ${esc(c.Course)}
+            | <strong>${esc(c.Status)}</strong>
+
+            <br>
+
+            ${esc(normalizeDate(c.Date))}
+            ${esc(normalizeTime(c["Start Time"]))}
+            -
+            ${esc(normalizeTime(c["End Time"]))}
+
+            <br>
+
+            <button class="btn"
+                onclick='editLiveClass(${JSON.stringify(c)})'>
+                Edit
+            </button>
+
+            <button class="btn"
+                onclick='deleteLiveClass("${esc(c["Class ID"])}")'>
+                Delete
+            </button>
+
+            </div>`;
+        }).join("") || "No classes.";
+
+    } catch (e) {
+
+        $("msg").textContent =
+        "❌ " + e.message;
+    }
+}
+
+function editLiveClass(c) {
+
+    $("liveClassId").value =
+        c["Class ID"] || "";
+
+    $("liveTitle").value =
+        c.Title || "";
+
+    $("liveCourse").value =
+        c.Course || "";
+
+    $("liveTeacher").value =
+        c.Teacher || "";
+
+    $("liveDate").value =
+        normalizeDate(c.Date);
+
+    $("liveStart").value =
+        normalizeTime(c["Start Time"]);
+
+    $("liveEnd").value =
+        normalizeTime(c["End Time"]);
+
+    $("liveUrl").value =
+        c["Join URL"] || "";
+
+    $("liveDesc").value =
+        c.Description || "";
+
+    $("liveStatus").value =
+        String(c.Status || "Draft");
+
+    $("msg").textContent =
+        "✏️ Editing " + c["Class ID"];
+}
+
+function clearLiveForm() {
+
+    $("liveClassId").value = "";
+    $("liveTitle").value = "";
+    $("liveCourse").value = "";
+    $("liveTeacher").value = "";
+    $("liveDate").value = "";
+    $("liveStart").value = "";
+    $("liveEnd").value = "";
+    $("liveUrl").value = "";
+    $("liveDesc").value = "";
+    $("liveStatus").value = "Draft";
+    $("msg").textContent = "";
+}
+
+async function deleteLiveClass(id) {
+
+    if (!confirm("Delete this live class?")) {
+        return;
+    }
+
+    try {
+
+        await api({
+            action: "liveDelete",
+            classId: id
+        });
+
+        $("msg").textContent =
+        "✅ Deleted.";
+
+        await loadLiveClasses();
+
+    } catch (e) {
+
+        $("msg").textContent =
+        "❌ " + e.message;
+    }
+}
+
+loadLiveClasses();
+</script>    <script src="assets/js/project-ui.js"></script>
 </body></html>

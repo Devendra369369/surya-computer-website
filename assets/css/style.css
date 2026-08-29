@@ -1732,7 +1732,7 @@ select:focus {
 .hero-logo {
     position: absolute;
     top: 15px;
-    left: 155px;
+    left: 135px;
     width: 130px !important;
     height: auto !important;
     object-fit: contain !important;
