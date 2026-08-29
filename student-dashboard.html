@@ -197,7 +197,7 @@ STUDENT DASHBOARD
         <h3>📚 My Course</h3>
 
         <p>
-            Current Course: <strong>ADCA</strong>
+            Current Course: <strong id="myCourseValue">Loading...</strong>
         </p>
 
         <a href="courses.html" class="dashboard-btn">
@@ -302,6 +302,7 @@ async function loadStudentDashboard(){
   document.getElementById("dashboardName").textContent=s["Student Name"]||"N/A";
   document.getElementById("dashboardId").textContent=s["Student ID"]||"N/A";
   document.getElementById("dashboardCourse").textContent=s.Course||"N/A";
+  document.getElementById("myCourseValue").textContent=s.Course||"N/A";
   document.getElementById("dashboardMobile").textContent=s.Mobile||"N/A";
   document.getElementById("dashboardStatus").textContent=s.Status||"N/A";
   try {
