@@ -414,13 +414,17 @@ CONTACT SECTION
 
         <div class="contact-form">
 
-            <input type="text" placeholder="Your Name">
+            <input type="text" id="contactName" placeholder="Your Name">
 
-            <input type="email" placeholder="Your Email">
+            <input type="email" id="contactEmail" placeholder="Your Email">
 
-            <textarea placeholder="Your Message"></textarea>
+            <textarea id="contactMessage" placeholder="Your Message"></textarea>
 
-            <button class="btn">Send Message</button>
+            <div id="contactStatus" role="status" style="margin-top:10px"></div>
+
+            <button class="btn" id="contactSubmit" type="button">
+                Send Message
+            </button>
 
         </div>
 
@@ -465,6 +469,90 @@ FOOTER SECTION
     </footer>
 
     <script src="assets/js/main.js"></script>
+<script>
+const SURYA_DATABASE_API = "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
+
+const contactSubmit = document.getElementById("contactSubmit");
+
+contactSubmit?.addEventListener("click", async () => {
+
+    const name =
+        document.getElementById("contactName").value.trim();
+
+    const email =
+        document.getElementById("contactEmail").value.trim();
+
+    const message =
+        document.getElementById("contactMessage").value.trim();
+
+    const status =
+        document.getElementById("contactStatus");
+
+    if(!name || !email || !message){
+        status.textContent = "❌ Please fill all fields.";
+        return;
+    }
+
+    contactSubmit.disabled = true;
+    status.textContent = "⏳ Sending...";
+
+    try{
+
+        const r = await fetch(
+            SURYA_DATABASE_API,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "text/plain;charset=utf-8"
+                },
+                body: JSON.stringify({
+                    action: "submitContactMessage",
+                    name: name,
+                    email: email,
+                    message: message
+                })
+            }
+        );
+
+        const d = await r.json();
+
+        status.textContent =
+            d.success
+                ? "✅ Message sent successfully."
+                : "❌ " +
+                  (d.message ||
+                   "Unable to send message.");
+
+        if(d.success){
+
+            document.getElementById(
+                "contactName"
+            ).value = "";
+
+            document.getElementById(
+                "contactEmail"
+            ).value = "";
+
+            document.getElementById(
+                "contactMessage"
+            ).value = "";
+        }
+
+    }catch(e){
+
+        status.textContent =
+            "❌ Server connection failed. Please try again.";
+
+    }finally{
+
+        contactSubmit.disabled = false;
+
+    }
+
+});
+</script>
+
 
     <script>
 const HOME_MEDIA_API="https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
