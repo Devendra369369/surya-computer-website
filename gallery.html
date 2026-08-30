@@ -84,7 +84,7 @@ Created : 06-08-2026
 
     <script src="assets/js/project-ui.js"></script>
 <script>
-const GALLERY_API="https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec";
+const GALLERY_API="https://script.google.com/macros/s/AKfycbwHLdgDT9lyVnQc_65gF3LQC1ZWuFnfOU2Uxwg7PVee8O-oUGdDjcK29EBzCSHMtDSrxQ/exec";
 function gEsc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 async function loadUploadedGallery(){try{const r=await fetch(GALLERY_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'publicMedia'})});const d=await r.json();const a=d.media||[];if(!a.length){uploadedGallery.innerHTML='<p>No admin-uploaded photos yet.</p>';return;}const groups={};a.forEach(x=>(groups[x.category||'Institute']??=[]).push(x));uploadedGallery.parentElement.innerHTML=Object.entries(groups).map(([cat,items])=>`<section class="gallery-category"><h3>${gEsc(cat)}</h3><div class="gallery-grid">${items.map(x=>`<img src="${gEsc(x.url)}" alt="${gEsc(x.title)}" title="${gEsc(x.title)}" loading="lazy">`).join('')}</div></section>`).join('');}catch(e){uploadedGallery.innerHTML='<p>Latest uploads are temporarily unavailable.</p>';}}
 loadUploadedGallery();
