@@ -103,7 +103,7 @@ if (lastRow > 1) {
             2,
             1,
             lastRow - 1,
-            22
+            23
         )
         .getValues();
 

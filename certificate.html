@@ -106,7 +106,7 @@ Created : 08-08-2026
 <script>
 
 const CERTIFICATE_API =
-    "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
+    "https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec";
 
 
 const certificateForm =
@@ -188,11 +188,28 @@ certificateForm.addEventListener(
                 data.certificate;
 
 
-            if (
+            const certificateStatus =
                 String(certificate["Status"])
                     .trim()
-                    .toLowerCase()
-                !== "verified"
+                    .toLowerCase();
+
+            /* =========================================
+               FIX: backend (Certificates.gs getCertificate)
+               only ever rejects "Inactive" certificates —
+               it treats "Active" as a normal, valid status.
+               This frontend check used to require the exact
+               literal "Verified" (a leftover from the old
+               local-demo dataset), so real certificates
+               created with Status="Active" were wrongly
+               shown as "Not Verified" even though the
+               backend had already approved and returned
+               them. Now this mirrors the backend: only
+               "Inactive" / "Disabled" are rejected; both
+               "Active" and "Verified" are accepted.
+            ========================================= */
+            if (
+                certificateStatus === "inactive" ||
+                certificateStatus === "disabled"
             ) {
 
                 certificateResult.innerHTML = `
@@ -269,7 +286,19 @@ certificateForm.addEventListener(
 
                     <p>
                         <strong>Issue Date:</strong>
-                        ${certificate["Issue Date"]}
+                        ${(() => {
+                            const d = new Date(certificate["Issue Date"]);
+                            if (isNaN(d.getTime())) return certificate["Issue Date"];
+                            return d.toLocaleString("en-IN", {
+                                timeZone: "Asia/Kolkata",
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true
+                            });
+                        })()}
                     </p>
 
                     <p>

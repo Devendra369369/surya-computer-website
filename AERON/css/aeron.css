@@ -1,0 +1,684 @@
+/* ==================================================
+   AERON ASSISTANT
+   Surya Computer Of Education Center
+   UI Prototype v1.0
+================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f7fb;
+    color: #18202a;
+}
+
+
+/* ==================================================
+   DEMO PAGE
+================================================== */
+
+.demo-page {
+    min-height: 150vh;
+    padding: 70px 20px;
+    text-align: center;
+}
+
+.demo-page h1 {
+    margin-bottom: 12px;
+}
+
+.demo-page p {
+    line-height: 1.7;
+}
+
+
+/* ==================================================
+   AERON FLOATING BUTTON
+================================================== */
+
+.aeron-launcher {
+    position: fixed;
+
+    right: 22px;
+    bottom: 22px;
+
+    width: 64px;
+    height: 64px;
+
+    border: none;
+    border-radius: 50%;
+
+    cursor: pointer;
+
+    background: linear-gradient(
+        135deg,
+        #111827,
+        #2563eb
+    );
+
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.25);
+
+    z-index: 99999;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.aeron-launcher:hover {
+    transform: scale(1.08);
+}
+
+.aeron-launcher:active {
+    transform: scale(0.94);
+}
+
+
+/* ==================================================
+   AERON ICON
+================================================== */
+
+.aeron-robot {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 27px;
+    font-weight: bold;
+
+    background: rgba(255, 255, 255, 0.15);
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+
+    animation: aeronPulse 2.2s infinite;
+}
+
+
+@keyframes aeronPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(255,255,255,0.20);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(255,255,255,0);
+    }
+
+}
+
+
+/* ==================================================
+   ONLINE STATUS
+================================================== */
+
+.aeron-status {
+    position: absolute;
+
+    right: 5px;
+    bottom: 5px;
+
+    width: 12px;
+    height: 12px;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+
+    border: 2px solid white;
+}
+
+
+/* ==================================================
+   CHAT PANEL
+================================================== */
+
+.aeron-panel {
+    position: fixed;
+
+    right: 22px;
+    bottom: 96px;
+
+    width: 370px;
+    max-width: calc(100vw - 28px);
+
+    height: 570px;
+    max-height: calc(100vh - 115px);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border: 1px solid rgba(255, 255, 255, 0.7);
+
+    border-radius: 22px;
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.25);
+
+    backdrop-filter: blur(18px);
+
+    z-index: 99998;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform:
+        translateY(20px)
+        scale(0.96);
+
+    transform-origin: bottom right;
+
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease,
+        visibility 0.25s ease;
+}
+
+
+.aeron-panel.open {
+    opacity: 1;
+    visibility: visible;
+
+    transform:
+        translateY(0)
+        scale(1);
+}
+
+
+/* ==================================================
+   HEADER
+================================================== */
+
+.aeron-header {
+    min-height: 72px;
+
+    padding: 12px 14px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #111827,
+            #2563eb
+        );
+
+    color: white;
+}
+
+
+.aeron-avatar {
+    width: 44px;
+    height: 44px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.15);
+
+    border: 1px solid rgba(255,255,255,0.3);
+
+    font-size: 25px;
+}
+
+
+.aeron-title {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+.aeron-title strong {
+    font-size: 17px;
+}
+
+
+.aeron-title span {
+    font-size: 11px;
+
+    opacity: 0.8;
+}
+
+
+/* ==================================================
+   HEADER BUTTONS
+================================================== */
+
+.aeron-stop,
+.aeron-close {
+    width: 34px;
+    height: 34px;
+
+    border: none;
+    border-radius: 50%;
+
+    cursor: pointer;
+
+    color: white;
+
+    background: rgba(255,255,255,0.12);
+
+    font-size: 16px;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.aeron-stop:hover,
+.aeron-close:hover {
+    background: rgba(255,255,255,0.25);
+
+    transform: scale(1.08);
+}
+
+
+/* ==================================================
+   CHAT AREA
+================================================== */
+
+.aeron-chat {
+    flex: 1;
+
+    overflow-y: auto;
+
+    padding: 18px 14px;
+
+    scroll-behavior: smooth;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f8fafc,
+            #eef3f9
+        );
+}
+
+
+/* ==================================================
+   MESSAGE
+================================================== */
+
+.aeron-message {
+    display: flex;
+
+    gap: 9px;
+
+    margin-bottom: 15px;
+}
+
+
+.aeron-message-avatar {
+    width: 32px;
+    height: 32px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #172033;
+
+    color: white;
+
+    font-size: 17px;
+}
+
+
+.aeron-bubble {
+    max-width: 82%;
+
+    padding: 12px 14px;
+
+    border-radius: 5px 16px 16px 16px;
+
+    background: white;
+
+    box-shadow:
+        0 3px 12px rgba(0,0,0,0.07);
+
+    font-size: 14px;
+
+    line-height: 1.55;
+}
+
+
+.aeron-bubble p {
+    margin: 7px 0 0;
+}
+
+
+/* ==================================================
+   QUICK ACTIONS
+================================================== */
+
+.aeron-quick-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin: 5px 0 8px 41px;
+}
+
+
+.aeron-quick-actions button {
+    border: 1px solid #dbe3ef;
+
+    background: white;
+
+    color: #1e293b;
+
+    padding: 8px 11px;
+
+    border-radius: 18px;
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    transition: 0.2s ease;
+}
+
+
+.aeron-quick-actions button:hover {
+    background: #eff6ff;
+
+    border-color: #93c5fd;
+}
+
+
+/* ==================================================
+   TYPING INDICATOR
+================================================== */
+
+.aeron-typing {
+    padding: 7px 15px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 4px;
+
+    font-size: 11px;
+
+    color: #64748b;
+}
+
+
+.aeron-typing span {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #64748b;
+
+    animation: aeronTyping 1.2s infinite;
+}
+
+
+.aeron-typing span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.aeron-typing span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+
+.aeron-typing b {
+    margin-left: 5px;
+
+    font-weight: normal;
+}
+
+
+@keyframes aeronTyping {
+
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+    }
+
+    30% {
+        transform: translateY(-4px);
+    }
+
+}
+
+
+/* ==================================================
+   INPUT
+================================================== */
+
+.aeron-input-area {
+    display: flex;
+
+    gap: 8px;
+
+    padding: 10px;
+
+    background: white;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+.aeron-input-area input {
+    flex: 1;
+
+    min-width: 0;
+
+    height: 44px;
+
+    border: 1px solid #d7dee9;
+
+    border-radius: 22px;
+
+    padding: 0 15px;
+
+    outline: none;
+
+    font-size: 14px;
+}
+
+
+.aeron-input-area input:focus {
+    border-color: #60a5fa;
+
+    box-shadow:
+        0 0 0 3px rgba(96,165,250,0.12);
+}
+
+
+.aeron-input-area button {
+    width: 44px;
+    height: 44px;
+
+    flex-shrink: 0;
+
+    border: none;
+
+    border-radius: 50%;
+
+    cursor: pointer;
+
+    background: #2563eb;
+
+    color: white;
+
+    font-size: 19px;
+
+    transition: 0.2s ease;
+}
+
+
+.aeron-input-area button:hover {
+    transform: scale(1.06);
+}
+
+
+/* ==================================================
+   FOOTER
+================================================== */
+
+.aeron-footer {
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 13px;
+
+    background: white;
+
+    color: #94a3b8;
+
+    font-size: 9px;
+}
+
+
+.aeron-footer button {
+    border: none;
+
+    background: none;
+
+    color: #64748b;
+
+    cursor: pointer;
+
+    font-size: 10px;
+}
+
+
+/* ==================================================
+   STOPPED STATE
+================================================== */
+
+.aeron-panel.aeron-stopped .aeron-input-area {
+    opacity: 0.55;
+}
+
+
+.aeron-panel.aeron-stopped .aeron-input-area input {
+    background: #f1f5f9;
+
+    cursor: not-allowed;
+}
+
+
+/* ==================================================
+   MOBILE
+================================================== */
+
+@media (max-width: 600px) {
+
+    .aeron-launcher {
+        right: 16px;
+        bottom: 16px;
+
+        width: 58px;
+        height: 58px;
+    }
+
+
+    .aeron-panel {
+        right: 10px;
+        bottom: 84px;
+
+        width: calc(100vw - 20px);
+
+        height: min(620px, calc(100vh - 100px));
+
+        border-radius: 20px;
+    }
+
+
+    .aeron-header {
+        min-height: 64px;
+    }
+
+
+    .aeron-chat {
+        padding: 14px 10px;
+    }
+
+
+    .aeron-bubble {
+        max-width: 88%;
+
+        font-size: 13px;
+    }
+
+
+    .aeron-quick-actions {
+        margin-left: 40px;
+    }
+
+}
+
+
+/* ==================================================
+   VERY SMALL PHONES
+================================================== */
+
+@media (max-width: 360px) {
+
+    .aeron-panel {
+        right: 6px;
+
+        width: calc(100vw - 12px);
+    }
+
+
+    .aeron-title span {
+        font-size: 10px;
+    }
+
+
+    .aeron-quick-actions button {
+        font-size: 11px;
+
+        padding: 7px 9px;
+    }
+
+}

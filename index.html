@@ -54,6 +54,7 @@ content="Computer education and career-oriented courses at Kamalpur, Chandauli, 
 <meta property="og:url"
 content="https://devendra369369.github.io/surya-computer-website/">
     
+    <link rel="stylesheet" href="AERON/css/aeron.css">
 </head>
 
 <body>
@@ -470,7 +471,7 @@ FOOTER SECTION
 
     <script src="assets/js/main.js"></script>
 <script>
-const SURYA_DATABASE_API = "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
+const SURYA_DATABASE_API = "https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec";
 
 const contactSubmit = document.getElementById("contactSubmit");
 
@@ -555,7 +556,7 @@ contactSubmit?.addEventListener("click", async () => {
 
 
     <script>
-const HOME_MEDIA_API="https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
+const HOME_MEDIA_API="https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec";
 function homeEsc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 async function loadHomeMedia(){try{const r=await fetch(HOME_MEDIA_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'publicMedia'})});const d=await r.json();const a=(d.media||[]).slice(0,6);if(a.length)homeGallery.innerHTML=a.map(x=>`<img src="${homeEsc(x.url)}" alt="${homeEsc(x.title)}" loading="lazy">`).join('');}catch(e){}}
 loadHomeMedia();
@@ -580,7 +581,195 @@ loadHomeMedia();
 </script>
 
 <script>
-(async function(){try{const r=await fetch('https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'publicNotices'})});const d=await r.json();if(!d.success||!d.notices?.length)return;const e=document.getElementById('homeNoticeBox');if(!e)return;e.innerHTML=d.notices.slice(0,5).map(n=>`<article class="modern-notice"><span class="notice-badge">${n.priority==='High'?'IMPORTANT':'NOTICE'}</span><h3>${String(n.title).replace(/[&<>]/g,'')}</h3><p>${String(n.message).replace(/[&<>]/g,'')}</p></article>`).join('');}catch(e){}})();
+(async function(){try{const r=await fetch('https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'publicNotices'})});const d=await r.json();if(!d.success||!d.notices?.length)return;const e=document.getElementById('homeNoticeBox');if(!e)return;e.innerHTML=d.notices.slice(0,5).map(n=>`<article class="modern-notice"><span class="notice-badge">${n.priority==='High'?'IMPORTANT':'NOTICE'}</span><h3>${String(n.title).replace(/[&<>]/g,'')}</h3><p>${String(n.message).replace(/[&<>]/g,'')}</p></article>`).join('');}catch(e){}})();
 </script>
+
+<!-- ==================================================
+         AERON FLOATING ASSISTANT
+    ================================================== -->
+
+    <button
+        class="aeron-launcher"
+        id="aeronLauncher"
+        type="button"
+        aria-label="Open AERON Assistant"
+    >
+
+        <span class="aeron-robot">✦</span>
+
+        <span class="aeron-status"></span>
+
+    </button>
+
+
+    <!-- ==================================================
+         AERON CHAT PANEL
+    ================================================== -->
+
+    <section
+        class="aeron-panel"
+        id="aeronPanel"
+        aria-hidden="true"
+    >
+
+        <!-- HEADER -->
+
+        <header class="aeron-header">
+
+            <div class="aeron-avatar">
+                ✦
+            </div>
+
+            <div class="aeron-title">
+
+                <strong>AERON</strong>
+
+                <span>
+                    Surya CEC Assistant
+                </span>
+
+            </div>
+
+            <button
+                class="aeron-stop"
+                id="aeronStop"
+                type="button"
+                title="Stop AERON"
+            >
+                ■
+            </button>
+
+            <button
+                class="aeron-close"
+                id="aeronClose"
+                type="button"
+                title="Close"
+            >
+                ×
+            </button>
+
+        </header>
+
+
+        <!-- CHAT AREA -->
+
+        <div
+            class="aeron-chat"
+            id="aeronChat"
+        >
+
+            <div class="aeron-message aeron-bot">
+
+                <div class="aeron-message-avatar">
+                    ✦
+                </div>
+
+                <div class="aeron-bubble">
+
+                    <strong>नमस्ते! 👋</strong>
+
+                    <p>
+                        मैं AERON हूँ।  
+                        Surya Computer Of Education Center
+                        की website पर आपकी मदद करने के लिए यहाँ हूँ।
+                    </p>
+
+                    <p>
+                        आप मुझसे course, admission, certificate
+                        या institute से जुड़ी जानकारी पूछ सकते हैं।
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- QUICK ACTIONS -->
+
+            <div class="aeron-quick-actions">
+
+                <button type="button" data-question="Available courses">
+                    📚 Courses
+                </button>
+
+                <button type="button" data-question="Admission information">
+                    📝 Admission
+                </button>
+
+                <button type="button" data-question="Certificate verification">
+                    🎓 Certificate
+                </button>
+
+                <button type="button" data-question="Contact information">
+                    📞 Contact
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- TYPING INDICATOR -->
+
+        <div
+            class="aeron-typing"
+            id="aeronTyping"
+            hidden
+        >
+
+            <span></span>
+            <span></span>
+            <span></span>
+
+            <b>AERON सोच रहा है...</b>
+
+        </div>
+
+
+        <!-- INPUT -->
+
+        <form
+            class="aeron-input-area"
+            id="aeronForm"
+        >
+
+            <input
+                type="text"
+                id="aeronInput"
+                placeholder="AERON से कुछ पूछें..."
+                autocomplete="off"
+            >
+
+            <button
+                type="submit"
+                id="aeronSend"
+                aria-label="Send message"
+            >
+                ➤
+            </button>
+
+        </form>
+
+
+        <!-- FOOTER -->
+
+        <div class="aeron-footer">
+
+            <span>
+                AERON • Surya CEC
+            </span>
+
+            <button
+                type="button"
+                id="aeronHide"
+            >
+                Hide
+            </button>
+
+        </div>
+
+    </section>
+
+    <script src="AERON/js/aeron.js"></script>
 </body>
 </html>

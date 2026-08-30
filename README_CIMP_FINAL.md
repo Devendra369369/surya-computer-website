@@ -17,7 +17,7 @@
 
 ## IMPORTANT: Apps Script deployment
 The frontend currently uses this central endpoint:
-`https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec`
+`https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec`
 
 The previously tested URL beginning with `AKfycbxm...` returned Google's **Page not found** page. That is a stale/invalid deployment URL, not a valid JSON API response. If this deployment is replaced, update the endpoint in the frontend before going live.
 
