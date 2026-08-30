@@ -13,7 +13,7 @@
     return;
   }
 
-  const API = "https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
+  const API = "https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec";
   let polling = false;
 
   function esc(v){

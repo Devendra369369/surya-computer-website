@@ -112,7 +112,7 @@ Created : 09-08-2026
 </style>
 
 <script>
-const NOTICE_API="https://script.google.com/macros/s/AKfycbwSNgtaUsInP4pOPORHVcYjyFKIqESpTj_zyLqy-4dpLUMX--D1EnRv36YVbGwfkL7l/exec";
+const NOTICE_API="https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec";
 const NOTICE_TOKEN=sessionStorage.getItem('SURYA_ADMIN_TOKEN');
 if(sessionStorage.getItem('SURYA_ADMIN_AUTH')!=='true'||!NOTICE_TOKEN)location.replace('admin-login.html');
 const nEsc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
