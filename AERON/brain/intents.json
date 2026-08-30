@@ -1,0 +1,62 @@
+{
+  "greeting": [
+    "hello",
+    "hi",
+    "hey",
+    "namaste",
+    "नमस्ते",
+    "हेलो"
+  ],
+  "courses": [
+    "course",
+    "courses",
+    "कोर्स",
+    "पाठ्यक्रम",
+    "ccc",
+    "dca",
+    "adca",
+    "tally",
+    "typing"
+  ],
+  "admission": [
+    "admission",
+    "admit",
+    "प्रवेश",
+    "एडमिशन",
+    "application"
+  ],
+  "certificate": [
+    "certificate",
+    "प्रमाणपत्र",
+    "सर्टिफिकेट",
+    "verify certificate"
+  ],
+  "result": [
+    "result",
+    "परिणाम",
+    "marks",
+    "अंक"
+  ],
+  "notice": [
+    "notice",
+    "सूचना",
+    "latest notice"
+  ],
+  "contact": [
+    "contact",
+    "phone",
+    "mobile",
+    "number",
+    "सम्पर्क",
+    "संपर्क"
+  ],
+  "help": [
+    "help",
+    "problem",
+    "issue",
+    "problem aa rahi",
+    "मदद",
+    "परेशान",
+    "support"
+  ]
+}

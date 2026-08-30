@@ -1,0 +1,38 @@
+{
+  "institute": {
+    "name": "Surya Computer Of Education Center",
+    "location": "Kamalpur, Chandauli, Uttar Pradesh",
+    "phone": "7084275870",
+    "email": "sunilkumar5757@gmail.com"
+  },
+  "public_capabilities": [
+    "course information",
+    "admission guidance",
+    "certificate verification guidance",
+    "public result guidance",
+    "notices",
+    "contact information",
+    "human-help escalation"
+  ],
+  "courses": [
+    "CCC",
+    "DCA",
+    "ADCA",
+    "Tally Prime",
+    "Typing",
+    "Basic Computer"
+  ],
+  "important_rules": [
+    "Do not invent fees, dates, policies or availability when verified data is unavailable.",
+    "Do not expose private student records or admin-only information.",
+    "Direct urgent or unresolved cases to the official institute contact number."
+  ],
+  "version": "2.2.0",
+  "capabilities": [
+    "custom mobile keyboard",
+    "advanced computer keyboard",
+    "free browser voice input",
+    "verified local fallback",
+    "safe public/student/admin modes"
+  ]
+}
