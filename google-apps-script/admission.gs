@@ -251,6 +251,20 @@ if (lastRow > 1) {
 
     sheet.appendRow(row);
 
+    // Notify admin independently of the browser/dashboard state.
+    // Notification failure must never cancel a successful admission.
+    try {
+        if (typeof aeronNotifyNewAdmission_ === "function") {
+            aeronNotifyNewAdmission_({
+                applicationId: applicationId,
+                studentName: data.studentName || "",
+                course: data.course || "",
+                mobile: data.mobile || ""
+            });
+        }
+    } catch (notificationError) {
+        console.warn("AERON admission notification failed:", notificationError);
+    }
 
         return jsonResponse({
             success: true,

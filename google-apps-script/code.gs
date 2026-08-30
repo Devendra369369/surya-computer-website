@@ -507,6 +507,22 @@ if (action === "recordAdminSecurityEvent") {
         }
 
         /* =========================================
+           PUBLIC: AERON ASSISTANT
+        ========================================= */
+        if (action === "aeronAsk") {
+            return jsonResponse(aeronAsk_(data));
+        }
+        if (action === "aeronHelp") {
+            return jsonResponse(aeronPublicHelp_(data));
+        }
+        if (action === "aeronMemoryGet") {
+            return jsonResponse(aeronMemoryGet_(data.token));
+        }
+        if (action === "aeronMemorySave") {
+            return jsonResponse(aeronMemorySave_(data.token, data.key, data.value, data.consent === true));
+        }
+
+        /* =========================================
            PUBLIC: SUBMIT ADMISSION
         ========================================= */
 
@@ -522,6 +538,16 @@ if (action === "recordAdminSecurityEvent") {
             String(
                 data.token || ""
             ).trim();
+
+        /* =========================================
+           ADMIN: AERON ASSISTANT
+        ========================================= */
+        if (action === "aeronAdminAsk") {
+            return jsonResponse(aeronAdminAsk_(token, data.question));
+        }
+        if (action === "aeronAdminNotifications") {
+            return jsonResponse(aeronAdminNotifications_(token));
+        }
 
         /* =========================================
            ADMIN: PUBLIC MEDIA
@@ -1178,6 +1204,19 @@ function submitContactMessage_(data) {
         subject: "SURYA Website Contact — " + name,
         htmlBody: "<p><b>Name:</b> " + escapeHtml_(name) + "</p><p><b>Email:</b> " + escapeHtml_(email) + "</p><p><b>Message:</b><br>" + escapeHtml_(message).replace(/\n/g,"<br>") + "</p>"
     });
+    try {
+        if (typeof aeronNotifyAdmins_ === "function") {
+            aeronNotifyAdmins_(
+                "CONTACT_MESSAGE",
+                "New Website Contact Message",
+                "From: " + name + "\nEmail: " + email + "\nMessage: " + message,
+                "contact.html",
+                false
+            );
+        }
+    } catch (notificationError) {
+        console.warn("AERON contact notification failed:", notificationError);
+    }
     return jsonResponse({success:true,message:"Message sent successfully."});
 }
 

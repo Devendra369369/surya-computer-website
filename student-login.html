@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Student Login | Surya Computer Of Education Center</title><link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/responsive.css"><style>.auth-box{max-width:520px;margin:35px auto;padding:22px;background:#fff;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08)}.auth-box input{width:100%;box-sizing:border-box;padding:12px;margin:7px 0;border:1px solid #ccc;border-radius:8px}.auth-box button{padding:11px 18px;border:0;border-radius:8px;cursor:pointer;margin:6px 4px 6px 0}.msg{margin:12px 0;font-weight:600}.hidden{display:none}</style>    <link rel="stylesheet" href="assets/css/project-ui.css">
 
     <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
 </head><body>
 <div class="top-bar">📞 <a href="tel:+917084275870">7084275870</a> | ✉️ <a href="mailto:sunilkumar5757@gmail.com">sunilkumar5757@gmail.com</a></div><header class="header"><img src="assets/images/logo.png" alt="Logo" class="logo"><div class="title"><h1>SURYA COMPUTER OF EDUCATION CENTER</h1><p>Student Portal</p></div></header>
 <nav class="navbar"><a href="index.html">Home</a><a href="courses.html">Courses</a><a href="result.html">Result</a><a href="certificate.html">Certificate</a><a href="student-login.html">Student Login</a><a href="contact.html">Contact</a></nav>
@@ -16,4 +17,6 @@ async function login(){try{loginMsg.textContent='⏳ Checking...';const d=await 
 async function sendOtp(){try{resetMsg.textContent='⏳ Sending OTP...';await api({action:'studentRequestReset',studentId:resetId.value.trim(),email:resetEmail.value.trim()});otpStep.classList.remove('hidden');resetMsg.textContent='✅ OTP sent. Check your registered email.';}catch(e){resetMsg.textContent='❌ '+e.message;}}
 async function resetPassword(){try{resetMsg.textContent='⏳ Resetting...';await api({action:'studentResetPassword',studentId:resetId.value.trim(),email:resetEmail.value.trim(),otp:otp.value.trim(),newPassword:newPassword.value});resetMsg.textContent='✅ Password reset successfully. अब login करें.';setTimeout(showLogin,1200);}catch(e){resetMsg.textContent='❌ '+e.message;}}
 </script>    <script src="assets/js/project-ui.js"></script>
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
 </body></html>
