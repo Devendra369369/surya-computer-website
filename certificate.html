@@ -107,7 +107,7 @@ Created : 08-08-2026
 <script>
 
 const CERTIFICATE_API =
-    "https://script.google.com/macros/s/AKfycbwHLdgDT9lyVnQc_65gF3LQC1ZWuFnfOU2Uxwg7PVee8O-oUGdDjcK29EBzCSHMtDSrxQ/exec";
+    "https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec";
 
 
 const certificateForm =
@@ -115,6 +115,8 @@ const certificateForm =
 
 const certificateResult =
     document.getElementById("certificateResult");
+
+  
 
 
 certificateForm.addEventListener(
@@ -340,6 +342,50 @@ certificateForm.addEventListener(
 
     }
 );
+
+  /* ==================================================
+   QR CODE AUTO VERIFICATION
+   Reads Certificate ID from:
+   certificate.html?id=SC-CERT-XXXX
+================================================== */
+
+const qrCertificateId =
+    new URLSearchParams(
+        window.location.search
+    ).get("id");
+
+
+if (qrCertificateId) {
+
+    const cleanCertificateId =
+        qrCertificateId
+            .trim()
+            .toUpperCase();
+
+
+    if (cleanCertificateId) {
+
+        const certificateInput =
+            document.getElementById(
+                "certificateId"
+            );
+
+
+        certificateInput.value =
+            cleanCertificateId;
+
+
+        /*
+         * Submit handler is already attached above,
+         * so requestSubmit() will now trigger the
+         * normal certificate verification flow.
+         */
+
+        certificateForm.requestSubmit();
+
+    }
+
+}
 
 </script>
 
