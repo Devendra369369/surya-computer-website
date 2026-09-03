@@ -45,3 +45,12 @@ html[data-theme="light"] .cimp-theme-toggle { color:#222; }
 input, select, textarea { text-align:center; }
 body, input, select, textarea, button { -webkit-tap-highlight-color:transparent; }
 @media print { .cimp-theme-toggle { display:none !important; } }
+
+/* AERON/CIMP FINAL READABILITY FIX */
+.top-bar a,.top-bar a:visited{color:#fff!important;text-decoration:none!important}
+footer a,.footer a{color:#fff!important}
+.notice-box{color:#0f172a!important}
+.notice-box *{color:inherit!important}
+html[data-theme="dark"] .notice-box,html.dark-mode .notice-box,html.dark .notice-box,body.dark-mode .notice-box,body.dark .notice-box{background:#172033!important;color:#f8fafc!important}
+html[data-theme="dark"] .notice-box *,html.dark-mode .notice-box *,html.dark .notice-box *,body.dark-mode .notice-box *,body.dark .notice-box *{color:#f8fafc!important}
+html[data-theme="dark"] .top-bar a,html.dark-mode .top-bar a,html.dark .top-bar a,body.dark-mode .top-bar a,body.dark .top-bar a,html[data-theme="dark"] footer a,html.dark-mode footer a,html.dark footer a,body.dark-mode footer a,body.dark footer a{color:#e5e7eb!important}

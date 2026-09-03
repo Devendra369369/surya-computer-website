@@ -96,7 +96,7 @@ FOOTER
 
     <script>
 "use strict";
-const SURYA_PUBLIC_COURSES_API="https://script.google.com/macros/s/AKfycbwHLdgDT9lyVnQc_65gF3LQC1ZWuFnfOU2Uxwg7PVee8O-oUGdDjcK29EBzCSHMtDSrxQ/exec";
+const SURYA_PUBLIC_COURSES_API="https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec";
 function escCourse(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
 (async function(){
  const box=document.getElementById("publicCourseList");
@@ -118,6 +118,7 @@ function escCourse(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","
 <script src="assets/js/project-ui.js"></script>
 
     <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
     <script src="AERON/js/aeron-widget.js" defer></script>
 </body>
 </html>

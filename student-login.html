@@ -9,7 +9,7 @@
 <div id="resetBox" class="hidden"><h2>🔑 Reset Password</h2><p>Registered email पर OTP भेजा जाएगा।</p><input id="resetId" placeholder="Student ID"><input id="resetEmail" type="email" placeholder="Registered Email"><button onclick="sendOtp()">📩 Send OTP</button><div id="otpStep" class="hidden"><input id="otp" placeholder="6-digit OTP"><input id="newPassword" type="password" placeholder="New Password (8+ characters)"><button onclick="resetPassword()">🔐 Reset Password</button></div><button onclick="showLogin()">← Back to Login</button><div id="resetMsg" class="msg"></div></div></main>
 <footer><p>© 2026 Surya Computer Of Education Center | All Rights Reserved.</p></footer>
 <script>
-const API="https://script.google.com/macros/s/AKfycbwHLdgDT9lyVnQc_65gF3LQC1ZWuFnfOU2Uxwg7PVee8O-oUGdDjcK29EBzCSHMtDSrxQ/exec";
+const API="https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec";
 async function api(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});const d=await r.json();if(!d.success)throw new Error(d.message||'Request failed');return d;}
 function showReset(){loginBox.classList.add('hidden');resetBox.classList.remove('hidden');}
 function showLogin(){resetBox.classList.add('hidden');loginBox.classList.remove('hidden');}
@@ -18,5 +18,6 @@ async function sendOtp(){try{resetMsg.textContent='⏳ Sending OTP...';await api
 async function resetPassword(){try{resetMsg.textContent='⏳ Resetting...';await api({action:'studentResetPassword',studentId:resetId.value.trim(),email:resetEmail.value.trim(),otp:otp.value.trim(),newPassword:newPassword.value});resetMsg.textContent='✅ Password reset successfully. अब login करें.';setTimeout(showLogin,1200);}catch(e){resetMsg.textContent='❌ '+e.message;}}
 </script>    <script src="assets/js/project-ui.js"></script>
     <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
     <script src="AERON/js/aeron-widget.js" defer></script>
 </body></html>

@@ -292,7 +292,7 @@ DASHBOARD SCRIPT
 ==================================================-->
 
 <script>
-const STUDENT_API="https://script.google.com/macros/s/AKfycbwHLdgDT9lyVnQc_65gF3LQC1ZWuFnfOU2Uxwg7PVee8O-oUGdDjcK29EBzCSHMtDSrxQ/exec";
+const STUDENT_API="https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec";
 const STUDENT_TOKEN=sessionStorage.getItem("SURYA_STUDENT_TOKEN");
 async function studentApi(body){const r=await fetch(STUDENT_API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...body,token:STUDENT_TOKEN})});const d=await r.json();if(!d.success)throw new Error(d.message||"Request failed");return d;}
 async function loadStudentDashboard(){
@@ -322,6 +322,7 @@ loadStudentDashboard();
 
     <script src="assets/js/project-ui.js"></script>
     <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
     <script src="AERON/js/aeron-widget.js" defer></script>
 </body>
 </html>
