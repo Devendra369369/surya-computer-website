@@ -356,3 +356,23 @@ The website can control its own AERON keyboard and can request the Android keybo
 `AERON/config/aeron-config.js` — UI version metadata.
 
 This release does not require any provider API key change.
+
+
+## AERON v3.5 desktop + voice update
+- Desktop uses the real PC keyboard; the custom mobile keyboard is hidden above 600px.
+- Right Shift double-press sends the current text message.
+- Send button is hidden when the composer is empty.
+- Header includes Minimize, Maximize/Restore, Stop and Close.
+- Double-tap the microphone to enter/exit continuous voice conversation.
+- Voice mode uses Hindi (hi-IN) speech recognition and browser Hindi TTS when available.
+- Voice session is only auto-restarted after a user explicitly starts voice mode.
+- Recent conversation turns are sent to the server LLM for context.
+- Gemini API credentials remain server-side in Apps Script Script Properties.
+
+
+## v3.6 keyboard/API repair
+- One composer only: textarea opens the real phone keyboard; one AERON keyboard button opens the custom keyboard.
+- Normal mode has no left Shift; the right Shift key is Send. Computer mode also uses the right Shift key as Send.
+- Right Shift on a physical PC/laptop sends the current message.
+- Custom keyboard suggestions stay above the keys.
+- Apps Script remains the primary answer path; Bharat/America capital answers are served through the API, and optional Gemini LLM is used when `AERON_GEMINI_API_KEY` is configured in Script Properties.

@@ -407,3 +407,100 @@ html[data-theme="dark"] #passwordPanel *{color:inherit;}
 html[data-theme="dark"] .item{background:#182131 !important;color:#f8fafc !important;border-color:#475569 !important;} html[data-theme="dark"] .item-body *{color:inherit;}
 
 html[data-theme="dark"] .emergency-card{background:#182131 !important;color:#f8fafc !important;border:1px solid #475569;} html[data-theme="dark"] .emergency-card *{color:inherit;}
+
+/* ==================================================
+   DARK MODE — TOP CONTACT + FOOTER LINKS
+   Keep blue links readable on dark/blue bars.
+================================================== */
+html[data-theme="dark"] .top-bar a,
+html.dark-mode .top-bar a,
+html.dark .top-bar a,
+body.dark-mode .top-bar a,
+body.dark .top-bar a,
+html[data-theme="dark"] .footer a,
+html[data-theme="dark"] footer a,
+html.dark-mode .footer a,
+html.dark-mode footer a,
+html.dark .footer a,
+html.dark footer a,
+body.dark-mode .footer a,
+body.dark-mode footer a,
+body.dark .footer a,
+body.dark footer a {
+    color:#ffffff !important;
+    text-decoration:none;
+}
+html[data-theme="dark"] .top-bar,
+html[data-theme="dark"] .footer,
+html[data-theme="dark"] footer,
+html.dark-mode .top-bar,
+html.dark-mode .footer,
+html.dark-mode footer,
+html.dark .top-bar,
+html.dark .footer,
+html.dark footer {
+    color:#f8fafc !important;
+}
+
+/* ==================================================
+   DARK MODE — FINAL UNIVERSAL TEXT CONTRAST
+   Keep ordinary page text readable on every page while
+   preserving existing colored/header components.
+================================================== */
+html[data-theme="dark"] main h1,
+html[data-theme="dark"] main h2,
+html[data-theme="dark"] main h3,
+html[data-theme="dark"] main h4,
+html[data-theme="dark"] main h5,
+html[data-theme="dark"] main h6,
+html[data-theme="dark"] main p,
+html[data-theme="dark"] main li,
+html[data-theme="dark"] main label,
+html[data-theme="dark"] main small,
+html[data-theme="dark"] main strong,
+html[data-theme="dark"] main td,
+html[data-theme="dark"] main th,
+html.dark-mode main h1,
+html.dark-mode main h2,
+html.dark-mode main h3,
+html.dark-mode main h4,
+html.dark-mode main h5,
+html.dark-mode main h6,
+html.dark-mode main p,
+html.dark-mode main li,
+html.dark-mode main label,
+html.dark-mode main small,
+html.dark-mode main strong,
+html.dark-mode main td,
+html.dark-mode main th,
+html.dark main h1,
+html.dark main h2,
+html.dark main h3,
+html.dark main h4,
+html.dark main h5,
+html.dark main h6,
+html.dark main p,
+html.dark main li,
+html.dark main label,
+html.dark main small,
+html.dark main strong,
+html.dark main td,
+html.dark main th{
+    color:#f8fafc!important;
+}
+html[data-theme="dark"] main a,
+html.dark-mode main a,
+html.dark main a{
+    color:#93c5fd!important;
+}
+html[data-theme="dark"] .top-bar a,
+html[data-theme="dark"] .footer a,
+html[data-theme="dark"] footer a,
+html.dark-mode .top-bar a,
+html.dark-mode .footer a,
+html.dark-mode footer a,
+html.dark .top-bar a,
+html.dark .footer a,
+html.dark footer a{
+    color:#ffffff!important;
+}

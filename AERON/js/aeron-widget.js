@@ -36,7 +36,7 @@
         memoryEnabled: false,
         memory: loadLocalMemory(),
         keyboardOpen: false,
-        systemKeyboardOpen: false,
+        nativeKeyboardOpen: false,
         launcherCompact: false,
         keyboardMode: "letters",
         keyboardLang: "en",
@@ -46,11 +46,395 @@
         ctrl: false,
         alt: false,
         listening: false,
+        voiceConversation: !!cfg.voiceConversation,
+        voiceSessionActive: false,
+        speaking: false,
+        minimized: false,
+        maximized: false,
         recognition: null,
         lastShiftTap: 0,
         lastRightShiftTap: 0,
         lastLauncherTap: 0
     };
+
+    /* =========================================================
+   AERON CLIPBOARD HISTORY
+   Max Items: 20
+   Storage: IndexedDB
+   ========================================================= */
+
+const AERON_CLIPBOARD_DB = "AERON_CLIPBOARD_DB";
+const AERON_CLIPBOARD_STORE = "history";
+const AERON_CLIPBOARD_MAX_ITEMS = 20;
+
+function openAeronClipboardDB(){
+    return new Promise((resolve, reject) => {
+
+        const request =
+            indexedDB.open(AERON_CLIPBOARD_DB, 1);
+
+        request.onupgradeneeded = (e) => {
+
+            const db = e.target.result;
+
+            if(!db.objectStoreNames.contains(
+                AERON_CLIPBOARD_STORE
+            )){
+
+                const store = db.createObjectStore(
+                    AERON_CLIPBOARD_STORE,
+                    {
+                        keyPath: "id",
+                        autoIncrement: true
+                    }
+                );
+
+                store.createIndex(
+                    "createdAt",
+                    "createdAt"
+                );
+
+                store.createIndex(
+                    "pinned",
+                    "pinned"
+                );
+            }
+        };
+
+        request.onsuccess = (e) => {
+            resolve(e.target.result);
+        };
+
+        request.onerror = () => {
+            reject(request.error);
+        };
+    });
+}
+  /* =========================
+   SAVE CLIPBOARD ITEM
+   ========================= */
+
+async function saveAeronClipboard(text){
+
+    text = String(text || "");
+
+    if(!text){
+        return;
+    }
+
+    try{
+
+        const db = await openAeronClipboardDB();
+
+        await new Promise((resolve, reject) => {
+
+            const tx = db.transaction(
+                AERON_CLIPBOARD_STORE,
+                "readwrite"
+            );
+
+            const store = tx.objectStore(
+                AERON_CLIPBOARD_STORE
+            );
+
+            const request = store.getAll();
+
+            request.onsuccess = () => {
+
+                const items = request.result || [];
+
+                const duplicate = items.find(
+                    item => item.text === text
+                );
+
+                if(duplicate){
+                    store.delete(duplicate.id);
+                }
+
+                store.add({
+                    text: text,
+                    createdAt: Date.now(),
+                    pinned: false
+                });
+            };
+
+            request.onerror = () => {
+                reject(request.error);
+            };
+
+            tx.oncomplete = () => {
+                resolve();
+            };
+
+            tx.onerror = () => {
+                reject(tx.error);
+            };
+
+            tx.onabort = () => {
+                reject(tx.error);
+            };
+        });
+
+        db.close();
+
+        await trimAeronClipboard();
+      /* =========================
+   CLIPBOARD PIN
+   ========================= */
+
+async function toggleAeronClipboardPin(id, pinned){
+    try{
+        const db = await openAeronClipboardDB();
+
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction(
+                AERON_CLIPBOARD_STORE,
+                "readwrite"
+            );
+
+            const store =
+                tx.objectStore(AERON_CLIPBOARD_STORE);
+
+            const request = store.get(id);
+
+            request.onsuccess = () => {
+                const item = request.result;
+
+                if(!item){
+                    return;
+                }
+
+                item.pinned = !!pinned;
+                store.put(item);
+            };
+
+            request.onerror = () => {
+                reject(request.error);
+            };
+
+            tx.oncomplete = () => {
+                resolve();
+            };
+
+            tx.onerror = () => {
+                reject(tx.error);
+            };
+        });
+
+        db.close();
+
+    }catch(err){
+        console.warn(
+            "AERON Clipboard pin error:",
+            err
+        );
+    }
+}
+
+
+/* =========================
+   CLIPBOARD DELETE
+   ========================= */
+
+async function deleteAeronClipboard(id){
+    try{
+        const db = await openAeronClipboardDB();
+
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction(
+                AERON_CLIPBOARD_STORE,
+                "readwrite"
+            );
+
+            tx.objectStore(
+                AERON_CLIPBOARD_STORE
+            ).delete(id);
+
+            tx.oncomplete = () => {
+                resolve();
+            };
+
+            tx.onerror = () => {
+                reject(tx.error);
+            };
+        });
+
+        db.close();
+
+    }catch(err){
+        console.warn(
+            "AERON Clipboard delete error:",
+            err
+        );
+    }
+}
+
+
+/* =========================
+   CLIPBOARD CLEAR ALL
+   ========================= */
+
+async function clearAeronClipboard(){
+    try{
+        const db = await openAeronClipboardDB();
+
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction(
+                AERON_CLIPBOARD_STORE,
+                "readwrite"
+            );
+
+            tx.objectStore(
+                AERON_CLIPBOARD_STORE
+            ).clear();
+
+            tx.oncomplete = () => {
+                resolve();
+            };
+
+            tx.onerror = () => {
+                reject(tx.error);
+            };
+        });
+
+        db.close();
+
+    }catch(err){
+        console.warn(
+            "AERON Clipboard clear error:",
+            err
+        );
+    }
+}
+
+    }catch(err){
+
+        console.warn(
+            "AERON Clipboard save error:",
+            err
+        );
+    }
+}
+  /* =========================
+   GET ALL CLIPBOARD ITEMS
+   ========================= */
+
+async function getAeronClipboard(){
+
+    try{
+
+        const db = await openAeronClipboardDB();
+
+        return await new Promise((resolve, reject) => {
+
+            const tx = db.transaction(
+                AERON_CLIPBOARD_STORE,
+                "readonly"
+            );
+
+            const store = tx.objectStore(
+                AERON_CLIPBOARD_STORE
+            );
+
+            const request = store.getAll();
+
+            request.onsuccess = () => {
+
+                const items = request.result || [];
+
+                items.sort(
+                    (a, b) =>
+                        b.createdAt - a.createdAt
+                );
+
+                resolve(items);
+            };
+
+            request.onerror = () => {
+                reject(request.error);
+            };
+
+            tx.oncomplete = () => {
+                db.close();
+            };
+        });
+
+    }catch(err){
+
+        console.warn(
+            "AERON Clipboard read error:",
+            err
+        );
+
+        return [];
+    }
+}
+  /* =========================
+   CLIPBOARD AUTO CLEANUP
+   ========================= */
+
+async function trimAeronClipboard(){
+    try{
+        const items = await getAeronClipboard();
+
+        if(items.length <= AERON_CLIPBOARD_MAX_ITEMS){
+            return;
+        }
+
+        // सबसे पुराने unpinned items पहले हटेंगे
+        const unpinned = items
+            .filter(item => !item.pinned)
+            .sort((a,b) => a.createdAt - b.createdAt);
+
+        const removeCount =
+            items.length - AERON_CLIPBOARD_MAX_ITEMS;
+
+        const removeItems =
+            unpinned.slice(0, removeCount);
+
+        if(!removeItems.length){
+            return;
+        }
+
+        const db = await openAeronClipboardDB();
+
+        await new Promise((resolve, reject) => {
+
+            const tx = db.transaction(
+                AERON_CLIPBOARD_STORE,
+                "readwrite"
+            );
+
+            const store =
+                tx.objectStore(AERON_CLIPBOARD_STORE);
+
+            removeItems.forEach(item => {
+                store.delete(item.id);
+            });
+
+            tx.oncomplete = () => {
+                resolve();
+            };
+
+            tx.onerror = () => {
+                reject(tx.error);
+            };
+
+            tx.onabort = () => {
+                reject(tx.error);
+            };
+        });
+
+        db.close();
+
+    }catch(err){
+
+        console.warn(
+            "AERON Clipboard cleanup error:",
+            err
+        );
+    }
+}
 
     function detectMode() {
         const page = (location.pathname.split("/").pop() || "");
@@ -60,6 +444,10 @@
         const studentAuth = sessionStorage.getItem("SURYA_STUDENT_TOKEN") && sessionStorage.getItem("SURYA_STUDENT_AUTH") === "true";
         if (studentAuth) return "student";
         return "public";
+    }
+
+    function isDesktopAeron(){
+        return window.matchMedia && window.matchMedia("(min-width: 601px)").matches;
     }
 
     function esc(value) {
@@ -90,16 +478,19 @@
 
     function apiFetch(payload) {
         if (!cfg.apiUrl) return Promise.reject(new Error("AERON API is not configured."));
+        const controller = new AbortController();
+        const timer = setTimeout(()=>controller.abort(), 5500);
         return fetch(cfg.apiUrl, {
             method:"POST",
             headers:{"Content-Type":"text/plain;charset=utf-8"},
-            body:JSON.stringify(payload)
+            body:JSON.stringify(payload),
+            signal:controller.signal
         }).then(async r => {
             let d = null;
             try { d = await r.json(); } catch (_) {}
             if (!r.ok) throw new Error((d && d.message) || "AERON API request failed.");
             return d || {};
-        });
+        }).finally(()=>clearTimeout(timer));
     }
 
     function buildWidget() {
@@ -116,33 +507,70 @@
                 <header class="aeron-header">
                     <div class="aeron-avatar"><img src="AERON/assets/icon/aeron.svg" alt="" aria-hidden="true"></div>
                     <div class="aeron-title"><strong>AERON</strong><span>Surya CEC Assistant</span><small class="aeron-mode"></small></div>
-                    <button class="aeron-stop" id="aeronStop" type="button" title="Stop / Start AERON">■</button>
-                    <button class="aeron-close" id="aeronClose" type="button" title="Close">×</button>
+                    <div class="aeron-window-controls" role="group" aria-label="Window controls">
+                        <button class="aeron-window-btn" id="aeronMinimize" type="button" title="Minimize">—</button>
+                        <button class="aeron-window-btn" id="aeronMaximize" type="button" title="Maximize">□</button>
+                        <button class="aeron-stop" id="aeronStop" type="button" title="Stop / Start AERON">■</button>
+                        <button class="aeron-close" id="aeronClose" type="button" title="Close">×</button>
+                    </div>
                 </header>
 
                 <div class="aeron-chat" id="aeronChat"></div>
                 <div class="aeron-typing" id="aeronTyping" hidden><span></span><span></span><span></span><b>AERON सोच रहा है...</b></div>
 
                 <form class="aeron-input-area" id="aeronForm">
-                    <button type="button" class="aeron-keyboard-toggle" id="aeronKeyboardToggle" aria-label="Keyboard mode" title="Keyboard mode">A⌨</button>
-                    <textarea id="aeronInput" rows="1" maxlength="${Number(cfg.maxQuestionLength || 1000)}" placeholder="AERON से कुछ पूछें..." autocomplete="off" spellcheck="true" inputmode="none" wrap="soft" aria-label="Message to AERON"></textarea>
-                    <button type="button" class="aeron-mic" id="aeronMic" aria-label="Voice input" title="Voice input">🎙️</button>
-                    <button type="submit" id="aeronSend" aria-label="Send message">➤</button>
-                </form>
+                    <div class="aeron-compose-row">
+    <textarea id="aeronInput" rows="1" maxlength="${Number(cfg.maxQuestionLength || 1000)}" placeholder="AERON से कुछ पूछें..." autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true" inputmode="text" wrap="soft" aria-label="Message to AERON"></textarea>
 
-                <div class="aeron-keyboard" id="aeronKeyboard" hidden aria-label="AERON custom keyboard">
-                    <div class="aeron-keyboard-toolbar">
-                        <button type="button" data-kb-action="lang" title="English / Hindi">अं</button>
-                        <button type="button" data-kb-action="numbers" title="Numbers and symbols">123</button>
-                        <button type="button" data-kb-action="symbols" title="Symbols">@#$</button>
-                        <button type="button" data-kb-action="paste" title="Paste from clipboard">📋</button>
-                        <button type="button" data-kb-action="advanced" title="Normal / Computer keyboard">CPU</button>
-                        <button type="button" data-kb-action="backspace" title="Backspace">⌫</button>
-                        <button type="button" data-kb-action="clear" title="Clear">C</button>
+    <div class="aeron-compose-buttons">
+        <button type="button" class="aeron-keyboard-toggle" id="aeronKeyboardToggle" aria-label="Keyboard mode" title="AERON keyboard">⌨</button>
+        <button type="button" id="aeronAction" aria-label="Voice input" title="Voice input">🎙️</button>
+    </div>
+</div>
+                    <div class="aeron-keyboard notranslate" id="aeronKeyboard" hidden aria-label="AERON custom keyboard" translate="no">
+                        <div class="aeron-keyboard-toolbar">
+                            <button type="button" data-kb-action="lang" title="English / Hindi">अं</button>
+                            <button type="button" data-kb-action="numbers" title="Numbers and symbols">123</button>
+                            <button type="button" data-kb-action="mode" title="Normal / Computer keyboard">MODE</button>
+                            <button type="button" id="aeronClipboardButton" title="Clipboard History" aria-label="Clipboard History">📋</button>
+                            <button type="button" data-kb-action="clear" title="Clear">C</button>
+                        </div>
+                        <div class="aeron-suggestions notranslate" id="aeronSuggestions" translate="no" aria-label="Word suggestions"></div>
+                        <div class="aeron-clipboard-panel" id="aeronClipboardPanel" hidden>
+
+    <div class="aeron-clipboard-header">
+        <strong>📋 Clipboard</strong>
+
+        <button
+            type="button"
+            id="aeronClipboardClose"
+            title="Close"
+            aria-label="Close"
+        >✕</button>
+    </div>
+
+    <div
+        class="aeron-clipboard-list"
+        id="aeronClipboardList"
+    ></div>
+
+    <div class="aeron-clipboard-footer">
+
+        <span id="aeronClipboardCount">
+            0 / 20 items
+        </span>
+
+        <button
+            type="button"
+            id="aeronClipboardClear"
+        >Clear All</button>
+
+    </div>
+
+</div>
+                        <div class="aeron-keyboard-rows" id="aeronKeyboardRows"></div>
                     </div>
-                    <div class="aeron-keyboard-mode" id="aeronKeyboardMode">NORMAL</div>
-                    <div class="aeron-keyboard-rows" id="aeronKeyboardRows"></div>
-                </div>
+                </form>
 
                 <div class="aeron-footer"><span>AERON • Surya CEC</span><span class="aeron-memory-status" id="aeronMemoryStatus"></span><button type="button" id="aeronHide">Hide</button></div>
             </section>
@@ -152,30 +580,509 @@
         const panel = root.querySelector("#aeronPanel");
         const chat = root.querySelector("#aeronChat");
         const input = root.querySelector("#aeronInput");
-        const send = root.querySelector("#aeronSend");
-        const mic = root.querySelector("#aeronMic");
+        const action = root.querySelector("#aeronAction");
+        const send = action;
+        const mic = action;
         const typing = root.querySelector("#aeronTyping");
+
+        // Chrome / Google Translate: NEVER translate AERON UI or chat.
+        [
+            root,
+            chat,
+            typing,
+            root.querySelector(".aeron-title"),
+            root.querySelector(".aeron-window-controls"),
+            root.querySelector("#aeronForm"),
+            root.querySelector(".aeron-footer"),
+            root.querySelector("#aeronKeyboard")
+        ].forEach(function(el) {
+            if (el) {
+                el.classList.add("notranslate");
+                el.setAttribute("translate", "no");
+            }
+        });
+
+        input.setAttribute("translate", "no");
+        input.classList.add("notranslate");
+        input.setAttribute("data-no-translate", "true");
+        input.setAttribute("translate", "no");
+        input.placeholder = "AERON से कुछ पूछें...";
+
         const stop = root.querySelector("#aeronStop");
+        const minimize = root.querySelector("#aeronMinimize");
+        const maximize = root.querySelector("#aeronMaximize");
         const keyboard = root.querySelector("#aeronKeyboard");
         const keyboardRows = root.querySelector("#aeronKeyboardRows");
         const keyboardToggle = root.querySelector("#aeronKeyboardToggle");
+        const clipboardButton =
+    root.querySelector("#aeronClipboardButton");
         const launcher = root.querySelector("#aeronLauncher");
-        const keyboardModeLabel = root.querySelector("#aeronKeyboardMode");
+        const suggestions = root.querySelector("#aeronSuggestions");
+        /* =========================================================
+   AERON CLIPBOARD PANEL REFERENCES
+   ========================================================= */
+
+const clipboardPanel =
+    root.querySelector("#aeronClipboardPanel");
+
+const clipboardList =
+    root.querySelector("#aeronClipboardList");
+
+const clipboardClose =
+    root.querySelector("#aeronClipboardClose");
+
+const clipboardClear =
+    root.querySelector("#aeronClipboardClear");
+
+const clipboardCount =
+    root.querySelector("#aeronClipboardCount");
+
+/* Clipboard delete fallback: capture before keyboard-level handlers. */
+if(clipboardList && !clipboardList.dataset.deleteCaptureBound){
+    clipboardList.dataset.deleteCaptureBound = "1";
+    clipboardList.addEventListener("click", async (e) => {
+        const button = e.target.closest("[data-clipboard-delete-id]");
+        if(!button || !clipboardList.contains(button)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const id = Number(button.dataset.clipboardDeleteId);
+        if(!Number.isFinite(id)) return;
+        await deleteAeronClipboard(id);
+        await renderAeronClipboard();
+    }, {capture:true});
+}
+      /* =========================================================
+   RENDER AERON CLIPBOARD HISTORY
+   ========================================================= */
+
+async function renderAeronClipboard(){
+
+    if(!clipboardList){
+        return;
+    }
+
+    clipboardList.innerHTML = "";
+
+    const items = await getAeronClipboard();
+
+    clipboardCount.textContent =
+        `${items.length} / ${AERON_CLIPBOARD_MAX_ITEMS} items`;
+
+    if(!items.length){
+
+        const empty = document.createElement("div");
+
+        empty.className =
+            "aeron-clipboard-empty";
+
+        empty.textContent =
+            "Clipboard history अभी खाली है.";
+
+        clipboardList.appendChild(empty);
+
+        return;
+    }
+
+    items.forEach(item => {
+
+        const box =
+            document.createElement("div");
+
+        box.className =
+            "aeron-clipboard-item";
+
+
+        /* -------- TEXT -------- */
+
+        const preview =
+            document.createElement("div");
+
+        preview.className =
+            "aeron-clipboard-text";
+
+        preview.textContent =
+            item.text;
+
+
+        /* -------- CHARACTER COUNT -------- */
+
+        const info =
+            document.createElement("div");
+
+        info.className =
+            "aeron-clipboard-info";
+
+        info.textContent =
+            `${item.text.length.toLocaleString()} characters`;
+
+
+        /* -------- ACTIONS -------- */
+
+        const actions =
+            document.createElement("div");
+
+        actions.className =
+            "aeron-clipboard-actions";
+
+
+        /* -------- PASTE -------- */
+
+        const paste =
+            document.createElement("button");
+
+        paste.type = "button";
+        paste.textContent = "Paste";
+        paste.title = "Paste";
+
+        paste.addEventListener(
+    "pointerdown",
+    (e) => {
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const wasKeyboardOpen =
+            state.keyboardOpen;
+
+        if(wasKeyboardOpen){
+            input.setAttribute(
+                "inputmode",
+                "none"
+            );
+        }
+
+        insertText(item.text);
+
+        clipboardPanel.hidden = true;
+
+        if(wasKeyboardOpen){
+
+            requestAnimationFrame(() => {
+
+                input.focus({
+                    preventScroll: true
+                });
+
+                requestAnimationFrame(
+                    ensureCaretVisible
+                );
+
+            });
+        }
+    }
+);
+        /* -------- PIN -------- */
+
+        const pin =
+            document.createElement("button");
+
+        pin.type = "button";
+
+        pin.textContent =
+            item.pinned ? "📌" : "📍";
+
+        pin.title =
+            item.pinned
+                ? "Unpin"
+                : "Pin";
+
+        pin.addEventListener(
+            "click",
+            async () => {
+
+                await toggleAeronClipboardPin(
+                    item.id,
+                    !item.pinned
+                );
+
+                await renderAeronClipboard();
+            }
+        );
+
+
+        /* -------- DELETE -------- */
+
+        const del =
+            document.createElement("button");
+
+        del.type = "button";
+        del.textContent = "🗑️";
+        del.title = "Delete";
+        del.dataset.clipboardDeleteId = String(item.id);
+
+        del.addEventListener(
+            "click",
+            async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                await deleteAeronClipboard(item.id);
+                await renderAeronClipboard();
+            },
+            {capture:true}
+        );
+
+
+        actions.append(
+            paste,
+            pin,
+            del
+        );
+
+        box.append(
+            preview,
+            info,
+            actions
+        );
+
+        clipboardList.appendChild(box);
+
+    });
+}
+      /* =========================================================
+   CLIPBOARD PANEL CONTROLS
+   ========================================================= */
+
+async function openAeronClipboard(){
+
+    clipboardPanel.hidden = false;
+
+    /* =========================
+       IMPORT CURRENT CLIPBOARD
+       ========================= */
+
+    try{
+
+        if(navigator.clipboard?.readText){
+
+            const externalText =
+                await navigator.clipboard.readText();
+
+            if(externalText){
+                await saveAeronClipboard(externalText);
+            }
+        }
+
+    }catch(_){
+        // Clipboard permission denied होने पर
+        // History फिर भी खुलेगी
+    }
+
+    await renderAeronClipboard();
+}
+
+
+function closeAeronClipboard(){
+
+    clipboardPanel.hidden = true;
+
+    clipboardPanel.style.removeProperty("position");
+    clipboardPanel.style.removeProperty("left");
+    clipboardPanel.style.removeProperty("right");
+    clipboardPanel.style.removeProperty("bottom");
+    clipboardPanel.style.removeProperty("max-height");
+    clipboardPanel.style.removeProperty("z-index");
+    clipboardPanel.style.removeProperty("display");
+}
+
+
+function closeClipboardOnly(e){
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    /* X = ONLY close Clipboard.
+       Do not touch input, focus or keyboard state. */
+
+    clipboardPanel.hidden = true;
+
+    clipboardPanel.style.removeProperty("position");
+    clipboardPanel.style.removeProperty("left");
+    clipboardPanel.style.removeProperty("right");
+    clipboardPanel.style.removeProperty("bottom");
+    clipboardPanel.style.removeProperty("max-height");
+    clipboardPanel.style.removeProperty("z-index");
+    clipboardPanel.style.removeProperty("display");
+}
+
+/* Clipboard X — CLICK ONLY.
+   Do not close on pointerdown because that can expose
+   the keyboard underneath before the click event finishes. */
+clipboardClose.addEventListener(
+    "click",
+    closeClipboardOnly,
+    {
+        passive: false,
+        capture: true
+    }
+);
+
+
+clipboardClear.addEventListener(
+    "click",
+    async () => {
+
+        await clearAeronClipboard();
+
+        await renderAeronClipboard();
+    }
+);
+        clipboardButton?.addEventListener(
+    "pointerdown",
+    async (e) => {
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        if(clipboardPanel.hidden){
+
+            await openAeronClipboard();
+
+            /* FINAL CLIPBOARD OVERLAY POSITION */
+            clipboardPanel.hidden = false;
+            clipboardPanel.style.setProperty(
+                "position",
+                "fixed",
+                "important"
+            );
+            clipboardPanel.style.setProperty(
+                "left",
+                "6px",
+                "important"
+            );
+            clipboardPanel.style.setProperty(
+                "right",
+                "6px",
+                "important"
+            );
+            clipboardPanel.style.setProperty(
+                "bottom",
+                "80px",
+                "important"
+            );
+            clipboardPanel.style.setProperty(
+                "max-height",
+                "190px",
+                "important"
+            );
+            clipboardPanel.style.setProperty(
+                "z-index",
+                "2147483647",
+                "important"
+            );
+            clipboardPanel.style.setProperty(
+                "display",
+                "flex",
+                "important"
+            );
+
+        }else{
+
+            closeAeronClipboard();
+
+            clipboardPanel.style.removeProperty("position");
+            clipboardPanel.style.removeProperty("left");
+            clipboardPanel.style.removeProperty("right");
+            clipboardPanel.style.removeProperty("bottom");
+            clipboardPanel.style.removeProperty("max-height");
+            clipboardPanel.style.removeProperty("z-index");
+            clipboardPanel.style.removeProperty("display");
+
+        }
+    },
+    { passive: false }
+);
+        setTimeout(setKeyboardButtonLabel,0);
+        setTimeout(updateSendVisibility,0);
 
         root.querySelector(".aeron-mode").textContent = state.mode === "admin" ? "Admin Assistant" : state.mode === "student" ? "Student Assistant" : "Public Assistant";
         function scrollBottom(){ chat.scrollTop = chat.scrollHeight; requestAnimationFrame(()=>{ chat.scrollTop = chat.scrollHeight; }); }
         function addMessage(html,type="bot") {
             const row=document.createElement("div");
             row.className=`aeron-message ${type === "user" ? "aeron-user" : "aeron-bot"}`;
+
+            // Chrome / Google Translate: NEVER translate chat messages.
+            row.classList.add("notranslate");
+            row.setAttribute("translate", "no");
             row.innerHTML=`<div class="aeron-message-avatar"><img src="AERON/assets/icon/aeron.svg" alt="" aria-hidden="true"></div><div class="aeron-bubble">${html}</div>`;
             chat.appendChild(row); scrollBottom();
+            if(type !== "user" && state.voiceSessionActive){
+                speakAeron(stripHtml(html));
+            }
         }
         function setTyping(on){ typing.hidden=!on; if(on) scrollBottom(); requestAnimationFrame(positionLauncherNearTyping); }
+        function updateSendVisibility(){
+            const hasText=String(input.value||"").trim().length>0;
+            action.type=hasText?"submit":"button";
+            action.textContent=hasText?"➤":"🎙️";
+            action.setAttribute("aria-label",hasText?"Send message":"Voice input");
+            action.title=hasText?"Send message":"Voice input";
+            action.classList.toggle("aeron-send-mode",hasText);
+            action.classList.toggle("aeron-voice-mode",!hasText);
+            action.disabled=state.stopped;
+        }
+        function stripHtml(html){ const d=document.createElement("div"); d.innerHTML=String(html||""); return (d.textContent||d.innerText||"").replace(/\s+/g," ").trim(); }
+        function cleanSpeechText(html){
+            let text=stripHtml(html);
+            // TTS should speak words, not UI decoration/markdown.
+            text=text.replace(/[*_`~#]+/g," ");
+            text=text.replace(/https?:\/\/\S+/gi," ");
+            text=text.replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu," ");
+            text=text.replace(/\s+/g," ").trim();
+            return text.slice(0,4000);
+        }
+        function chooseHindiVoice(){
+            if(!("speechSynthesis" in window)) return null;
+            const voices=window.speechSynthesis.getVoices()||[];
+            const text=v=>((v.name||"")+" "+(v.voiceURI||"")+" "+(v.lang||"")).toLowerCase();
+            const hi=voices.filter(v=>/^hi[-_]IN$/i.test(v.lang));
+            // Prefer a Hindi/Indian male-sounding system voice when the device provides one.
+            // Browsers do not expose a reliable voice age, so an exact "18-year-old" voice
+            // cannot be guaranteed; pitch/rate are used only as a light youthful adjustment.
+            const maleNames=hi.find(v=>/(madhur|hemant|ravi|male|man|google hindi|microsoft.*hindi)/i.test(text(v)) && !/(female|swara|heera|kalpana)/i.test(text(v)));
+            if(maleNames) return maleNames;
+            if(hi.length) return hi[0];
+            return voices.find(v=>/(hi[-_]in|hindi|india)/i.test(text(v)) && !/(female|swara|heera|kalpana)/i.test(text(v))) || null;
+        }
+        async function speakAeron(text){
+            if(!state.voiceSessionActive || !cfg.voiceOutput || !String(text||"").trim()) return;
+            const spoken=cleanSpeechText(text);
+            if(!spoken) return;
+            state.speaking=true;
+            try{
+                // AERON local TTS foundation is always tried first.
+                if(window.AERON_TTS){
+                    const localOk=await window.AERON_TTS.speak(spoken,{
+                        voice:cfg.ttsVoice||"male",
+                        lang:cfg.voiceLang||"hi-IN",
+                        rate:Number(cfg.voiceRate||0.96),
+                        pitch:Number(cfg.voicePitch||1.03)
+                    });
+                    if(localOk){
+                        state.speaking=false;
+                        if(state.voiceSessionActive && !state.stopped) setTimeout(startListening,220);
+                        return;
+                    }
+                }
+                // Temporary compatibility fallback until the local neural voice model is installed.
+                if(!("speechSynthesis" in window)) { state.speaking=false; return; }
+                window.speechSynthesis.cancel();
+                const u=new SpeechSynthesisUtterance(spoken);
+                u.lang=cfg.voiceLang||"hi-IN";
+                u.rate=Number(cfg.voiceRate||0.96);
+                u.pitch=Number(cfg.voicePitch||1.03);
+                const v=chooseHindiVoice(); if(v) u.voice=v;
+                u.onend=()=>{state.speaking=false;if(state.voiceSessionActive && !state.stopped) setTimeout(startListening,220);};
+                u.onerror=()=>{state.speaking=false;if(state.voiceSessionActive && !state.stopped) setTimeout(startListening,350);};
+                window.speechSynthesis.speak(u);
+            }catch(_){ state.speaking=false; }
+        }
+        if("speechSynthesis" in window) window.speechSynthesis.onvoiceschanged=()=>{};
         function autoGrowInput(){
             input.style.width="100%";
             input.style.height="auto";
             const isMobile=window.matchMedia && window.matchMedia("(max-width:600px)").matches;
-            const max=isMobile ? Math.min(180, Math.max(120, Math.round(window.innerHeight*0.28))) : 220;
+            const max=isMobile ? (state.keyboardOpen ? 90 : Math.min(160, Math.max(100, Math.round(window.innerHeight*0.22)))) : 220;
             const desired=Math.max(42,input.scrollHeight);
             input.style.height=Math.min(desired,max)+"px";
             input.style.overflowY=input.scrollHeight>max?"auto":"hidden";
@@ -202,7 +1109,7 @@
             addMessage(text); addQuickActions();
         }
         function open(){ panel.classList.add("open"); panel.setAttribute("aria-hidden","false"); }
-        function close(){ stopListening(); closeSystemKeyboard(); closeKeyboard(); panel.classList.remove("open"); panel.setAttribute("aria-hidden","true"); }
+        function close(){ stopListening(); closeKeyboard(); state.nativeKeyboardOpen=false; root.classList.remove("aeron-system-keyboard-active"); panel.classList.remove("open"); panel.setAttribute("aria-hidden","true"); }
         function hideVirtualKeyboard(){
             try{ input.blur(); document.activeElement?.blur?.(); }catch(_){}
             try{ if(navigator.virtualKeyboard && navigator.virtualKeyboard.hide) navigator.virtualKeyboard.hide(); }catch(_){}
@@ -218,7 +1125,7 @@
             input.setRangeText(text,start,end,"end");
             input.dispatchEvent(new Event("input",{bubbles:true}));
             autoGrowInput();
-            if(state.systemKeyboardOpen){ input.focus({preventScroll:true}); }
+            if(state.keyboardOpen){ input.focus({preventScroll:true}); }
         }
         function keepInputCaretVisible(){
             if(!input) return;
@@ -226,18 +1133,147 @@
             requestAnimationFrame(()=>{ ensureCaretVisible(); autoGrowInput(); });
         }
         function ensureCaretVisible(){
-            if(!input) return;
-            const cs=getComputedStyle(input);
-            const lh=parseFloat(cs.lineHeight)||Math.max(20,parseFloat(cs.fontSize)||15)*1.45;
-            const before=input.value.slice(0,input.selectionStart??input.value.length);
-            const line=(before.match(/\n/g)||[]).length;
-            const padTop=parseFloat(cs.paddingTop)||0;
-            const caretTop=line*lh+padTop;
-            const caretBottom=caretTop+lh;
-            const viewTop=input.scrollTop;
-            const viewBottom=viewTop+input.clientHeight;
-            if(caretTop < viewTop+4) input.scrollTop=Math.max(0,caretTop-4);
-            else if(caretBottom > viewBottom-4) input.scrollTop=Math.max(0,caretBottom-input.clientHeight+4);
+
+    if(!input) return;
+
+    try{
+
+        const cs = getComputedStyle(input);
+
+        const lineHeight =
+            parseFloat(cs.lineHeight) ||
+            Math.max(
+                20,
+                parseFloat(cs.fontSize) || 15
+            ) * 1.45;
+
+        const caretPosition =
+            input.selectionStart ?? input.value.length;
+
+        const textBefore =
+            input.value.slice(0, caretPosition);
+
+        /*
+         * Textarea में wrapped lines को ध्यान में रखते हुए
+         * caret के आसपास का text calculate करते हैं।
+         */
+        const textareaWidth =
+            input.clientWidth -
+            (parseFloat(cs.paddingLeft) || 0) -
+            (parseFloat(cs.paddingRight) || 0);
+
+        const fontSize =
+            parseFloat(cs.fontSize) || 15;
+
+        const approxCharWidth =
+            Math.max(7, fontSize * 0.52);
+
+        const charsPerLine =
+            Math.max(
+                1,
+                Math.floor(
+                    textareaWidth /
+                    approxCharWidth
+                )
+            );
+
+        const logicalLines =
+            textBefore.split("\n");
+
+        let visualLines = 0;
+
+        logicalLines.forEach(line => {
+
+            visualLines += Math.max(
+                1,
+                Math.ceil(
+                    line.length /
+                    charsPerLine
+                )
+            );
+
+        });
+
+        /*
+         * Caret की अनुमानित vertical position.
+         */
+        const padTop =
+            parseFloat(cs.paddingTop) || 0;
+
+        const caretTop =
+            Math.max(
+                0,
+                (visualLines - 1) *
+                lineHeight +
+                padTop
+            );
+
+        const caretBottom =
+            caretTop + lineHeight;
+
+        const viewTop =
+            input.scrollTop;
+
+        const viewBottom =
+            viewTop + input.clientHeight;
+
+        /*
+         * ऊपर चला गया हो तो ऊपर scroll करो।
+         */
+        if(caretTop < viewTop + 8){
+
+            input.scrollTop =
+                Math.max(
+                    0,
+                    caretTop - 8
+                );
+        }
+
+        /*
+         * नीचे छिप रहा हो तो नीचे scroll करो।
+         */
+        else if(
+            caretBottom >
+            viewBottom - 8
+        ){
+
+            input.scrollTop =
+                Math.max(
+                    0,
+                    caretBottom -
+                    input.clientHeight +
+                    8
+                );
+        }
+
+        /*
+         * Browser को actual caret तक scroll करने का
+         * एक अतिरिक्त मौका।
+         */
+        requestAnimationFrame(() => {
+
+            try{
+
+                const active =
+                    document.activeElement === input;
+
+                if(
+                    active &&
+                    state.keyboardOpen
+                ){
+
+                    input.scrollIntoView({
+                        block: "nearest",
+                        inline: "nearest"
+                    });
+
+                }
+
+            }catch(_){}
+
+        });
+
+    }catch(_){}
         }
         function backspace(){
             const s=input.selectionStart??input.value.length,e=input.selectionEnd??input.value.length;
@@ -246,7 +1282,7 @@
             input.dispatchEvent(new Event("input",{bubbles:true}));
             autoGrowInput();
             requestAnimationFrame(ensureCaretVisible);
-            if(state.systemKeyboardOpen){ input.focus({preventScroll:true}); }
+            if(state.keyboardOpen){ input.focus({preventScroll:true}); }
         }
         function selectAll(){ input.focus({preventScroll:true}); input.select(); requestAnimationFrame(ensureCaretVisible); }
         function copySelected(){
@@ -270,6 +1306,7 @@
         }
         function clearDraft(){
             input.value="";
+            updateSendVisibility();
             autoGrowInput();
             input.focus({preventScroll:true});
         }
@@ -327,24 +1364,75 @@
         }
         function addSystemNotice(text){ const n=document.createElement("div"); n.className="aeron-system-note"; n.textContent=text; chat.appendChild(n); scrollBottom(); }
 
+        const AERON_SUGGESTIONS = [
+            "hello","how","are","you","kaise","ho","aap","main","mujhe","kya","hai","hain",
+            "course","courses","admission","certificate","result","fees","duration","contact",
+            "namaste","thank","thanks","please","batao","chahiye","computer","CCC","DCA","ADCA","Tally"
+        ];
+        const AERON_NEXT_WORDS = {
+            hello:["how","hi","namaste"], how:["are","is","do"], are:["you","the","there"], you:["doing","want","looking"],
+            kaise:["ho","hain","hai"], ho:["aap","tum","main"], aap:["kaise","kya","ke"], main:["kya","kaise","aap"],
+            mujhe:["course","fees","admission"], kya:["hai","hain","chahiye"], hai:["fees","duration","admission"],
+            course:["ki","fees","duration"], courses:["ki","fees","batao"], admission:["kaise","fees","open"],
+            certificate:["kaise","verify","download"], result:["kaise","check","dekhu"],
+            thank:["you","you so much","thanks"], thanks:["you","AERON","a lot"],
+            नमस्ते:["आप","कैसे","हैं"], आप:["कैसे","क्या","कौन"], मुझे:["क्या","कोर्स","फीस"],
+            क्या:["है","हैं","चाहिए"], है:["फीस","अवधि","कैसे"], हैं:["आप","क्या","कहाँ"],
+            कोर्स:["की","फीस","अवधि"], फीस:["कितनी","है","बताना"], एडमिशन:["कैसे","कब","खुला"],
+            सर्टिफिकेट:["कैसे","verify","download"], रिजल्ट:["कैसे","check","देखें"]
+        };
+        function updateSuggestions(){
+            if(!suggestions) return;
+            suggestions.innerHTML="";
+            const value=String(input.value||"");
+            const token=(value.match(/([^\s]+)$/)?.[1]||"").toLowerCase();
+            let list=AERON_NEXT_WORDS[token]||[];
+            if(!list.length && token.length>=1){
+                list=AERON_SUGGESTIONS.filter(w=>w.toLowerCase().startsWith(token)).slice(0,3);
+            }
+            if(!list.length && value.trim()) list=["?","batao","please"];
+            list=[...new Set(list)].slice(0,3);
+            list.forEach(word=>{
+                const b=document.createElement("button");
+                b.type="button"; b.className="aeron-suggestion"; b.textContent=word;
+                b.setAttribute("translate","no"); b.classList.add("notranslate");
+                b.addEventListener("click",()=>{
+                    const current=String(input.value||"");
+                    const m=current.match(/^(.*?)(\s*)([^\s]*)$/s);
+                    const prefix=m?m[1]:current;
+                    const sep=current && !/\s$/.test(current)?" ":"";
+                    if(token && current.endsWith(m?.[3]||"")) input.value=prefix+(prefix?" ":"")+word+" ";
+                    else insertText((sep||current?sep:"")+word+" ");
+                    autoGrowInput(); updateSendVisibility(); updateSuggestions(); input.focus({preventScroll:true});
+                    requestAnimationFrame(ensureCaretVisible);
+                });
+                suggestions.appendChild(b);
+            });
+        }
+
         function renderKeyboard(){
             keyboardRows.innerHTML="";
+            // Chrome/Google Translate: never translate AERON keyboard
+    keyboard.setAttribute("translate","no");
+    keyboard.classList.add("notranslate");
             root.classList.toggle("aeron-advanced-keyboard",state.advanced);
-            keyboardModeLabel.textContent=state.advanced?"COMPUTER MODE":"";
             let rows;
             if(state.advanced) rows=KB_ADV1;
             else rows=state.keyboardMode === "numbers" ? KB_NUM : (state.keyboardMode === "symbols" ? KB_SYMBOLS : (state.keyboardLang === "hi" ? KB_HI : KB_EN));
             rows.forEach(row=>{
                 const line=document.createElement("div"); line.className="aeron-keyboard-row";
-                row.forEach(key=>{
+                row.forEach((key,keyIndex)=>{
                     const b=document.createElement("button"); b.type="button"; b.className="aeron-key";
-                    const isShift=key === "Shift" || key === "Caps";
+                    const isRightShift=state.advanced && row===KB_ADV1[4] && keyIndex===row.length-1;
+                    const isShift=(key === "Shift" || key === "Caps") && !isRightShift;
                     let label=key;
                     if(!state.advanced && state.keyboardLang === "en" && state.keyboardMode === "letters" && (state.capsLock||state.shiftOnce)) label=key.toUpperCase();
                     if(state.advanced && state.ctrl && key !== "Ctrl") b.classList.add("aeron-modified");
                     if(state.advanced && state.alt && key !== "Alt") b.classList.add("aeron-alt-active");
-                    b.textContent=label; b.dataset.key=key;
+                    b.textContent=isRightShift ? "➤" : label; b.dataset.key=key;
+                    if(isRightShift){ b.classList.add("aeron-right-shift"); b.title="Send message"; }
                     b.addEventListener("click",()=>{
+                        if(isRightShift){ const text=String(input.value||"").trim(); if(text) submitQuestion(text); return; }
                         if(state.advanced && key === "Ctrl"){state.ctrl=!state.ctrl;renderKeyboard();return;}
                         if(state.advanced && key === "Alt"){state.alt=!state.alt;renderKeyboard();return;}
                         if(isShift){
@@ -376,36 +1464,75 @@
                         }
                     });
                     line.appendChild(b);
+                  if(
+    !state.advanced &&
+    state.keyboardLang === "en" &&
+    state.keyboardMode === "letters" &&
+    key === "m"
+){
+    const backspaceBtn = document.createElement("button");
+    backspaceBtn.type = "button";
+    backspaceBtn.className = "aeron-key aeron-key-backspace";
+    backspaceBtn.textContent = "⌫";
+    backspaceBtn.title = "Backspace";
+
+    let deleteTimer = null;
+    let deleteInterval = null;
+    let longPress = false;
+
+    const stopDeleting = () => {
+        if(deleteTimer){
+            clearTimeout(deleteTimer);
+            deleteTimer = null;
+        }
+
+        if(deleteInterval){
+            clearInterval(deleteInterval);
+            deleteInterval = null;
+        }
+    };
+
+    const startDeleting = (e) => {
+        e.preventDefault();
+        longPress = false;
+
+        // Pehla delete
+        backspace();
+
+        // Thodi der press rakhne par continuous delete
+        deleteTimer = setTimeout(() => {
+            longPress = true;
+
+            deleteInterval = setInterval(() => {
+                backspace();
+            }, 70);
+
+        }, 450);
+    };
+
+    const endDeleting = () => {
+        stopDeleting();
+    };
+
+    backspaceBtn.addEventListener("mousedown", startDeleting);
+    backspaceBtn.addEventListener("mouseup", endDeleting);
+    backspaceBtn.addEventListener("mouseleave", endDeleting);
+
+    backspaceBtn.addEventListener("touchstart", startDeleting, {passive:false});
+    backspaceBtn.addEventListener("touchend", endDeleting);
+    backspaceBtn.addEventListener("touchcancel", endDeleting);
+
+    line.appendChild(backspaceBtn);
+                  }
                 });
                 keyboardRows.appendChild(line);
             });
             if(!state.advanced){
                 const bottom=document.createElement("div"); bottom.className="aeron-keyboard-row aeron-keyboard-bottom";
-                const left=document.createElement("button");left.type="button";left.className="aeron-key aeron-key-wide";left.textContent=state.capsLock?"⇧ CAPS":state.shiftOnce?"⇧ ON":"⇧";left.title="Single tap: one capital. Double tap: Caps Lock";
-                left.addEventListener("click",()=>{const now=Date.now();if(now-state.lastShiftTap<360){state.lastShiftTap=0;state.capsLock=!state.capsLock;state.shiftOnce=false;}else{state.lastShiftTap=now;state.shiftOnce=true;}renderKeyboard();});
                 const space=document.createElement("button");space.type="button";space.className="aeron-key aeron-key-space";space.textContent="Space";space.addEventListener("click",()=>insertText(" "));
                 const enter=document.createElement("button");enter.type="button";enter.className="aeron-key aeron-key-wide";enter.textContent="↵ Enter";enter.title="Enter = new line";enter.addEventListener("click",()=>insertText("\n"));
-                const rightWrap=document.createElement("div");rightWrap.className="aeron-right-shift-wrap";
-                const cancel=document.createElement("button");cancel.type="button";cancel.className="aeron-key aeron-key-cancel";cancel.textContent="×";cancel.title="Delete one character";
-                let cancelHandled=false, cancelTimer=null, cancelRepeater=null;
-                const stopCancelRepeat=()=>{
-                    clearTimeout(cancelTimer); clearInterval(cancelRepeater);
-                    cancelTimer=null; cancelRepeater=null; cancelHandled=false;
-                };
-                cancel.addEventListener("pointerdown",e=>{
-                    e.preventDefault(); e.stopPropagation(); cancelHandled=true; backspace();
-                    // Hold = normal keyboard-style repeat delete. First repeat is slightly delayed,
-                    // then characters are removed continuously until the finger is released.
-                    cancelTimer=setTimeout(()=>{
-                        cancelRepeater=setInterval(()=>backspace(),70);
-                    },380);
-                });
-                cancel.addEventListener("pointerup",e=>{e.preventDefault();e.stopPropagation();stopCancelRepeat();});
-                cancel.addEventListener("pointercancel",stopCancelRepeat);
-                cancel.addEventListener("pointerleave",stopCancelRepeat);
-                cancel.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();});
-                const right=document.createElement("button");right.type="button";right.className="aeron-key aeron-key-wide aeron-right-shift";right.textContent="⇧";right.title="Send message";right.addEventListener("click",()=>submitQuestion(input.value));
-                rightWrap.append(cancel,right); bottom.append(left,space,enter,rightWrap); keyboardRows.appendChild(bottom);
+                const right=document.createElement("button");right.type="button";right.className="aeron-key aeron-key-wide aeron-right-shift";right.textContent="⇧ Send";right.title="Shift / Send — tap to send";right.setAttribute("aria-label","Shift Send");right.addEventListener("click",()=>submitQuestion(input.value));
+                bottom.append(space,enter,right); keyboardRows.appendChild(bottom);
             }
         }
         function placeLauncherForKeyboard(active){
@@ -420,84 +1547,65 @@
         }
         function setKeyboardButtonLabel(){
             if(!keyboardToggle) return;
-            if(state.keyboardOpen) { keyboardToggle.textContent="A⌨"; keyboardToggle.title="Switch to mobile keyboard"; }
-            else if(state.systemKeyboardOpen) { keyboardToggle.textContent="📱"; keyboardToggle.title="Switch to AERON keyboard"; }
-            else { keyboardToggle.textContent="A⌨"; keyboardToggle.title="Open AERON keyboard"; }
+            if(state.keyboardOpen){
+                keyboardToggle.textContent="📱";
+                keyboardToggle.title="Mobile keyboard";
+                keyboardToggle.setAttribute("aria-label","Switch to mobile keyboard");
+            } else {
+                keyboardToggle.textContent="⌨";
+                keyboardToggle.title=state.nativeKeyboardOpen?"AERON keyboard":"Open mobile keyboard";
+                keyboardToggle.setAttribute("aria-label",state.nativeKeyboardOpen?"Switch to AERON keyboard":"Open mobile keyboard");
+            }
         }
-        function closeSystemKeyboard(){
-            state.systemKeyboardOpen=false;
-            root.classList.remove("aeron-system-keyboard-active");
-            input.readOnly=false;
-            input.setAttribute("inputmode","none");
-            hideVirtualKeyboard();
-            setKeyboardButtonLabel();
-            updateKeyboardViewport();
-        }
-        function openSystemKeyboard(){
-            stopListening();
-            try{ if(navigator.virtualKeyboard) navigator.virtualKeyboard.overlaysContent=false; }catch(_){}
-            if(state.keyboardOpen) closeKeyboard();
-            state.systemKeyboardOpen=true;
-            root.classList.add("aeron-system-keyboard-active");
+        function closeKeyboard(){
+            state.keyboardOpen=false;
+            keyboard.hidden=true;
+            root.classList.remove("aeron-keyboard-active");
             input.readOnly=false;
             input.setAttribute("inputmode","text");
-            input.focus({preventScroll:true});
-            input.setSelectionRange(input.value.length,input.value.length);
+            placeLauncherForKeyboard(false);
             setKeyboardButtonLabel();
             updateKeyboardViewport();
-            [40,120,240,420].forEach(ms=>setTimeout(()=>{
-                updateKeyboardViewport();
-                autoGrowInput();
-                input.focus({preventScroll:true});
-                input.setSelectionRange(input.value.length,input.value.length);
-                positionLauncherNearTyping();
-            },ms));
         }
         function openKeyboard(){
             stopListening();
-            if(state.systemKeyboardOpen) closeSystemKeyboard();
+            state.nativeKeyboardOpen=false;
+            root.classList.remove("aeron-system-keyboard-active");
             state.keyboardOpen=true;
             keyboard.hidden=false;
             input.readOnly=false;
             input.setAttribute("inputmode","none");
             renderKeyboard();
-            hideVirtualKeyboard();
+            updateSuggestions();
             placeLauncherForKeyboard(true);
             setKeyboardButtonLabel();
             input.focus({preventScroll:true});
             input.setSelectionRange(input.value.length,input.value.length);
-            setTimeout(()=>{
-                hideVirtualKeyboard();
-                updateKeyboardViewport();
-                autoGrowInput();
-                positionLauncherNearTyping();
-            },30);
+            setTimeout(()=>{autoGrowInput();positionLauncherNearTyping();},20);
         }
-        function closeKeyboard(){
-            state.keyboardOpen=false;
-            keyboard.hidden=true;
-            placeLauncherForKeyboard(false);
-            if(!state.systemKeyboardOpen) hideVirtualKeyboard();
+        function openMobileKeyboard(){
+            stopListening();
+            closeKeyboard();
+            state.nativeKeyboardOpen=true;
+            root.classList.add("aeron-system-keyboard-active");
+            input.readOnly=false;
+            input.setAttribute("inputmode","text");
+            try{ if(navigator.virtualKeyboard && "overlaysContent" in navigator.virtualKeyboard) navigator.virtualKeyboard.overlaysContent=false; }catch(_){}
+            // Keep focus in the same trusted tap so Android Chrome is allowed to open the IME.
+            input.focus({preventScroll:true});
+            setTimeout(()=>{
+                try{ if(navigator.virtualKeyboard?.show) navigator.virtualKeyboard.show(); }catch(_){}
+                input.focus({preventScroll:true});
+                autoGrowInput();updateKeyboardViewport();
+            },40);
             setKeyboardButtonLabel();
-            updateKeyboardViewport();
         }
         function toggleKeyboardMode(){
-            if(state.keyboardOpen){
-                closeKeyboard();
-                openSystemKeyboard();
-                return;
-            }
-            if(state.systemKeyboardOpen){
-                closeSystemKeyboard();
-                openKeyboard();
-                return;
-            }
-            openKeyboard();
+            if(state.keyboardOpen){ openMobileKeyboard(); return; }
+            if(state.nativeKeyboardOpen){ openKeyboard(); return; }
+            openMobileKeyboard();
         }
-
-        function cycleKeyboardMode(){
-            toggleKeyboardMode();
-        }
+        function cycleKeyboardMode(){ toggleKeyboardMode(); }
 
         function openCommandSearch(){
             const old=document.querySelector(".aeron-command-search"); if(old) old.remove();
@@ -529,6 +1637,10 @@
             state.recognition.onerror=e=>{
                 state.listening=false; mic.classList.remove("listening"); mic.textContent="🎙️";
                 const code=String(e&&e.error||"");
+                if(code==="not-allowed" || code==="service-not-allowed") {
+                    state.voiceSessionActive=false;
+                    state.voiceConversation=false;
+                }
                 const msg=code==="not-allowed"||code==="service-not-allowed"
                     ? "🎙️ Microphone permission नहीं मिली। Chrome की site settings में Microphone → Allow करें।"
                     : code==="no-speech"
@@ -540,32 +1652,91 @@
                 state.listening=false;
                 mic.classList.remove("listening");
                 mic.textContent="🎙️";
+                if(state.voiceConversation && !state.stopped && !state.speaking){
+                    setTimeout(()=>{ if(!state.listening && !state.speaking && state.voiceConversation && !state.stopped) startListening(); },180);
+                }
             };
         }
         function startListening(){
-            if(state.systemKeyboardOpen) closeSystemKeyboard();
             if(!state.recognition) setupSpeech();
             if(!state.recognition){addSystemNotice("🎙️ इस browser में free voice input उपलब्ध नहीं है। Chrome में कोशिश करें.");return;}
             state.recognition.lang=state.keyboardLang === "hi" ? "hi-IN" : "en-IN";
-            if(state.listening){stopListening();return;}
-            try { state.recognition.start(); } catch(_) {}
+            if(state.speaking){ window.speechSynthesis?.cancel?.(); state.speaking=false; }
+            if(state.listening){ stopListening(); return; }
+            state.voiceConversation=true;
+            state.voiceSessionActive=true;
+            try {
+                state.recognition.start();
+            } catch(err) {
+                state.listening=false;
+                state.voiceSessionActive=false;
+                state.voiceConversation=false;
+                addSystemNotice("🎙️ Voice शुरू नहीं हो सका। Chrome में microphone permission Allow करके फिर कोशिश करें।");
+            }
         }
-        function stopListening(){try{state.recognition?.abort?.();}catch(_){}state.listening=false;mic.classList.remove("listening");mic.textContent="🎙️";}
+        function stopListening(){
+            try{state.recognition?.abort?.();}catch(_){}
+            state.listening=false;
+            state.voiceSessionActive=false;
+            state.voiceConversation=false;
+            try{window.speechSynthesis?.cancel?.();}catch(_){}
+            state.speaking=false;
+            mic.classList.remove("listening");
+            mic.textContent="🎙️";
+        }
 
         keyboardToggle.addEventListener("pointerdown",e=>e.stopPropagation());
         keyboardToggle.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();cycleKeyboardMode();});
-        input.addEventListener("focus",()=>{
-            // Keep the textarea editable so Chrome can render its native blinking caret.
-            // inputmode=none prevents the Android IME until the explicit mobile-keyboard button is used.
-            if(!state.systemKeyboardOpen){
+        input.addEventListener("pointerdown",()=>{
+            if(state.keyboardOpen){
+                closeKeyboard();
+                state.nativeKeyboardOpen=true;
+                root.classList.add("aeron-system-keyboard-active");
                 input.readOnly=false;
-                input.setAttribute("inputmode","none");
+                input.setAttribute("inputmode","text");
+                setTimeout(()=>{ try{input.focus({preventScroll:true});}catch(_){} updateKeyboardViewport(); },0);
             }
-            autoGrowInput();
         });
-        input.addEventListener("input",()=>{ autoGrowInput(); requestAnimationFrame(ensureCaretVisible); });
-        input.addEventListener("click",()=>{ if(state.systemKeyboardOpen) setTimeout(autoGrowInput,0); });
-        mic.addEventListener("click",startListening);
+        input.addEventListener("focus",()=>{
+            input.readOnly=false;
+            if(!state.keyboardOpen) input.setAttribute("inputmode","text");
+            autoGrowInput();
+            updateSendVisibility();
+        });
+        input.addEventListener("input",()=>{ autoGrowInput(); updateSendVisibility(); updateSuggestions(); requestAnimationFrame(ensureCaretVisible); });
+        input.addEventListener("click",()=>{ setTimeout(autoGrowInput,0); });
+        // Voice is intentionally a single-tap control. Starting SpeechRecognition
+        // directly from the user gesture is more reliable on Android Chrome than
+        // starting it from a delayed timer, and it makes voice-to-voice practical.
+        action.addEventListener("click",e=>{
+            if(String(input.value||"").trim()){ e.preventDefault(); submitQuestion(input.value); }
+            else startListening();
+        });
+        async function pasteFromClipboard(){
+    try{
+        if(!navigator.clipboard || !navigator.clipboard.readText){
+            addSystemNotice("इस browser में clipboard paste उपलब्ध नहीं है.");
+            return;
+        }
+
+        const text=await navigator.clipboard.readText();
+
+        if(!text){
+            addSystemNotice("Clipboard खाली है.");
+            return;
+        }
+
+        insertText(text);
+
+        if(state.keyboardOpen){
+            input.focus({preventScroll:true});
+        }
+
+        addSystemNotice("Clipboard से text paste हो गया.");
+    }catch(err){
+        addSystemNotice("Clipboard से paste नहीं हो पाया.");
+    }
+        }
         keyboard.addEventListener("pointerdown",e=>{
             e.preventDefault();
         });
@@ -573,10 +1744,26 @@
             const a=e.target.closest("[data-kb-action]")?.dataset.kbAction; if(!a)return;
             if(a==="lang"){state.keyboardLang=state.keyboardLang==="en"?"hi":"en";state.keyboardMode="letters";state.shiftOnce=false;state.capsLock=false;setupSpeech();renderKeyboard();}
             if(a==="numbers"){state.keyboardMode=state.keyboardMode==="numbers"?"letters":"numbers";state.shiftOnce=false;renderKeyboard();}
-            if(a==="symbols"){state.keyboardMode=state.keyboardMode==="symbols"?"letters":"symbols";state.shiftOnce=false;renderKeyboard();}
-            if(a==="advanced"){state.advanced=!state.advanced;state.keyboardMode="letters";state.ctrl=false;state.alt=false;state.shiftOnce=false;renderKeyboard();}
+            if(a==="mode"){state.advanced=!state.advanced;state.keyboardMode="letters";state.ctrl=false;state.alt=false;state.shiftOnce=false;renderKeyboard();}
             if(a==="backspace")backspace();
-            if(a==="paste")pasteClipboard();
+           if(a==="copy"){
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    if(clipboardPanel.hidden){
+
+        openAeronClipboard();
+
+    }else{
+
+        closeAeronClipboard();
+
+    }
+
+    return;
+           }      
+           
             if(a==="clear")clearDraft();
         });
 
@@ -584,21 +1771,38 @@
             if(state.stopped)return;
             question=String(question||"").trim().slice(0,Number(cfg.maxQuestionLength||1000));
             if(!question)return;
-            addMessage(esc(question),"user");input.value="";autoGrowInput();keepInputCaretVisible();setTyping(true);clearTimeout(state.responseTimer);
+            addMessage(esc(question),"user");input.value="";updateSendVisibility();autoGrowInput();updateSuggestions();clearTimeout(state.responseTimer);
+            setTyping(true);
             state.responseTimer=setTimeout(async()=>{
                 if(state.stopped){setTyping(false);return;}
                 try{
-                    await knowledgePromise;
-                    const data=await apiFetch({action:state.mode==="admin"?"aeronAdminAsk":"aeronAsk",question,pageContext:{page:location.pathname.split("/").pop()||"index.html",title:document.title,mode:state.mode},studentToken:state.mode==="student"?sessionStorage.getItem("SURYA_STUDENT_TOKEN")||"":"",token:state.mode==="admin"?sessionStorage.getItem("SURYA_ADMIN_TOKEN")||"":"",memory:state.memoryEnabled?state.memory:{}});
+                    const history=Array.from(chat.querySelectorAll(".aeron-message")).slice(-6).map(m=>({
+                        role:m.classList.contains("aeron-user")?"user":"assistant",
+                        text:(m.querySelector(".aeron-bubble")?.textContent||"").trim().slice(0,600)
+                    }));
+                    // Knowledge loads in parallel; API call should not wait on it.
+                    void knowledgePromise;
+                    const data=await apiFetch({action:state.mode==="admin"?"aeronAdminAsk":"aeronAsk",question,pageContext:{page:location.pathname.split("/").pop()||"index.html",title:document.title,mode:state.mode},studentToken:state.mode==="student"?sessionStorage.getItem("SURYA_STUDENT_TOKEN")||"":"",token:state.mode==="admin"?sessionStorage.getItem("SURYA_ADMIN_TOKEN")||"":"",memory:state.memoryEnabled?state.memory:{},history:history});
                     setTyping(false);
-                    if(data&&data.success===false&&data.authenticated===false&&state.mode!=="admin"){addMessage(localAnswer(question));}
-                    else if(data&&data.html)addMessage(data.html);
-                    else if(data&&data.message)addMessage(esc(data.message));
-                    else addMessage(localAnswer(question));
+                    let replyHtml="";
+                    const local=localAnswer(question);
+                    const deterministic=localGeneralKnowledge(question);
+                    const genericApi=String(data&&data.html||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
+                    const apiLooksGeneric=!genericApi || /verified Surya CEC information.*Courses.*Admission.*Certificate.*Result.*Notice.*Contact/i.test(genericApi) || /verified answer अभी नहीं मिला/i.test(genericApi);
+                    // Gemini/verified API responses take priority for open-ended questions.
+                    // Deterministic local answers are only a fallback when the API cannot answer.
+                    if(data&&data.llm&&data.html) replyHtml=data.html;
+                    else if(data&&data.html&&!apiLooksGeneric) replyHtml=data.html;
+                    else if(deterministic) replyHtml=deterministic;
+                    else if(data&&data.success===false&&data.authenticated===false&&state.mode!=="admin") replyHtml=local;
+                    else if(local && !/verified Surya CEC information/i.test(stripHtml(local))) replyHtml=local;
+                    else if(data&&data.message) replyHtml=esc(data.message);
+                    else replyHtml=local;
+                    addMessage(replyHtml);
                     if(data&&data.memorySuggestion&&state.memoryEnabled)rememberLocal(data.memorySuggestion.key,data.memorySuggestion.value);
                     if(data&&data.escalation&&state.mode!=="admin")addEscalation();
-                }catch(_){setTyping(false);addMessage(localAnswer(question));}
-            },200);
+                }catch(_){setTyping(false);const reply=localAnswer(question);addMessage(reply);}
+            },0);
         }
         function addEscalation(){
             if(chat.querySelector(".aeron-escalation:last-child"))return;
@@ -607,9 +1811,32 @@
             box.querySelector("[data-help=notify]").addEventListener("click",async()=>{const message=prompt("Admin को कौन-सी समस्या बतानी है?");if(!message)return;try{await apiFetch({action:"aeronHelp",message:String(message).slice(0,1500),pageContext:{page:location.pathname.split("/").pop()||"index.html",title:document.title,mode:state.mode},anonymousId:anonId()});addMessage("✅ आपकी help request admin को भेज दी गई है।");}catch(_){addMessage("❌ Help request अभी नहीं भेजी जा सकी। कृपया official contact number पर संपर्क करें।");}});
             chat.appendChild(box);scrollBottom();
         }
+        function localGeneralKnowledge(question){
+            const q=String(question||"").trim().toLowerCase();
+            const capitalMap=[
+                [/(bhart|bharat|india|indian|भारत|इंडिया).*?(capital|rajdhani|rajhani|rajdha?ni|राजधानी|capital city)|(capital|rajdhani|rajhani|rajdha?ni|राजधानी|capital city).*?(bhart|bharat|india|indian|भारत|इंडिया)/,"🇮🇳 भारत","नई दिल्ली"],
+                [/(america|amerika|usa|united states|अमेरिका|अमरीका).*?(capital|rajdhani|राजधानी|capital city)|(capital|rajdhani|राजधानी|capital city).*?(america|amerika|usa|united states|अमेरिका|अमरीका)/,"🇺🇸 अमेरिका","वॉशिंगटन, डी.सी."],
+                [/(nepal|नेपाल).*?(capital|rajdhani|राजधानी)|(capital|rajdhani|राजधानी).*?(nepal|नेपाल)/,"🇳🇵 Nepal","Kathmandu"],
+                [/(france|फ्रांस).*?(capital|rajdhani|राजधानी)|(capital|rajdhani|राजधानी).*?(france|फ्रांस)/,"🇫🇷 France","Paris"],
+                [/(uk|united kingdom|britain|england|इंग्लैंड|ब्रिटेन).*?(capital|rajdhani|राजधानी)|(capital|rajdhani|राजधानी).*?(uk|united kingdom|britain|england|इंग्लैंड|ब्रिटेन)/,"🇬🇧 United Kingdom","London"],
+                [/(japan|जापान).*?(capital|rajdhani|राजधानी)|(capital|rajdhani|राजधानी).*?(japan|जापान)/,"🇯🇵 Japan","Tokyo"],
+                [/(china|चीन).*?(capital|rajdhani|राजधानी)|(capital|rajdhani|राजधानी).*?(china|चीन)/,"🇨🇳 China","Beijing"]
+            ];
+            for(const [re,country,capital] of capitalMap){if(re.test(q)) return `<strong>${country}</strong><p>राजधानी <b>${capital}</b> है।</p>`;}
+            return null;
+        }
+
         function localAnswer(question){
             const q=String(question||"").toLowerCase(),k=localKnowledge||{};
             if(/\b(hello|hi|hey|namaste)\b|नमस्ते|हेलो/.test(q))return `<strong>नमस्ते! 👋</strong><p>मैं AERON हूँ। बताइए, मैं आपकी किस तरह मदद करूँ?</p>`;
+            const general=localGeneralKnowledge(q);
+            if(general) return general;
+            if(/(london|uk|united kingdom|britain|england|इंग्लैंड|ब्रिटेन)/.test(q) && /(capital|rajdhani|rajhani|राजधानी)/.test(q))return `<strong>🇬🇧 UK</strong><p>United Kingdom की राजधानी <b>London</b> है।</p>`;
+            if(/(france|फ्रांस)/.test(q) && /(capital|rajdhani|राजधानी)/.test(q))return `<strong>🇫🇷 France</strong><p>France की राजधानी <b>Paris</b> है।</p>`;
+            if(/(nepal|नेपाल)/.test(q) && /(capital|rajdhani|राजधानी)/.test(q))return `<strong>🇳🇵 Nepal</strong><p>Nepal की राजधानी <b>Kathmandu</b> है।</p>`;
+            const math=q.replace(/×/g,"*").replace(/÷/g,"/").replace(/[^0-9+\-*/().% ]/g,"").trim();
+            if(math && /[+\-*/%]/.test(math) && math.length<60){ try { const result=Function('"use strict";return ('+math+')')(); if(Number.isFinite(result)) return `<strong>🧮 Answer</strong><p>${esc(math)} = <b>${esc(result)}</b></p>`; } catch(_){} }
+            if(/(who are you|tum kaun|aap kaun|what can you do|kya kar sakte)/.test(q))return `<strong>🤖 AERON</strong><p>मैं SURYA COMPUTER OF EDUCATION CENTER का website assistant हूँ। Courses, Admission, Certificate, Result, Notice, Contact और सामान्य सवालों में मदद कर सकता हूँ।</p>`;
             if(/course|courses|कोर्स|पाठ्यक्रम|adca|dca|ccc|tally|typing/.test(q)){const list=Array.isArray(k.courses)?k.courses.join(", "):"CCC, DCA, ADCA, Tally Prime, Typing और Basic Computer";return `<strong>📚 Courses</strong><p>अभी उपलब्ध जानकारी के अनुसार: ${esc(list)}.</p>`;}
             if(/admission|प्रवेश|एडमिशन|application/.test(q))return `<strong>📝 Admission</strong><p>Admission page से online application भर सकते हैं।</p>`;
             if(/certificate|प्रमाणपत्र|सर्टिफिकेट/.test(q))return `<strong>🎓 Certificate</strong><p>Certificate page पर Certificate ID डालकर public verification की जा सकती है।</p>`;
@@ -674,21 +1901,60 @@
                 state.lastLauncherTap=0;
                 state.launcherCompact=!state.launcherCompact;
                 root.classList.toggle("aeron-launcher-compact",state.launcherCompact);
-                if(state.keyboardOpen || state.systemKeyboardOpen) positionLauncherNearTyping();
+                if(state.keyboardOpen) positionLauncherNearTyping();
                 return;
             }
             state.lastLauncherTap=now;
-            if(!panel.classList.contains("open")){open();openKeyboard();return;}
-            if(state.keyboardOpen){
-                // The launcher must never close the custom keyboard when it is
-                // sitting beside the typing row. A tap simply keeps focus here.
-                input.focus({preventScroll:true});
-                return;
-            }
-            if(state.systemKeyboardOpen){openKeyboard();return;}
-            openKeyboard();
-        });
+            if(!panel.classList.contains("open")){
 
+    open();
+
+    input.readOnly = false;
+
+    /*
+     * Mobile पर native keyboard नहीं खोलना।
+     * AERON का custom keyboard सीधे खुलेगा।
+     */
+    if(!isDesktopAeron()){
+
+        input.setAttribute(
+            "inputmode",
+            "none"
+        );
+
+        setTimeout(()=>{
+
+            if(!state.keyboardOpen){
+                keyboardToggle?.click();
+            }
+
+            input.focus({
+                preventScroll:true
+            });
+
+        },60);
+
+    }else{
+
+        /*
+         * PC पर physical keyboard normal रहेगा।
+         */
+        input.setAttribute(
+            "inputmode",
+            "text"
+        );
+
+        setTimeout(()=>{
+            input.focus({
+                preventScroll:true
+            });
+        },20);
+    }
+
+    return;
+}
+            input.focus({preventScroll:true});
+        });
         // Double-tap remains usable even when the first tap immediately auto-docks the orb.
         let launcherTapRect=null;
         document.addEventListener("pointerup",e=>{
@@ -703,6 +1969,30 @@
                 positionLauncherNearTyping();
             }
         },true);
+        function setMinimized(on){
+            state.minimized=!!on;
+            if(state.minimized) state.maximized=false;
+            root.classList.toggle("aeron-minimized",state.minimized);
+            root.classList.toggle("aeron-maximized",state.maximized);
+            if(minimize) minimize.textContent=state.minimized?"□":"—";
+            if(minimize) minimize.title=state.minimized?"Restore":"Minimize";
+            if(maximize) maximize.textContent=state.maximized?"❐":"□";
+            if(maximize) maximize.title=state.maximized?"Restore size":"Maximize";
+            requestAnimationFrame(updateKeyboardViewport);
+        }
+        function setMaximized(on){
+            state.maximized=!!on;
+            if(state.maximized) state.minimized=false;
+            root.classList.toggle("aeron-maximized",state.maximized);
+            root.classList.toggle("aeron-minimized",state.minimized);
+            if(maximize) maximize.textContent=state.maximized?"❐":"□";
+            if(maximize) maximize.title=state.maximized?"Restore size":"Maximize";
+            if(minimize) minimize.textContent=state.minimized?"□":"—";
+            if(minimize) minimize.title=state.minimized?"Restore":"Minimize";
+            requestAnimationFrame(updateKeyboardViewport);
+        }
+        minimize?.addEventListener("click",()=>setMinimized(!state.minimized));
+        maximize?.addEventListener("click",()=>setMaximized(!state.maximized));
         root.querySelector("#aeronClose").addEventListener("click",close);
         root.querySelector("#aeronHide").addEventListener("click",close);
         stop.addEventListener("click",()=>state.stopped?startAeron():stopAeron());
@@ -716,11 +2006,24 @@
                 return;
             }
         });
-        document.addEventListener("keydown",e=>{if(e.key==="Escape"&&state.keyboardOpen)closeKeyboard();});
+        let rightShiftSending=false;
+        document.addEventListener("keydown",e=>{
+            if(e.key==="Shift" && e.location===2 && !(navigator.maxTouchPoints>0 && /Android|Mobile/i.test(navigator.userAgent))){
+                if(panel.classList.contains("open") && !state.stopped){
+                    const text=String(input.value||"").trim();
+                    if(text && !e.repeat && !rightShiftSending){
+                        e.preventDefault();
+                        rightShiftSending=true; submitQuestion(text);
+                        setTimeout(()=>{rightShiftSending=false;},180);
+                    }
+                }
+            }
+            if(e.key==="Escape"&&state.keyboardOpen)closeKeyboard();
+        });
 
         function positionLauncherNearTyping(){
             if(!panel.classList.contains("open")) return;
-            if(!(state.keyboardOpen || state.systemKeyboardOpen)) return;
+            if(!state.keyboardOpen) return;
             const vv=window.visualViewport;
             const visibleTop=vv ? vv.offsetTop : 0;
             const visibleBottom=vv ? vv.offsetTop+vv.height : window.innerHeight;
@@ -762,7 +2065,7 @@
             root.style.setProperty("--aeron-vv-height",visibleHeight+"px");
             root.style.setProperty("--aeron-vv-top",Math.round(vvTop)+"px");
             root.style.setProperty("--aeron-keyboard-offset",keyboardBottom+"px");
-            if(state.systemKeyboardOpen){
+            if(state.keyboardOpen){
                 const panelTop=Math.max(0,Math.round(vvTop));
                 const panelH=visibleHeight;
                 root.style.setProperty("--aeron-panel-top",panelTop+"px");
@@ -778,20 +2081,23 @@
                 panel.style.position=""; panel.style.top=""; panel.style.bottom="";
                 panel.style.height=""; panel.style.maxHeight=""; panel.style.transform=""; panel.style.margin="";
             }
-            if(state.keyboardOpen || state.systemKeyboardOpen){
+            if(state.keyboardOpen || false){
                 requestAnimationFrame(()=>requestAnimationFrame(positionLauncherNearTyping));
             }
         }
         window.visualViewport?.addEventListener("resize",updateKeyboardViewport);
         window.visualViewport?.addEventListener("scroll",updateKeyboardViewport);
         window.addEventListener("orientationchange",()=>setTimeout(updateKeyboardViewport,120));
-        window.addEventListener("resize",updateKeyboardViewport);
+        window.addEventListener("resize",()=>{
+            if(isDesktopAeron() && state.keyboardOpen) closeKeyboard();
+            updateKeyboardViewport();
+        });
         navigator.virtualKeyboard?.addEventListener?.("geometrychange",updateKeyboardViewport);
         updateKeyboardViewport();
         restoreLauncherPosition();
         autoGrowInput();
         root.querySelector("#aeronMemoryStatus").textContent=state.memoryEnabled?"Memory: ON":"Memory: local";
-        setupSpeech(); intro();
+        setupSpeech(); updateSendVisibility(); intro();
 
         window.AERON_WIDGET_STATE=state;
     }
