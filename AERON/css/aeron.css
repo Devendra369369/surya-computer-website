@@ -2778,3 +2778,59 @@ body.dark .aeron-widget .aeron-clipboard-footer button{
     color:#f8fafc!important;
     border-color:#64748b!important;
 }
+
+/* ==================================================
+   AERON v3.9 — TYPING + MINIMIZE FINAL FIX
+================================================== */
+
+/* Normal window: chat expands, typing/input stays visible */
+.aeron-widget .aeron-panel.open{
+    display:flex!important;
+    flex-direction:column!important;
+}
+
+.aeron-widget .aeron-panel.open .aeron-chat{
+    flex:1 1 auto!important;
+    min-height:0!important;
+}
+
+.aeron-widget .aeron-panel.open .aeron-typing{
+    flex:0 0 auto!important;
+    min-height:32px!important;
+    box-sizing:border-box!important;
+}
+
+/* Minimized window: only compact header remains */
+.aeron-widget.aeron-minimized .aeron-panel{
+    height:58px!important;
+    min-height:58px!important;
+    max-height:58px!important;
+    width:300px!important;
+    max-width:calc(100vw - 24px)!important;
+}
+
+.aeron-widget.aeron-minimized .aeron-panel > :not(.aeron-header){
+    display:none!important;
+}
+
+/* Desktop typing area */
+@media (min-width:601px){
+    .aeron-widget .aeron-typing{
+        min-height:34px!important;
+        padding:8px 15px!important;
+    }
+}
+
+/* Mobile */
+@media (max-width:600px){
+    .aeron-widget.aeron-minimized .aeron-panel{
+        width:calc(100vw - 24px)!important;
+        height:56px!important;
+        min-height:56px!important;
+        max-height:56px!important;
+    }
+
+    .aeron-widget .aeron-typing{
+        min-height:34px!important;
+    }
+}
