@@ -479,7 +479,7 @@ async function trimAeronClipboard(){
     function apiFetch(payload) {
         if (!cfg.apiUrl) return Promise.reject(new Error("AERON API is not configured."));
         const controller = new AbortController();
-        const timer = setTimeout(()=>controller.abort(), 5500);
+        const timer = setTimeout(()=>controller.abort(), 15000);
         return fetch(cfg.apiUrl, {
             method:"POST",
             headers:{"Content-Type":"text/plain;charset=utf-8"},
@@ -1805,12 +1805,52 @@ clipboardClear.addEventListener(
             },0);
         }
         function addEscalation(){
-            if(chat.querySelector(".aeron-escalation:last-child"))return;
-            const box=document.createElement("div");box.className="aeron-escalation";
-            box.innerHTML=`<button class="primary" type="button" data-help="notify">🆘 Admin को मदद request</button><a href="tel:+91${esc(cfg.contactPhone)}"><button type="button">📞 ${esc(cfg.contactPhone)}</button></a>`;
-            box.querySelector("[data-help=notify]").addEventListener("click",async()=>{const message=prompt("Admin को कौन-सी समस्या बतानी है?");if(!message)return;try{await apiFetch({action:"aeronHelp",message:String(message).slice(0,1500),pageContext:{page:location.pathname.split("/").pop()||"index.html",title:document.title,mode:state.mode},anonymousId:anonId()});addMessage("✅ आपकी help request admin को भेज दी गई है।");}catch(_){addMessage("❌ Help request अभी नहीं भेजी जा सकी। कृपया official contact number पर संपर्क करें।");}});
-            chat.appendChild(box);scrollBottom();
+    if(chat.querySelector(".aeron-escalation"))return;
+
+    const box=document.createElement("div");
+    box.className="aeron-escalation";
+
+    box.innerHTML=`<button class="primary" type="button" data-help="notify">🆘 Admin को मदद request</button><a href="tel:+91${esc(cfg.contactPhone)}"><button type="button">📞 ${esc(cfg.contactPhone)}</button></a>`;
+
+    const button=box.querySelector("[data-help=notify]");
+    let messageMode=false;
+
+    button.addEventListener("click",()=>{
+        if(!messageMode){
+            messageMode=true;
+            button.textContent="💬 Admin को Message लिखें";
+            button.setAttribute("data-help","message");
+            return;
         }
+
+        const message=prompt("📝 Admin को कौन-सी समस्या बतानी है?");
+        if(!message)return;
+
+        const page=location.pathname.split("/").pop()||"index.html";
+        const subject="AERON Help Request";
+
+        const body=
+            "नमस्ते Sir,%0A%0A"+
+            "मुझे वेबसाइट पर मदद चाहिए।%0A%0A"+
+            "समस्या:%0A"+
+            encodeURIComponent(String(message).slice(0,1500))+
+            "%0A%0APage:%20"+
+            encodeURIComponent(page)+
+            "%0A%0Aधन्यवाद";
+
+        const gmailUrl=
+            "https://mail.google.com/mail/?view=cm&fs=1"+
+            "&to="+encodeURIComponent(cfg.contactEmail)+
+            "&su="+encodeURIComponent(subject)+
+            "&body="+body;
+
+        window.location.href=gmailUrl;
+    });
+
+    chat.appendChild(box);
+    scrollBottom();
+}
+
         function localGeneralKnowledge(question){
             const q=String(question||"").trim().toLowerCase();
             const capitalMap=[
@@ -1843,7 +1883,10 @@ clipboardClear.addEventListener(
             if(/result|परिणाम|marks|अंक/.test(q))return `<strong>📊 Result</strong><p>Result page से उपलब्ध published result check किया जा सकता है।</p>`;
             if(/notice|सूचना/.test(q))return `<strong>📢 Notice</strong><p>Latest institute notices website के Notice section में देखें।</p>`;
             if(/contact|phone|mobile|number|संपर्क|सम्पर्क/.test(q))return `<strong>📞 Contact</strong><p>${esc(cfg.contactPhone)}<br>${esc(cfg.contactEmail)}<br>${esc(cfg.instituteLocation)}</p>`;
-            if(/help|problem|issue|मदद|परेशान|support/.test(q))return `<strong>🆘 Help</strong><p>अपनी समस्या बताइए। जरूरत पड़ने पर official admin contact से संपर्क करें।</p>`;
+            if(/^(help|need help|i need help|human help|i need human help|admin help|i need admin help|support|i need support|problem|i have a problem|issue|i have an issue|मदद|मदद चाहिए|सहायता|सहायता चाहिए|एडमिन मदद|admin से मदद)$/i.test(q)){
+    setTimeout(()=>addEscalation(),100);
+    return `<strong>🆘 Help</strong><p>Admin से मदद लेने के लिए नीचे <b>🆘 Admin को मदद request</b> button पर tap करें।</p>`;
+}
             return `<strong>🤖 AERON</strong><p>मैं verified Surya CEC information, Courses, Admission, Certificate, Result, Notice और Contact में मदद कर सकता हूँ।</p>`;
         }
 
