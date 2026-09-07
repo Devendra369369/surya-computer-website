@@ -478,14 +478,39 @@ async function trimAeronClipboard(){
 
     function apiFetch(payload) {
         if (!cfg.apiUrl) return Promise.reject(new Error("AERON API is not configured."));
+
         const controller = new AbortController();
         const timer = setTimeout(()=>controller.abort(), 15000);
-        return fetch(cfg.apiUrl, {
-            method:"POST",
-            headers:{"Content-Type":"text/plain;charset=utf-8"},
-            body:JSON.stringify(payload),
-            signal:controller.signal
-        }).then(async r => {
+
+        const isPublicAeronAsk =
+            payload &&
+            payload.action === "aeronAsk";
+
+        let request;
+
+        if (isPublicAeronAsk) {
+            const params = new URLSearchParams({
+                action: "aeronAsk",
+                question: String(payload.question || ""),
+                page: String((payload.pageContext && payload.pageContext.page) || "index.html"),
+                title: String((payload.pageContext && payload.pageContext.title) || ""),
+                mode: "public"
+            });
+
+            request = fetch(cfg.apiUrl + "?" + params.toString(), {
+                method: "GET",
+                signal: controller.signal
+            });
+        } else {
+            request = fetch(cfg.apiUrl, {
+                method:"POST",
+                headers:{"Content-Type":"text/plain;charset=utf-8"},
+                body:JSON.stringify(payload),
+                signal:controller.signal
+            });
+        }
+
+        return request.then(async r => {
             let d = null;
             try { d = await r.json(); } catch (_) {}
             if (!r.ok) throw new Error((d && d.message) || "AERON API request failed.");
