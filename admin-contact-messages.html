@@ -36,9 +36,20 @@
 
 <script>
 "use strict";
-const API="https://script.google.com/macros/s/AKfycbxnDVZFqDXbrVXSGHfpn9eRRPTTR8B9RzDjAGE6SyqLxuf_Oq8qZvNloeSIaCwROHsqvw/exec";
+const API="https://script.google.com/macros/s/AKfycby8xpCNc1q138G1qCgkdJ-CsHbc_r9wjUFI_w0_HHlvctwLD9jhECFF0iyVSOhXYiBSjQ/exec";
 const TOKEN=sessionStorage.getItem("SURYA_ADMIN_TOKEN");
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function formatIndiaTime(v){
+ if(!v)return "";
+ const d=new Date(v);
+ if(isNaN(d.getTime()))return String(v);
+ return new Intl.DateTimeFormat("en-IN",{
+  timeZone:"Asia/Kolkata",
+  day:"2-digit",month:"2-digit",year:"numeric",
+  hour:"2-digit",minute:"2-digit",second:"2-digit",
+  hour12:true
+ }).format(d)+" IST";
+}
 async function api(body){
  const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...body,token:TOKEN})});
  const d=await r.json();if(!d.success)throw new Error(d.message||"Request failed");return d;
@@ -57,9 +68,9 @@ async function loadMessages(){
       <span class="badge">${esc(m.status)}</span>
     </div>
     <p>✉️ <a href="mailto:${encodeURIComponent(m.email)}">${esc(m.email)}</a></p>
-    <small>🕒 ${esc(m.createdAt)}</small>
+    <small>🕒 ${formatIndiaTime(m.createdAt)}</small>
     <div class="message-body">${esc(m.message)}</div>
-    ${m.reply ? `<div class="message-body"><b>↩️ Previous Reply</b><br>${esc(m.reply)}<br><small>${esc(m.repliedAt)}</small></div>` : ""}
+    ${m.reply ? `<div class="message-body"><b>↩️ Previous Reply</b><br>${esc(m.reply)}<br><small>${formatIndiaTime(m.repliedAt)}</small></div>` : ""}
     <textarea class="reply-box" id="reply-${esc(m.messageId)}" placeholder="Type reply...">${esc(m.reply||"")}</textarea>
     <div class="contact-actions">
       <button type="button" onclick="sendReply('${encodeURIComponent(m.messageId)}')">📤 Send Reply</button>

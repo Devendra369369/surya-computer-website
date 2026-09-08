@@ -509,7 +509,7 @@ FOOTER
 ================================================== */
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycbzMlS5zOHjMK1nArFBqkuKFDLnrlRsT-YrVo8neCup13tn_x83uw19eqWLxl8jWF5qNtQ/exec";
+    "https://script.google.com/macros/s/AKfycby8xpCNc1q138G1qCgkdJ-CsHbc_r9wjUFI_w0_HHlvctwLD9jhECFF0iyVSOhXYiBSjQ/exec";
 
 
 /* ==================================================
@@ -1167,7 +1167,7 @@ initStudentMarcsheetUpload();
         const select=document.getElementById("course");
         if(!select) return;
         try{
-            const r=await fetch("https://script.google.com/macros/s/AKfycbzMlS5zOHjMK1nArFBqkuKFDLnrlRsT-YrVo8neCup13tn_x83uw19eqWLxl8jWF5qNtQ/exec?action=publicCourses");
+            const r=await fetch("https://script.google.com/macros/s/AKfycby8xpCNc1q138G1qCgkdJ-CsHbc_r9wjUFI_w0_HHlvctwLD9jhECFF0iyVSOhXYiBSjQ/exec?action=publicCourses");
             const d=await r.json();
             if(!d.success || !Array.isArray(d.courses)) return;
             const current=select.value;
