@@ -17,7 +17,7 @@
 
 ## IMPORTANT: Apps Script deployment
 The frontend currently uses this central endpoint:
-`https://script.google.com/macros/s/AKfycby8xpCNc1q138G1qCgkdJ-CsHbc_r9wjUFI_w0_HHlvctwLD9jhECFF0iyVSOhXYiBSjQ/exec`
+`assets/js/backend-config.js` → `window.SURYA_DATABASE_API`
 
 The previously tested URL beginning with `AKfycbxm...` returned Google's **Page not found** page. That is a stale/invalid deployment URL, not a valid JSON API response. If this deployment is replaced, update the endpoint in the frontend before going live.
 

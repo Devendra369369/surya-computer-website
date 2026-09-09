@@ -2,6 +2,7 @@
 
     <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
     <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/backend-config.js"></script>
 </head><body>
 <div class="top-bar">📞 <a href="tel:+917084275870">7084275870</a> | ✉️ <a href="mailto:sunilkumar5757@gmail.com">sunilkumar5757@gmail.com</a></div><header class="header"><img src="assets/images/logo.png" alt="Logo" class="logo"><div class="title"><h1>SURYA COMPUTER OF EDUCATION CENTER</h1><p>Student Portal</p></div></header>
 <nav class="navbar"><a href="index.html">Home</a><a href="courses.html">Courses</a><a href="result.html">Result</a><a href="certificate.html">Certificate</a><a href="student-login.html">Student Login</a><a href="contact.html">Contact</a></nav>
@@ -9,7 +10,7 @@
 <div id="resetBox" class="hidden"><h2>🔑 Reset Password</h2><p>Registered email पर OTP भेजा जाएगा।</p><input id="resetId" placeholder="Student ID"><input id="resetEmail" type="email" placeholder="Registered Email"><button onclick="sendOtp()">📩 Send OTP</button><div id="otpStep" class="hidden"><input id="otp" placeholder="6-digit OTP"><input id="newPassword" type="password" placeholder="New Password (8+ characters)"><button onclick="resetPassword()">🔐 Reset Password</button></div><button onclick="showLogin()">← Back to Login</button><div id="resetMsg" class="msg"></div></div></main>
 <footer><p>© 2026 Surya Computer Of Education Center | All Rights Reserved.</p></footer>
 <script>
-const API="https://script.google.com/macros/s/AKfycby8xpCNc1q138G1qCgkdJ-CsHbc_r9wjUFI_w0_HHlvctwLD9jhECFF0iyVSOhXYiBSjQ/exec";
+const API=window.SURYA_DATABASE_API;
 async function api(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});const d=await r.json();if(!d.success)throw new Error(d.message||'Request failed');return d;}
 function showReset(){loginBox.classList.add('hidden');resetBox.classList.remove('hidden');}
 function showLogin(){resetBox.classList.add('hidden');loginBox.classList.remove('hidden');}

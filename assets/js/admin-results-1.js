@@ -3,7 +3,7 @@
 ================================================== */
 
 const SURYA_DATABASE_API =
-    "https://script.google.com/macros/s/AKfycby8xpCNc1q138G1qCgkdJ-CsHbc_r9wjUFI_w0_HHlvctwLD9jhECFF0iyVSOhXYiBSjQ/exec";
+    window.SURYA_DATABASE_API;
 
 /* ==================================================
    RESULT MANAGEMENT
@@ -858,7 +858,7 @@ async function AERON_CENTRAL_PUBLISH_RESULT(resultId) {
     if (!token) throw new Error("Admin session expired. Please login again.");
 
     const response = await fetch(
-        "https://script.google.com/macros/s/AKfycby8xpCNc1q138G1qCgkdJ-CsHbc_r9wjUFI_w0_HHlvctwLD9jhECFF0iyVSOhXYiBSjQ/exec",
+        window.SURYA_DATABASE_API,
         {
             method:"POST",
             headers:{"Content-Type":"text/plain;charset=utf-8"},

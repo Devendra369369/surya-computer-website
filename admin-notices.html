@@ -32,6 +32,7 @@ Created : 09-08-2026
     <script src="assets/js/admin-guard.js"></script>
     <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
     <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/backend-config.js"></script>
 </head>
 
 <body>
@@ -113,7 +114,7 @@ Created : 09-08-2026
 </style>
 
 <script>
-const NOTICE_API="https://script.google.com/macros/s/AKfycby8xpCNc1q138G1qCgkdJ-CsHbc_r9wjUFI_w0_HHlvctwLD9jhECFF0iyVSOhXYiBSjQ/exec";
+const NOTICE_API=window.SURYA_DATABASE_API;
 const NOTICE_TOKEN=sessionStorage.getItem('SURYA_ADMIN_TOKEN');
 if(sessionStorage.getItem('SURYA_ADMIN_AUTH')!=='true'||!NOTICE_TOKEN)location.replace('admin-login.html');
 const nEsc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));

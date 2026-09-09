@@ -705,7 +705,7 @@ function hasResult(student, results) {
     ======================================================== */
 
     const AERON_RESULT_API =
-        "https://script.google.com/macros/s/AKfycby8xpCNc1q138G1qCgkdJ-CsHbc_r9wjUFI_w0_HHlvctwLD9jhECFF0iyVSOhXYiBSjQ/exec";
+        window.SURYA_DATABASE_API;
 
 
     const THEORY_MAX = 70;

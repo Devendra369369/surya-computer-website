@@ -4,7 +4,7 @@
 "use strict";
 
 window.AERON_CONFIG = Object.freeze({
-    apiUrl: "https://script.google.com/macros/s/AKfycby8xpCNc1q138G1qCgkdJ-CsHbc_r9wjUFI_w0_HHlvctwLD9jhECFF0iyVSOhXYiBSjQ/exec",
+    apiUrl: window.SURYA_DATABASE_API,
     instituteName: "Surya Computer Of Education Center",
     instituteLocation: "Kamalpur, Chandauli, Uttar Pradesh",
     contactPhone: "7084275870",
